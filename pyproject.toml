@@ -3,9 +3,10 @@ name = "orichain"
 version = "0.9.92"
 description = "Python lib created only for RAG related text based enterprise solutions"
 authors = [
-    { name = "apoorv-singh-107", email = "apoorv.singh@oriserve.com" }
+    { name = "apoorv-singh-107", email = "apoorv.singh@oriserve.com" },
     { name = "apoorv-singh-107", email = "apoorvsingh.work@gmail.com" }
 ]
+license = { file = "LICENSE" }
 dependencies = [
     "tiktoken>=0.7.0",
     "openai>=1.37.0",
@@ -36,3 +37,7 @@ allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/orichain"]
+
+[project.urls]
+"Homepage" = "https://github.com/OriserveAI/orichain"
+"Repository" = "https://github.com/OriserveAI/orichain"
