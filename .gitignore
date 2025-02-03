@@ -7,7 +7,7 @@ wheels/
 *.egg-info
 chromadb
 .ruff_cache
-requirements-dev.lock
+*.lock
 
 # venv
 .venv

@@ -7,7 +7,6 @@ import asyncio
 
 
 class Generate(object):
-
     def __init__(self, **kwds: Any) -> None:
         """
         Initialize Azure OpenAI client and set up API key.
