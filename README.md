@@ -40,7 +40,14 @@ It can be said it was inspired by langchain but better at optimisation, the whol
 
 ## Installation
 
-As the library has not been published yet, you need to install the wheel file from the main branch of Repo:
+Just do this
+```
+pip install orichain
+```
+
+OR
+
+You can also install the wheel file from the main branch of Repo:
 https://github.com/OriserveAI/orichain
 
 Copy the dist folder and it should contain these files:
@@ -197,17 +204,13 @@ async def generate(request: Request) -> Response:
 Here's our plan for upcoming features and improvements:
 
 ### Short-term goals
-- [x] Do testing of the latest version
-- [ ] Release stable 1.0.0 version
+- [X] Do testing of the latest version
+- [X] Release stable 1.0.0 version
 - [ ] Create Documentation
 - [ ] Write class and function definations
 
-### Medium-term goals
-- [ ] Add support for MongoDB Atlas, AWS Bedrock knowledge source support needed
-- [ ] Add support of Azure AI studio
-
 ### Long-term goals
-- [ ] Publish it to pypi
+- [X] Publish it to pypi
 - [ ] Refactor the code for better readablity
 
 ## Contributing
