@@ -16,10 +16,10 @@ class DataBase(object):
                 declare it while calling the it"""
             )
 
-        from pinecone import Pinecone
+        from pinecone.grpc import PineconeGRPC
 
         self.namespace = kwds.get("namespace")
-        client = Pinecone(api_key=kwds.get("api_key"))
+        client = PineconeGRPC(api_key=kwds.get("api_key"))
         self.index = client.Index(kwds.get("index_name"))
 
     async def __call__(

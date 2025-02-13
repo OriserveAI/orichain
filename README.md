@@ -26,7 +26,7 @@ It is a custom wrapper made for RAG use cases made to be integrated with your en
         - Inference Profiles
 
 This library was built to make the applications of all the codes easy to write and review. 
-It can be said it was inspired by langchain but better at optimisation, the whole code is async and threadded, so that you do not need to worry about optimistaion anymore.
+It can be said that it was inspired by langchain but is optimized for better performance. The entire codebase is asynchronous and threaded, eliminating the need for you to worry about optimization.
 
 ## Table of Contents
 - [Installation](#installation)
