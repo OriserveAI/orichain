@@ -1,11 +1,12 @@
 [project]
 name = "orichain"
-version = "1.0.3"
+version = "1.0.4"
 description = "Python lib created only for RAG related text based enterprise solutions"
 authors = [
     { name = "apoorv-singh-107", email = "apoorv.singh@oriserve.com" },
     { name = "apoorv-singh-107", email = "apoorvsingh.work@gmail.com" }, 
-    { name = "shubhammaindola-ori", email = "shubham.maindola@oriserve.com" }
+    { name = "shubham-maindola", email = "shubham.maindola@oriserve.com" }, 
+    { name = "shubham-maindola", email = "smaindola90@oriserve.com" }
 ]
 license = { file = "LICENSE" }
 dependencies = [
@@ -20,7 +21,7 @@ dependencies = [
     "chromadb>=0.6.3",
     "pysqlite3-binary>=0.5.4",
     "lingua-language-detector>=2.0.2",
-    "pinecone[gprc]>=6.0.1",
+    "pinecone[grpc]>=6.0.1",
 ]
 readme = "README.md"
 requires-python = ">= 3.10.13"
