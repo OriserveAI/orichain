@@ -77,6 +77,12 @@ class LLM(object):
         "amazon.titan-text-express-v1": "AWSBedrock",
         "amazon.titan-text-lite-v1": "AWSBedrock",
         "amazon.titan-text-premier-v1:0": "AWSBedrock",
+        "amazon.nova-pro-v1:0": "AWSBedrock",
+        "us.amazon.nova-pro-v1:0": "AWSBedrock",
+        "amazon.nova-lite-v1:0": "AWSBedrock",
+        "us.amazon.nova-lite-v1:0": "AWSBedrock",
+        "amazon.nova-micro-v1:0": "AWSBedrock",
+        "us.amazon.nova-micro-v1:0": "AWSBedrock",
     }
 
     def __init__(self, **kwds: Any) -> None:

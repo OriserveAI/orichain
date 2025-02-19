@@ -1,6 +1,6 @@
 # ORICHAIN
 
-It is a custom wrapper made for RAG use cases made to be integrated with your endpoints, It caters:
+It is a custom wrapper made for RAG use cases made to be integrated with your endpoints. It caters:
 
 - Embedding creation
     - AWS Bedrock
@@ -14,7 +14,7 @@ It is a custom wrapper made for RAG use cases made to be integrated with your en
     - Pinecone
     - ChromaDB
 
-- Large Langauge Models
+- Large Language Models
     - OpenAI
     - Azure OpenAI
     - Anthropic
@@ -26,7 +26,7 @@ It is a custom wrapper made for RAG use cases made to be integrated with your en
         - Inference Profiles
 
 This library was built to make the applications of all the codes easy to write and review. 
-It can be said that it was inspired by langchain but is optimized for better performance. The entire codebase is asynchronous and threaded, eliminating the need for you to worry about optimization.
+It can be said that it was inspired by LangChain but is optimized for better performance. The entire codebase is asynchronous and threaded, eliminating the need for you to worry about optimization.
 
 ## Table of Contents
 - [Installation](#installation)
@@ -36,7 +36,7 @@ It can be said that it was inspired by langchain but is optimized for better per
 - [Examples](#examples)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
-- [License](#license)
+- [Licence](#licence)
 
 ## Installation
 
@@ -50,7 +50,7 @@ OR
 You can also install the wheel file from the main branch of Repo:
 https://github.com/OriserveAI/orichain
 
-Copy the dist folder and it should contain these files:
+Copy the dist folder, and it should contain these files:
 ```
 - dist
     |-orichain-<version name>-py3-none-any.whl
@@ -73,7 +73,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-A quick example of how to use orichain:
+A quick example of how to use Orichain:
 
 ```python
 from orichain.llm import LLM
@@ -101,10 +101,10 @@ llm_response = await llm(
 
 ## Features
 
-Reasons to use orichain:
+Reasons to use Orichain:
 
-- Optimized: The whole code is async and parts of it is also threadded, you will be using fastapi so the code will be highly efficient
-- Hot Swappable: You can easily change the parts of RAG, whenever the requirements change of the project. Highly flexiable
+- Optimized: The whole code is async, and parts of it are also threaded, you will be using FastAPI, so the code will be highly efficient
+- Hot Swappable: You can easily change the parts of RAG, whenever the requirements change of the project. Highly flexible.
 
 ## Documentation
 
@@ -131,7 +131,7 @@ load_dotenv()
 embedding_model = EmbeddingModels(api_key=os.getenv("OPENAI_KEY"))
 
 knowledge_base_manager = KnowledgeBase(
-    type="pinecone",
+    vector_db_type="pinecone",
     api_key=os.getenv("PINECONE_KEY"),
     index_name="<depends on your creds>", 
     namespace="<choose your desired namespace",
@@ -207,16 +207,16 @@ Here's our plan for upcoming features and improvements:
 - [X] Do testing of the latest version
 - [X] Release stable 1.0.0 version
 - [ ] Create Documentation
-- [ ] Write class and function definations
+- [ ] Write class and function definitions
 
 ### Long-term goals
-- [X] Publish it to pypi
-- [ ] Refactor the code for better readablity
+- [X] Publish it 3to pypi
+- [ ] Refactor the code for better readability
 
 ## Contributing
 
 We welcome contributions to help us achieve these goals!
 
-## License
+## Licence
 
-It is restricted to Oriserve, do not use it any where else but if you do use it anywhere else just do not let me know.
+[Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)

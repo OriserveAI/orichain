@@ -11,3 +11,6 @@ chromadb
 # venv
 .venv
 .env
+
+# other files
+test.ipynb
