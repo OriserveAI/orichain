@@ -42,34 +42,8 @@ It can be said that it was inspired by LangChain but is optimized for better per
 ## Installation
 
 Just do this
-```
+```bash
 pip install orichain
-```
-
-OR
-
-You can also install the wheel file from the main branch of Repo:
-https://github.com/OriserveAI/orichain
-
-Copy the dist folder, and it should contain these files:
-```
-- dist
-    |-orichain-<version name>-py3-none-any.whl
-    |-orichain-<version name>.tar.gz
-```
-
-Create a requirements.txt, it should look like this:
-
-```
-...
-orichain @ file:///<your absoulute path>/dist/orichain-<version name>-py3-none-any.whl
-...
-```
-
-Then install the library using this command:
-
-```
-pip install -r requirements.txt
 ```
 
 ## Usage
