@@ -3,6 +3,7 @@ __pycache__/
 *.py[oc]
 build/
 wheels/
+dist/
 *.egg-info
 chromadb
 .ruff_cache
@@ -13,4 +14,4 @@ chromadb
 .env
 
 # other files
-test.ipynb
+*.ipynb
