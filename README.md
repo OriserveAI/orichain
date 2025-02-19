@@ -22,6 +22,7 @@ It is a custom wrapper made for RAG use cases made to be integrated with your en
         - Anthropic models (Series 3, 3.5)
         - LLAMA models (Series 3, 3.1, 3.2)
         - Amazon Titan text models
+        - Amazon Nova series models
         - Mistral models
         - Inference Profiles
 
