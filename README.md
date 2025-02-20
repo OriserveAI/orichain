@@ -37,7 +37,7 @@ It can be said that it was inspired by LangChain but is optimized for better per
 - [Examples](#examples)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
-- [Licence](#licence)
+- [License](#license)
 
 ## Installation
 
@@ -192,6 +192,6 @@ Here's our plan for upcoming features and improvements:
 
 We welcome contributions to help us achieve these goals!
 
-## Licence
+## License
 
 [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
