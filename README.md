@@ -185,7 +185,7 @@ Here's our plan for upcoming features and improvements:
 - [ ] Write class and function definitions
 
 ### Long-term goals
-- [X] Publish it 3to pypi
+- [X] Publish it to pypi
 - [ ] Refactor the code for better readability
 
 ## Contributing
