@@ -70,7 +70,7 @@ llm_response = await llm(
                 request=request, # Request of endpoint when using Fastapi, checks whether the request has been aborted
                 user_message=user_message,
                 system_prompt=system_prompt,
-                do_json=True # This insures that the response wil be a json
+                do_json=True # This insures that the response will be a json
             )
 ```
 
