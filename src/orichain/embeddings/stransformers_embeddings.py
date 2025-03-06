@@ -11,6 +11,25 @@ class Embed(object):
             - model_name (str): name of hf model to be loaded
         """
 
+        try:
+            from sentence_transformers import SentenceTransformer
+        except ImportError:
+            install = (
+                input(
+                    "sentence-transformers is not installed. Do you want to install it now? (y/n): "
+                )
+                .strip()
+                .lower()
+            )
+            if install == "y" or install == "yes":
+                import subprocess
+
+                subprocess.run(["pip", "install", "sentence-transformers"], check=True)
+            else:
+                raise ImportError(
+                    f"sentence-transformers is required for embeddings functionalities ({kwds.get("model_name","NA")}). Please install it manually using `pip install orichain[sentence-transformers]' or 'pip install sentence-transformers==3.4.1`."
+                )
+
         self.default_model_dir = kwds.get(
             "model_download_path", "/home/ubuntu/projects/models/embedding_models"
         )

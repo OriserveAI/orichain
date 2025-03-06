@@ -1,6 +1,6 @@
 [project]
 name = "orichain"
-version = "1.0.7"
+version = "1.0.8"
 description = "Python lib created only for RAG related text based enterprise solutions"
 authors = [
     { name = "apoorv-singh-107", email = "apoorv.singh@oriserve.com" },
@@ -10,18 +10,17 @@ authors = [
 ]
 license = { file = "LICENSE" }
 dependencies = [
-    "tiktoken>=0.8.0",
-    "openai>=1.62.0",
-    "anthropic>=0.45.2",
-    "boto3>=1.36.19",
-    "botocore>=1.36.19",
-    "fastapi>=0.115.8",
-    "sentence-transformers>=3.4.1",
-    "art>=6.4",
-    "chromadb>=0.6.3",
-    "pysqlite3-binary>=0.5.4",
-    "lingua-language-detector>=2.0.2",
-    "pinecone[grpc]>=6.0.1",
+    "tiktoken==0.8.0",
+    "openai==1.62.0",
+    "anthropic==0.45.2",
+    "boto3==1.36.19",
+    "botocore==1.36.19",
+    "fastapi==0.115.8",
+    "art==6.4",
+    "chromadb==0.6.3",
+    "pysqlite3-binary==0.5.4",
+    "lingua-language-detector==2.0.2",
+    "pinecone[grpc]==6.0.1",
 ]
 readme = "README.md"
 requires-python = ">= 3.10.13"
@@ -43,3 +42,8 @@ packages = ["src/orichain"]
 [project.urls]
 "Homepage" = "https://github.com/OriserveAI/orichain"
 "Repository" = "https://github.com/OriserveAI/orichain"
+
+[project.optional-dependencies]
+sentence-transformers = [
+    "sentence-transformers==3.4.1",
+]

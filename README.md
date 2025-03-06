@@ -46,6 +46,20 @@ Just do this
 pip install orichain
 ```
 
+We have added Sentence Transformers as an optional package, so if you want to use it, please do one of the following:
+
+1. Install with orichain:
+
+```bash
+pip install orichain[sentence-transformers]
+```
+
+2. Install directly:
+
+```bash
+pip install sentence-transformers==3.4.1
+```
+
 ## Usage
 
 A quick example of how to use Orichain:
