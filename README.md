@@ -51,7 +51,7 @@ We have added Sentence Transformers as an optional package, so if you want to us
 1. Install with orichain:
 
 ```bash
-pip install orichain[sentence-transformers]
+pip install "orichain[sentence-transformers]"
 ```
 
 2. Install directly:
