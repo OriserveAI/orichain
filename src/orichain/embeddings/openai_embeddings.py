@@ -11,13 +11,34 @@ class Embed(object):
         Args:
             - api_key (str): OpenAI API key
         """
+        from httpx import Timeout
+
         if not kwds.get("api_key"):
             raise KeyError("Required `api_key` not found")
+        elif kwds.get("timeout") and not isinstance(kwds.get("timeout"), Timeout):
+            raise TypeError(
+                "Invalid 'timeout' type detected:",
+                type(kwds.get("timeout")),
+                ", Please enter valid timeout using:\n'from httpx import Timeout'",
+            )
+        elif kwds.get("max_retries") and not isinstance(kwds.get("max_retries"), int):
+            raise TypeError(
+                "Invalid 'max_retries' type detected:,",
+                type(kwds.get("max_retries")),
+                ", Please enter a value that is 'int'",
+            )
+        else:
+            pass
 
         from openai import AsyncOpenAI
         import tiktoken
 
-        self.client = AsyncOpenAI(api_key=kwds.get("api_key"))
+        self.client = AsyncOpenAI(
+            api_key=kwds.get("api_key"),
+            timeout=kwds.get("timeout")
+            or Timeout(60.0, read=5.0, write=10.0, connect=2.0),
+            max_retries=kwds.get("max_retries") or 2,
+        )
         self.tiktoken = tiktoken
 
     async def __call__(

@@ -1,6 +1,6 @@
 [project]
 name = "orichain"
-version = "1.0.8"
+version = "1.0.9"
 description = "Python lib created only for RAG related text based enterprise solutions"
 authors = [
     { name = "apoorv-singh-107", email = "apoorv.singh@oriserve.com" },

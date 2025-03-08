@@ -206,6 +206,42 @@ Here's our plan for upcoming features and improvements:
 
 We welcome contributions to help us achieve these goals!
 
+### Steps
+1. Stage all changes
+```bash
+git add .
+```
+
+2. Commit the changes
+```bash
+git commit -m "Release vX.X.X"
+```
+
+3. Create a new tag
+```bash
+git tag vX.X.X
+```
+
+4. Push commits to main branch
+```bash
+git push origin main
+```
+
+5. Push the new tag
+```bash
+git push origin vX.X.X
+```
+
+### Deleting Tags:
+- Delete a Local Tag
+```bash
+git tag -d vX.X.X
+```
+
+- Delete a Remote Tag
+```bash
+git push origin --delete vX.X.X
+```
 ## License
 
 [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)

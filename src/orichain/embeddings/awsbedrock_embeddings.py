@@ -18,24 +18,39 @@ class Embed(object):
             - aws_region (str): region name
         """
 
+        from botocore.config import Config
+
         if not kwds.get("aws_access_key"):
             raise KeyError("Required 'aws_access_key' not found")
         elif not kwds.get("aws_secret_key"):
             raise KeyError("Required 'aws_secret_key' not found")
         elif not kwds.get("aws_region"):
             raise KeyError("Required aws_region not found")
+        elif kwds.get("config") and not isinstance(kwds.get("config"), Config):
+            raise TypeError(
+                "Invalid 'config' type detected:",
+                type(kwds.get("config")),
+                ", Please enter valid config using:\n'from botocore.config import Config'",
+            )
         else:
             pass
 
         import boto3
-        from botocore.config import Config
 
         self.client = boto3.client(
             service_name="bedrock-runtime",
             aws_access_key_id=kwds.get("aws_access_key"),
             aws_secret_access_key=kwds.get("aws_secret_key"),
-            config=Config(region_name=kwds.get("aws_region"), max_pool_connections=100),
+            config=kwds.get("config")
+            or Config(
+                region_name=kwds.get("aws_region"),
+                read_timeout=10,
+                connect_timeout=2,
+                retries={"total_max_attempts": 2},
+                max_pool_connections=100,
+            ),
         )
+
         self.accept = {
             "amazon.titan-embed-text-v1": "application/json",
             "amazon.titan-embed-text-v2:0": "application/json",

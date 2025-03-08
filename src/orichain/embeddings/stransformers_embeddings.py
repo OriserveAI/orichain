@@ -27,7 +27,7 @@ class Embed(object):
                 subprocess.run(["pip", "install", "sentence-transformers"], check=True)
             else:
                 raise ImportError(
-                    f"sentence-transformers is required for embeddings functionalities ({kwds.get("model_name","NA")}). Please install it manually using `pip install orichain[sentence-transformers]' or 'pip install sentence-transformers==3.4.1`."
+                    f"sentence-transformers is required for embeddings functionalities ({kwds.get('model_name', 'NA')}). Please install it manually using `pip install orichain[sentence-transformers]' or 'pip install sentence-transformers==3.4.1`."
                 )
 
         self.default_model_dir = kwds.get(

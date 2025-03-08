@@ -4,9 +4,6 @@ import traceback
 
 
 class Embed(object):
-    default_endpoint = "https://voice-test.openai.azure.com/"
-    default_api_version = "2024-02-15-preview"
-
     def __init__(self, **kwds: Any) -> None:
         """
         Initialize Azure OpenAI client and set up API key.
@@ -14,16 +11,39 @@ class Embed(object):
         Args:
             - api_key (str): Azure OpenAI API key
         """
+        from httpx import Timeout
+
         if not kwds.get("api_key"):
             raise KeyError("Required `api_key` not found")
+        elif not kwds.get("azure_endpoint"):
+            raise KeyError("Required `azure_endpoint` not found")
+        elif not kwds.get("api_version"):
+            raise KeyError("Required `api_version` not found")
+        elif kwds.get("timeout") and not isinstance(kwds.get("timeout"), Timeout):
+            raise TypeError(
+                "Invalid 'timeout' type detected:",
+                type(kwds.get("timeout")),
+                ", Please enter valid timeout using:\n'from httpx import Timeout'",
+            )
+        elif kwds.get("max_retries") and not isinstance(kwds.get("max_retries"), int):
+            raise TypeError(
+                "Invalid 'max_retries' type detected:,",
+                type(kwds.get("max_retries")),
+                ", Please enter a value that is 'int'",
+            )
+        else:
+            pass
 
         from openai import AsyncAzureOpenAI
         import tiktoken
 
         self.client = AsyncAzureOpenAI(
-            azure_endpoint=kwds.get("azure_endpoint") or self.default_endpoint,
+            azure_endpoint=kwds.get("azure_endpoint"),
             api_key=kwds.get("api_key"),
-            api_version=kwds.get("api_version") or self.default_api_version,
+            api_version=kwds.get("api_version"),
+            timeout=kwds.get("timeout")
+            or Timeout(60.0, read=5.0, write=10.0, connect=2.0),
+            max_retries=kwds.get("max_retries") or 2,
         )
         self.tiktoken = tiktoken
 
