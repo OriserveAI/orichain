@@ -6,7 +6,7 @@ from fastapi import Request
 import asyncio
 
 
-class Generate(object):
+class AsyncGenerate(object):
     def __init__(self, **kwds: Any) -> None:
         """
         Initialize Azure OpenAI client and set up API key.

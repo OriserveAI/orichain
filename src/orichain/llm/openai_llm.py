@@ -5,7 +5,7 @@ import asyncio
 from fastapi import Request
 
 
-class Generate(object):
+class AsyncGenerate(object):
     def __init__(self, **kwds) -> None:
         """
         Initialize OpenAI client and set up API key.
