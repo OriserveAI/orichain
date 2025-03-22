@@ -1,24 +1,48 @@
-from typing import Any, List, Dict, Optional, Union, AsyncGenerator
-import traceback
+from typing import Any, List, Dict, Optional, Union, Generator, AsyncGenerator
+
+import asyncio
+from anyio import from_thread
 
 from fastapi import Request
 
-import asyncio
+from orichain import error_explainer
 
 
-class AsyncGenerate(object):
+class Generate(object):
+    """
+    Synchronous wrapper for AWS Bedrock's API client.
+
+    This class provides methods for generating responses from AWS Bedrock's models
+    both in streaming and non-streaming modes. It handles chat history formatting,
+    error handling, and proper request configuration.
+    """
+
     def __init__(self, **kwds: Any) -> None:
         """
-        Initialize AWS Bedrock client and set up API key.
+        Initialize AWSBedrock client and set up API keys.
 
         Args:
             - aws_access_key (str): access key
             - aws_secret_key (str): api key
             - aws_region (str): region name
+            - config (Config, optional):
+                - connect_timeout (float or int, optional): The time in seconds till a timeout exception is
+                thrown when attempting to make a connection. Default: 60
+                - read_timeout: (float or int, optional): The time in seconds till a timeout exception is
+                thrown when attempting to read from a connection. Default: 60
+                - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
+                - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
+                - retries (Dict, optional):
+                    - total_max_attempts: Number of retries for the request. Default: 2
+
+        Raises:
+            KeyError: If required parameters are not provided.
+            TypeError: If an invalid type is provided for a parameter
         """
 
         from botocore.config import Config
 
+        # Validate input parameters
         if not kwds.get("aws_access_key"):
             raise KeyError("Required 'aws_access_key' not found")
         elif not kwds.get("aws_secret_key"):
@@ -36,6 +60,7 @@ class AsyncGenerate(object):
 
         import boto3
 
+        # Initialize the AWSBedock boto client with provided parameters
         self.client = boto3.client(
             service_name="bedrock-runtime",
             aws_access_key_id=kwds.get("aws_access_key"),
@@ -50,30 +75,53 @@ class AsyncGenerate(object):
             ),
         )
 
-    async def __call__(
+    def __call__(
         self,
         model_name: str,
         user_message: Union[str, List[Dict[str, str]]],
         request: Optional[Request] = None,
         chat_hist: Optional[List[Dict[str, str]]] = None,
-        sampling_paras: Optional[Dict] = {},
+        sampling_paras: Optional[Dict] = None,
         system_prompt: Optional[str] = None,
         do_json: Optional[bool] = False,
         **kwds: Any,
     ) -> Dict:
+        """
+        Generate a response from the specified model.
+
+        Args:
+            model_name (str): Name of the AWS Bedrock model to use
+            user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            request (Optional[Request], optional): FastAPI request object for connection tracking
+            chat_hist (Optional[List[str]], optional): Previous conversation history
+            sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
+            system_prompt (Optional[str], optional): System prompt to provide context to the model
+            do_json (bool, optional): Whether to format the response as JSON. Defaults to False
+            **kwds: Additional keyword arguments to pass to the client
+
+        Returns:
+            Dict: Response from the model or error information
+        """
         try:
-            messages = await self._chat_formatter(
+            # Format the chat history and user message
+            messages = self._chat_formatter(
                 user_message=user_message,
                 chat_hist=chat_hist,
                 do_json=do_json,
             )
 
+            # Return early if message formatting failed
             if not isinstance(messages, List):
                 return messages
 
-            if request and await request.is_disconnected():
+            # Default empty dictionaries
+            sampling_paras = sampling_paras or {}
+
+            # Check if the request was disconnected
+            if request and from_thread.run(request.is_disconnected):
                 return {"error": 400, "reason": "request aborted by user"}
 
+            # Setting up the request body
             body = {
                 "modelId": model_name,
                 "messages": messages,
@@ -81,47 +129,61 @@ class AsyncGenerate(object):
                 "additionalModelRequestFields": kwds.get("additional_model_fields", {}),
             }
 
+            # Check for system_prompt
             if system_prompt:
                 body.update({"system": [{"text": system_prompt}]})
 
-            result = await self._generate_response(body=body)
+            # Call the AWSBedrock client with the formatted messages
+            result = self._generate_response(body=body)
 
             return result
 
         except Exception as e:
-            exception_type = type(e).__name__
-            exception_message = str(e)
-            exception_traceback = traceback.extract_tb(e.__traceback__)
-            line_number = exception_traceback[-1].lineno
-
-            print(f"Exception Type: {exception_type}")
-            print(f"Exception Message: {exception_message}")
-            print(f"Line Number: {line_number}")
-            print("Full Traceback:")
-            print("".join(traceback.format_tb(e.__traceback__)))
+            error_explainer(e)
             return {"error": 500, "reason": str(e)}
 
-    async def streaming(
+    def streaming(
         self,
         model_name: str,
         user_message: Union[str, List[Dict[str, str]]],
         request: Optional[Request] = None,
         chat_hist: Optional[List[Dict[str, str]]] = None,
-        sampling_paras: Optional[Dict] = {},
+        sampling_paras: Optional[Dict] = None,
         system_prompt: Optional[str] = None,
         do_json: Optional[bool] = False,
         **kwds: Any,
-    ) -> AsyncGenerator:
+    ) -> Generator:
+        """
+        Stream responses from the specified model.
+
+        Args:
+            model_name (str): Name of the AWS Bedrock model to use
+            user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            request (Optional[Request], optional): FastAPI request object for connection tracking
+            chat_hist (Optional[List[str]], optional): Previous conversation history
+            sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
+            system_prompt (Optional[str], optional): System prompt to provide context to the model
+            do_json (bool, optional): Whether to format the response as JSON. Defaults to False
+
+        Yields:
+            Generator: Chunks of the model's response or error information
+        """
         try:
-            messages = await self._chat_formatter(
+            # Format the chat history and user message
+            messages = self._chat_formatter(
                 user_message=user_message,
                 chat_hist=chat_hist,
                 do_json=do_json,
             )
 
+            # Yield error and return early if message formatting failed
             if not isinstance(messages, List):
                 yield messages
             else:
+                # Default empty dictionaries
+                sampling_paras = sampling_paras or {}
+
+                # Setting up the request body
                 body = {
                     "modelId": model_name,
                     "messages": messages,
@@ -131,34 +193,43 @@ class AsyncGenerate(object):
                     ),
                 }
 
+                # Check for system_prompt
                 if system_prompt:
                     body.update({"system": [{"text": system_prompt}]})
 
+                # Start the streaming session
                 streaming_response = self._stream_response(body=body)
 
                 response = ""
                 usage = None
                 no_error = True
 
-                async for text in streaming_response:
-                    if request and await request.is_disconnected():
+                # Stream text chunks as they become available
+                for text in streaming_response:
+                    # Check if the request was disconnected
+                    if request and from_thread.run(request.is_disconnected):
                         yield {"error": 400, "reason": "request aborted by user"}
-                        await streaming_response.aclose()
+                        streaming_response.close()
                         break
                     elif text and isinstance(text, str):
                         response += text
                         yield text
                     elif isinstance(text, Dict) and "error" not in text:
+                        # Final chunk from AWS Bedrock while streaming
                         usage = text
                     elif isinstance(text, Dict) and "error" in text:
                         no_error = False
+                        streaming_response.close()
+
+                        # Yield non-empty chunks
                         yield text
-                        await streaming_response.aclose()
+
                         break
                     else:
                         pass
 
                 if no_error:
+                    # Format the final response with metadata
                     result = {
                         "response": response.strip(),
                         "metadata": {"usage": usage},
@@ -167,27 +238,27 @@ class AsyncGenerate(object):
                     yield result
 
         except Exception as e:
-            exception_type = type(e).__name__
-            exception_message = str(e)
-            exception_traceback = traceback.extract_tb(e.__traceback__)
-            line_number = exception_traceback[-1].lineno
-
-            print(f"Exception Type: {exception_type}")
-            print(f"Exception Message: {exception_message}")
-            print(f"Line Number: {line_number}")
-            print("Full Traceback:")
-            print("".join(traceback.format_tb(e.__traceback__)))
+            error_explainer(e)
             yield {"error": 500, "reason": str(e)}
 
-    async def _generate_response(self, body: Dict) -> Dict:
-        try:
-            response = await asyncio.to_thread(self.client.converse, **body)
+    def _generate_response(self, body: Dict) -> Dict:
+        """Converse function for generating response
 
+        Args:
+            body (Dict): Contains all the paras to pass
+
+        Returns:
+            Dict: Formatted response from the Converse"""
+        try:
+            # Call to Bedrock service from Converse method
+            response = self.client.converse(**body)
+
+            # Structuring response
             result = {
                 "response": response.get("output", {})
                 .get("message", {})
                 .get("content", [{}])[0]
-                .get("text")
+                .get("text", "")
                 .strip(),
                 "metadata": {"usage": response.get("usage", {})},
             }
@@ -198,33 +269,35 @@ class AsyncGenerate(object):
             return result
 
         except Exception as e:
-            exception_type = type(e).__name__
-            exception_message = str(e)
-            exception_traceback = traceback.extract_tb(e.__traceback__)
-            line_number = exception_traceback[-1].lineno
-
-            print(f"Exception Type: {exception_type}")
-            print(f"Exception Message: {exception_message}")
-            print(f"Line Number: {line_number}")
-            print("Full Traceback:")
-            print("".join(traceback.format_tb(e.__traceback__)))
+            error_explainer(e)
             return {"error": 500, "reason": str(e)}
 
-    async def _stream_response(self, body: Dict) -> AsyncGenerator:
-        try:
-            response = await asyncio.to_thread(self.client.converse_stream, **body)
+    def _stream_response(self, body: Dict) -> Generator:
+        """ConverseStream function for generating response
 
+        Args:
+            body (Dict): Contains all the paras to pass
+
+        Yeilds:
+            AsyncGenerator: Chunks of the model's response or error information"""
+        try:
+            # Call to Bedrock service from ConverseStream method
+            response = self.client.converse_stream(**body)
+
+            # Fetching generator
             streaming_response = response.get("stream")
 
             stream_start = False
 
+            # Start the streaming session
             for event in streaming_response:
+                # Waiting for text chunks to be generated
                 if event.get("contentBlockDelta", {}).get("delta", {}).get("text"):
                     if not stream_start:
                         yield (
                             event.get("contentBlockDelta")
                             .get("delta")
-                            .get("text")
+                            .get("text", "")
                             .strip()
                         )
                         stream_start = True
@@ -239,27 +312,35 @@ class AsyncGenerate(object):
                     yield usage
 
         except Exception as e:
-            exception_type = type(e).__name__
-            exception_message = str(e)
-            exception_traceback = traceback.extract_tb(e.__traceback__)
-            line_number = exception_traceback[-1].lineno
-
-            print(f"Exception Type: {exception_type}")
-            print(f"Exception Message: {exception_message}")
-            print(f"Line Number: {line_number}")
-            print("Full Traceback:")
-            print("".join(traceback.format_tb(e.__traceback__)))
+            error_explainer(e)
             yield {"error": 500, "reason": str(e)}
 
-    async def _chat_formatter(
+    def _chat_formatter(
         self,
         user_message: Union[str, List[Dict[str, str]]],
         chat_hist: Optional[List[Dict[str, str]]] = None,
         do_json: Optional[bool] = False,
     ) -> List[Dict]:
+        """
+        Format user messages and chat history for the AWS Bedrock API.
+
+        Args:
+            user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            chat_hist (Optional[List[Dict[str, str]]], optional): Previous conversation history
+            do_json (Optional[bool], optional): Whether to format the response as JSON. Defaults to False
+
+        Returns:
+            List[Dict]: Formatted messages in the structure expected by AWS Bedrock's API
+
+        Raises:
+            KeyError: If the user message format is invalid
+
+        NOTE: JSON METHOD UNSTABLE
+        """
         try:
             messages = []
 
+            # Add chat history if provided
             if chat_hist:
                 for chat_log in chat_hist:
                     messages.append(
@@ -269,6 +350,7 @@ class AsyncGenerate(object):
                         }
                     )
 
+            # Add user message based on its type
             if isinstance(user_message, str):
                 messages.append(
                     {
@@ -311,14 +393,394 @@ class AsyncGenerate(object):
             return messages
 
         except Exception as e:
-            exception_type = type(e).__name__
-            exception_message = str(e)
-            exception_traceback = traceback.extract_tb(e.__traceback__)
-            line_number = exception_traceback[-1].lineno
+            error_explainer(e)
+            return {"error": 500, "reason": str(e)}
 
-            print(f"Exception Type: {exception_type}")
-            print(f"Exception Message: {exception_message}")
-            print(f"Line Number: {line_number}")
-            print("Full Traceback:")
-            print("".join(traceback.format_tb(e.__traceback__)))
+
+class AsyncGenerate(object):
+    """
+    Asynchronous wrapper for AWS Bedrock's API client.
+
+    This class provides methods for generating responses from AWS Bedrock's models
+    both in streaming and non-streaming modes. It handles chat history formatting,
+    error handling, and proper request configuration.
+    """
+
+    def __init__(self, **kwds: Any) -> None:
+        """
+        Initialize AWSBedrock client and set up API keys.
+
+        Args:
+            - aws_access_key (str): access key
+            - aws_secret_key (str): api key
+            - aws_region (str): region name
+            - config (Config, optional):
+                - connect_timeout (float or int, optional): The time in seconds till a timeout exception is
+                thrown when attempting to make a connection. Default: 60
+                - read_timeout: (float or int, optional): The time in seconds till a timeout exception is
+                thrown when attempting to read from a connection. Default: 60
+                - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
+                - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
+                - retries (Dict, optional):
+                    - total_max_attempts: Number of retries for the request. Default: 2
+
+        Raises:
+            KeyError: If required parameters are not provided.
+            TypeError: If an invalid type is provided for a parameter
+        """
+
+        from botocore.config import Config
+
+        # Validate input parameters
+        if not kwds.get("aws_access_key"):
+            raise KeyError("Required 'aws_access_key' not found")
+        elif not kwds.get("aws_secret_key"):
+            raise KeyError("Required 'aws_secret_key' not found")
+        elif not kwds.get("aws_region"):
+            raise KeyError("Required aws_region not found")
+        elif kwds.get("config") and not isinstance(kwds.get("config"), Config):
+            raise TypeError(
+                "Invalid 'config' type detected:",
+                type(kwds.get("config")),
+                ", Please enter valid config using:\n'from botocore.config import Config'",
+            )
+        else:
+            pass
+
+        import boto3
+
+        # Initialize the AWSBedock boto client with provided parameters
+        self.client = boto3.client(
+            service_name="bedrock-runtime",
+            aws_access_key_id=kwds.get("aws_access_key"),
+            aws_secret_access_key=kwds.get("aws_secret_key"),
+            config=kwds.get("config")
+            or Config(
+                region_name=kwds.get("aws_region"),
+                read_timeout=10,
+                connect_timeout=2,
+                retries={"total_max_attempts": 2},
+                max_pool_connections=100,
+            ),
+        )
+
+    async def __call__(
+        self,
+        model_name: str,
+        user_message: Union[str, List[Dict[str, str]]],
+        request: Optional[Request] = None,
+        chat_hist: Optional[List[Dict[str, str]]] = None,
+        sampling_paras: Optional[Dict] = None,
+        system_prompt: Optional[str] = None,
+        do_json: Optional[bool] = False,
+        **kwds: Any,
+    ) -> Dict:
+        """
+        Generate a response from the specified model.
+
+        Args:
+            model_name (str): Name of the AWS Bedrock model to use
+            user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            request (Optional[Request], optional): FastAPI request object for connection tracking
+            chat_hist (Optional[List[str]], optional): Previous conversation history
+            sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
+            system_prompt (Optional[str], optional): System prompt to provide context to the model
+            do_json (bool, optional): Whether to format the response as JSON. Defaults to False
+            **kwds: Additional keyword arguments to pass to the client
+
+        Returns:
+            Dict: Response from the model or error information
+        """
+        try:
+            # Format the chat history and user message
+            messages = await self._chat_formatter(
+                user_message=user_message,
+                chat_hist=chat_hist,
+                do_json=do_json,
+            )
+
+            # Return early if message formatting failed
+            if not isinstance(messages, List):
+                return messages
+
+            # Default empty dictionaries
+            sampling_paras = sampling_paras or {}
+
+            # Check if the request was disconnected
+            if request and await request.is_disconnected():
+                return {"error": 400, "reason": "request aborted by user"}
+
+            # Setting up the request body
+            body = {
+                "modelId": model_name,
+                "messages": messages,
+                "inferenceConfig": sampling_paras,
+                "additionalModelRequestFields": kwds.get("additional_model_fields", {}),
+            }
+
+            # Check for system_prompt
+            if system_prompt:
+                body.update({"system": [{"text": system_prompt}]})
+
+            # Call the AWSBedrock client with the formatted messages
+            result = await self._generate_response(body=body)
+
+            return result
+
+        except Exception as e:
+            error_explainer(e)
+            return {"error": 500, "reason": str(e)}
+
+    async def streaming(
+        self,
+        model_name: str,
+        user_message: Union[str, List[Dict[str, str]]],
+        request: Optional[Request] = None,
+        chat_hist: Optional[List[Dict[str, str]]] = None,
+        sampling_paras: Optional[Dict] = None,
+        system_prompt: Optional[str] = None,
+        do_json: Optional[bool] = False,
+        **kwds: Any,
+    ) -> AsyncGenerator:
+        """
+        Stream responses from the specified model.
+
+        Args:
+            model_name (str): Name of the AWS Bedrock model to use
+            user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            request (Optional[Request], optional): FastAPI request object for connection tracking
+            chat_hist (Optional[List[str]], optional): Previous conversation history
+            sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
+            system_prompt (Optional[str], optional): System prompt to provide context to the model
+            do_json (bool, optional): Whether to format the response as JSON. Defaults to False
+
+        Yields:
+            AsyncGenerator: Chunks of the model's response or error information
+        """
+        try:
+            # Format the chat history and user message
+            messages = await self._chat_formatter(
+                user_message=user_message,
+                chat_hist=chat_hist,
+                do_json=do_json,
+            )
+
+            # Yield error and return early if message formatting failed
+            if not isinstance(messages, List):
+                yield messages
+            else:
+                # Default empty dictionaries
+                sampling_paras = sampling_paras or {}
+
+                # Setting up the request body
+                body = {
+                    "modelId": model_name,
+                    "messages": messages,
+                    "inferenceConfig": sampling_paras,
+                    "additionalModelRequestFields": kwds.get(
+                        "additional_model_fields", {}
+                    ),
+                }
+
+                # Check for system_prompt
+                if system_prompt:
+                    body.update({"system": [{"text": system_prompt}]})
+
+                # Start the streaming session
+                streaming_response = self._stream_response(body=body)
+
+                response = ""
+                usage = None
+                no_error = True
+
+                # Stream text chunks as they become available
+                async for text in streaming_response:
+                    # Check if the request was disconnected
+                    if request and await request.is_disconnected():
+                        yield {"error": 400, "reason": "request aborted by user"}
+                        await streaming_response.aclose()
+                        break
+                    elif text and isinstance(text, str):
+                        response += text
+                        yield text
+                    elif isinstance(text, Dict) and "error" not in text:
+                        # Final chunk from AWS Bedrock while streaming
+                        usage = text
+                    elif isinstance(text, Dict) and "error" in text:
+                        no_error = False
+                        await streaming_response.aclose()
+
+                        # Yield non-empty chunks
+                        yield text
+
+                        break
+                    else:
+                        pass
+
+                if no_error:
+                    # Format the final response with metadata
+                    result = {
+                        "response": response.strip(),
+                        "metadata": {"usage": usage},
+                    }
+
+                    yield result
+
+        except Exception as e:
+            error_explainer(e)
+            yield {"error": 500, "reason": str(e)}
+
+    async def _generate_response(self, body: Dict) -> Dict:
+        """Converse function for generating response
+
+        Args:
+            body (Dict): Contains all the paras to pass
+
+        Returns:
+            Dict: Formatted response from the Converse"""
+        try:
+            # Call to Bedrock service from Converse method
+            response = await asyncio.to_thread(self.client.converse, **body)
+
+            # Structuring response
+            result = {
+                "response": response.get("output", {})
+                .get("message", {})
+                .get("content", [{}])[0]
+                .get("text", "")
+                .strip(),
+                "metadata": {"usage": response.get("usage", {})},
+            }
+
+            if response.get("metrics"):
+                result["metadata"]["usage"].update(response.get("metrics"))
+
+            return result
+
+        except Exception as e:
+            error_explainer(e)
+            return {"error": 500, "reason": str(e)}
+
+    async def _stream_response(self, body: Dict) -> AsyncGenerator:
+        """ConverseStream function for generating response
+
+        Args:
+            body (Dict): Contains all the paras to pass
+
+        Yeilds:
+            AsyncGenerator: Chunks of the model's response or error information"""
+        try:
+            # Call to Bedrock service from ConverseStream method
+            response = await asyncio.to_thread(self.client.converse_stream, **body)
+
+            # Fetching generator
+            streaming_response = response.get("stream")
+
+            stream_start = False
+
+            # Start the streaming session
+            for event in streaming_response:
+                # Waiting for text chunks to be generated
+                if event.get("contentBlockDelta", {}).get("delta", {}).get("text"):
+                    if not stream_start:
+                        yield (
+                            event.get("contentBlockDelta")
+                            .get("delta")
+                            .get("text", "")
+                            .strip()
+                        )
+                        stream_start = True
+                    else:
+                        yield event.get("contentBlockDelta").get("delta").get("text")
+                elif event.get("metadata", {}).get("usage"):
+                    usage = event.get("metadata").get("usage")
+
+                    if event.get("metadata").get("metrics"):
+                        usage.update(event.get("metadata").get("metrics"))
+
+                    yield usage
+
+        except Exception as e:
+            error_explainer(e)
+            yield {"error": 500, "reason": str(e)}
+
+    async def _chat_formatter(
+        self,
+        user_message: Union[str, List[Dict[str, str]]],
+        chat_hist: Optional[List[Dict[str, str]]] = None,
+        do_json: Optional[bool] = False,
+    ) -> List[Dict]:
+        """
+        Format user messages and chat history for the AWS Bedrock API.
+
+        Args:
+            user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            chat_hist (Optional[List[Dict[str, str]]], optional): Previous conversation history
+            do_json (Optional[bool], optional): Whether to format the response as JSON. Defaults to False
+
+        Returns:
+            List[Dict]: Formatted messages in the structure expected by AWS Bedrock's API
+
+        Raises:
+            KeyError: If the user message format is invalid
+
+        NOTE: JSON METHOD UNSTABLE
+        """
+        try:
+            messages = []
+
+            # Add chat history if provided
+            if chat_hist:
+                for chat_log in chat_hist:
+                    messages.append(
+                        {
+                            "role": chat_log.get("role"),
+                            "content": [{"text": chat_log.get("content")}],
+                        }
+                    )
+
+            # Add user message based on its type
+            if isinstance(user_message, str):
+                messages.append(
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "text": user_message
+                                + "\n(Respond in JSON and do not give any explanation or notes)"
+                                if do_json
+                                else user_message
+                            }
+                        ],
+                    }
+                )
+            elif isinstance(user_message, List):
+                for logs in user_message:
+                    messages.append(
+                        {
+                            "role": logs.get("role"),
+                            "content": [{"text": logs.get("content")}],
+                        }
+                    )
+
+                if messages[-1].get("role") == "user":
+                    messages[-1]["content"][0]["text"] = (
+                        messages[-1]["content"][0]["text"]
+                        + "\n(Respond in JSON and do not give any explanation or notes)"
+                    )
+                elif messages[-1].get("role") == "assistant":
+                    messages[-2]["content"][0]["text"] = (
+                        messages[-2]["content"][0]["text"]
+                        + "\n(Respond in JSON and do not give any explanation or notes)"
+                    )
+                else:
+                    pass
+
+            else:
+                pass
+
+            return messages
+
+        except Exception as e:
+            error_explainer(e)
             return {"error": 500, "reason": str(e)}

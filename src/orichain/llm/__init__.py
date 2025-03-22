@@ -115,6 +115,15 @@ class LLM(object):
             - aws_access_key (str): AWS access key.
             - aws_secret_key (str): AWS secret key.
             - aws_region (str): AWS region name.
+            - config (Config, optional):
+                - connect_timeout (float or int, optional): The time in seconds till a timeout exception is
+                thrown when attempting to make a connection. Default: 60
+                - read_timeout: (float or int, optional): The time in seconds till a timeout exception is
+                thrown when attempting to read from a connection. Default: 60
+                - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
+                - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
+                - retries (Dict, optional):
+                    - total_max_attempts: Number of retries for the request. Default: 2
 
             #### Anthropic models
             - api_key (str): Anthropic API key.
@@ -140,18 +149,24 @@ class LLM(object):
 
         # Set model name, defaulting if not provided
         if not kwds.get("model_name"):
-            warnings.warn(
-                f"No 'model_name' specified, hence defaulting to {self.default_model} (OpenAI)",
-                UserWarning,
-            )
+            if kwds.get("use_azure_openai"):
+                warnings.warn(
+                    f"\nNo 'model_name' specified, hence defaulting to {self.default_model} (Azure OpenAI)",
+                    UserWarning,
+                )
+            else:
+                warnings.warn(
+                    f"\nNo 'model_name' specified, hence defaulting to {self.default_model} (OpenAI)",
+                    UserWarning,
+                )
         self.model_name = kwds.get("model_name", self.default_model)
-
-        # Determine model type
-        self.model_type = self.model_class.get(self.model_name)
 
         # Check if Azure OpenAI model is to be used
         if kwds.get("use_azure_openai"):
             self.model_type = "AzureOpenAI"
+        else:
+            # Determine model type
+            self.model_type = self.model_class.get(self.model_name)
 
         if not self.model_type:
             raise ValueError(
@@ -398,40 +413,55 @@ class AsyncLLM(object):
         """Initialize the Language Model class with the required parameters.
 
         Args:
-            - model_name (str, optional): Name of the model to be used.
-                Default: "gpt-4o-mini"
+            - model_name (str, optional): Name of the model to be used. Default: "gpt-4o-mini"
 
             ### Authentication parameters by provider:
 
             #### OpenAI models
             - api_key (str): OpenAI API key.
-                Required for OpenAI models.
+            - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
+            - max_retries (int, optional): Number of retries for the request. Default: 2
 
             #### AWS Bedrock models
             - aws_access_key (str): AWS access key.
             - aws_secret_key (str): AWS secret key.
             - aws_region (str): AWS region name.
+            - config (Config, optional):
+                - connect_timeout (float or int, optional): The time in seconds till a timeout exception is
+                thrown when attempting to make a connection. Default: 60
+                - read_timeout: (float or int, optional): The time in seconds till a timeout exception is
+                thrown when attempting to read from a connection. Default: 60
+                - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
+                - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
+                - retries (Dict, optional):
+                    - total_max_attempts: Number of retries for the request. Default: 2
 
             #### Anthropic models
             - api_key (str): Anthropic API key.
+            - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
+            - max_retries (int, optional): Number of retries for the request. Default: 2
 
             #### Azure OpenAI models
             - api_key (str): Azure OpenAI API key.
             - azure_endpoint (str): Azure OpenAI endpoint.
             - api_version (str): Azure OpenAI API version.
-            - use_azure_openai (bool, optional): Whether to use Azure OpenAI service.
-                Default: False
+            - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
+            - max_retries (int, optional): Number of retries for the request. Default: 2
+            - use_azure_openai (bool, optional): Whether to use Azure OpenAI service. Default: False
 
         Raises:
             ValueError: If an unsupported model is specified.
             KeyError: If required parameters are not provided.
             TypeError: If an invalid type is provided for a parameter.
+
+        Warns:
+            UserWarning: If the model name is not provided, it defaults to the default model.
         """
 
         # Set model name, defaulting if not provided
         if not kwds.get("model_name"):
             warnings.warn(
-                f"No 'model_name' specified, hence defaulting to {self.default_model} (OpenAI)",
+                f"\nNo 'model_name' specified, hence defaulting to {self.default_model} (OpenAI)",
                 UserWarning,
             )
         self.model_name = kwds.get("model_name", self.default_model)
@@ -505,7 +535,7 @@ class AsyncLLM(object):
                 return {"error": 400, "reason": "request aborted by user"}
 
             # Generate the response
-            result = self.model(
+            result = await self.model(
                 request=request,
                 model_name=model_name,
                 user_message=user_message,

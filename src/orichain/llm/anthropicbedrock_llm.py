@@ -8,9 +8,9 @@ from orichain import error_explainer
 
 class Generate(object):
     """
-    Synchronous wrapper for Anthropic's API client.
+    Synchronous wrapper for AWSBedrock Anthropic's API client.
 
-    This class provides methods for generating responses from Anthropic's models
+    This class provides methods for generating responses from AWSBedrock Anthropic's models
     both in streaming and non-streaming modes. It handles chat history formatting,
     error handling, and proper request configuration.
     """
@@ -56,7 +56,7 @@ class Generate(object):
 
         from anthropic import AnthropicBedrock
 
-        # Initialize the Anthropic AWSBedock client with provided parameters
+        # Initialize the AWSBedrock Anthropic client with provided parameters
         self.client = AnthropicBedrock(
             aws_secret_key=kwds.get("aws_secret_key"),
             aws_access_key=kwds.get("aws_access_key"),
@@ -82,7 +82,7 @@ class Generate(object):
         Generate a response from the specified model.
 
         Args:
-            model_name (str): Name of the Anthropic model to use
+            model_name (str): Name of the AWSBedrock Anthropic model to use
             user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
             request (Optional[Request], optional): FastAPI request object for connection tracking
             chat_hist (Optional[List[str]], optional): Previous conversation history
@@ -115,7 +115,7 @@ class Generate(object):
             if request and from_thread.run(request.is_disconnected):
                 return {"error": 400, "reason": "request aborted by user"}
 
-            # Call the Anthropic API with the formatted messages
+            # Call the AWSBedrock Anthropic API with the formatted messages
             message = self.client.with_options(
                 timeout=kwds.get("timeout")
             ).messages.create(
@@ -152,7 +152,7 @@ class Generate(object):
         Stream responses from the specified model.
 
         Args:
-            model_name (str): Name of the Anthropic model to use
+            model_name (str): Name of the AWSBedrock Anthropic model to use
             user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
             request (Optional[Request], optional): FastAPI request object for connection tracking
             chat_hist (Optional[List[str]], optional): Previous conversation history
@@ -225,7 +225,7 @@ class Generate(object):
         do_json: Optional[bool] = False,
     ) -> List[Dict]:
         """
-        Format user messages and chat history for the Anthropic API.
+        Format user messages and chat history for the AWSBedrock Anthropic API.
 
         Args:
             user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
@@ -233,7 +233,7 @@ class Generate(object):
             do_json (Optional[bool], optional): Whether to format the response as JSON. Defaults to False
 
         Returns:
-            List[Dict]: Formatted messages in the structure expected by Anthropic's API
+            List[Dict]: Formatted messages in the structure expected by AWSBedrock Anthropic's API
 
         Raises:
             KeyError: If the user message format is invalid
@@ -269,16 +269,16 @@ class Generate(object):
 
 class AsyncGenerate(object):
     """
-    Asynchronous wrapper for Anthropic's API client.
+    Asynchronous wrapper for AWSBedrock Anthropic's API client.
 
-    This class provides methods for generating responses from Anthropic's models
+    This class provides methods for generating responses from AWSBedrock Anthropic's models
     both in streaming and non-streaming modes. It handles chat history formatting,
     error handling, and proper request configuration.
     """
 
     def __init__(self, **kwds: Any) -> None:
         """
-        Initialize Anthropic AWSBedrock client and set up API keys.
+        Initialize AWSBedrock Anthropic client and set up API keys.
 
         Args:
             - aws_access_key (str): access key
@@ -317,7 +317,7 @@ class AsyncGenerate(object):
 
         from anthropic import AsyncAnthropicBedrock
 
-        # Initialize the Anthropic AWSBedock client with provided parameters
+        # Initialize the AWSBedrock Anthropic client with provided parameters
         self.client = AsyncAnthropicBedrock(
             aws_secret_key=kwds.get("aws_secret_key"),
             aws_access_key=kwds.get("aws_access_key"),
@@ -343,7 +343,7 @@ class AsyncGenerate(object):
         Generate a response from the specified model.
 
         Args:
-            model_name (str): Name of the Anthropic model to use
+            model_name (str): Name of the AWSBedrock Anthropic model to use
             user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
             request (Optional[Request], optional): FastAPI request object for connection tracking
             chat_hist (Optional[List[str]], optional): Previous conversation history
@@ -376,7 +376,7 @@ class AsyncGenerate(object):
             if request and await request.is_disconnected():
                 return {"error": 400, "reason": "request aborted by user"}
 
-            # Call the Anthropic API with the formatted messages
+            # Call the AWSBedrock Anthropic API with the formatted messages
             message = await self.client.with_options(
                 timeout=kwds.get("timeout")
             ).messages.create(
@@ -413,7 +413,7 @@ class AsyncGenerate(object):
         Stream responses from the specified model.
 
         Args:
-            model_name (str): Name of the Anthropic model to use
+            model_name (str): Name of the AWSBedrock Anthropic model to use
             user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
             request (Optional[Request], optional): FastAPI request object for connection tracking
             chat_hist (Optional[List[str]], optional): Previous conversation history
@@ -486,7 +486,7 @@ class AsyncGenerate(object):
         do_json: Optional[bool] = False,
     ) -> List[Dict]:
         """
-        Format user messages and chat history for the Anthropic API.
+        Format user messages and chat history for the AWSBedrock Anthropic API.
 
         Args:
             user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
@@ -494,7 +494,7 @@ class AsyncGenerate(object):
             do_json (Optional[bool], optional): Whether to format the response as JSON. Defaults to False
 
         Returns:
-            List[Dict]: Formatted messages in the structure expected by Anthropic's API
+            List[Dict]: Formatted messages in the structure expected by AWSBedrock Anthropic's API
 
         Raises:
             KeyError: If the user message format is invalid

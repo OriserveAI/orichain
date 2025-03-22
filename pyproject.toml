@@ -1,6 +1,6 @@
 [project]
 name = "orichain"
-version = "1.0.9"
+version = "2.0.0"
 description = "Python lib created only for RAG related text based enterprise solutions"
 authors = [
     { name = "apoorv-singh-107", email = "apoorv.singh@oriserve.com" },
@@ -19,7 +19,6 @@ dependencies = [
     "art==6.4",
     "chromadb==0.6.3",
     "pysqlite3-binary==0.5.4",
-    "lingua-language-detector==2.0.2",
     "pinecone[grpc]==6.0.1",
 ]
 readme = "README.md"
@@ -31,7 +30,10 @@ build-backend = "hatchling.build"
 
 [tool.rye]
 managed = true
-dev-dependencies = []
+dev-dependencies = [
+    "black>=25.1.0",
+    "ipykernel>=6.29.5",
+]
 
 [tool.hatch.metadata]
 allow-direct-references = true
@@ -46,4 +48,7 @@ packages = ["src/orichain"]
 [project.optional-dependencies]
 sentence-transformers = [
     "sentence-transformers==3.4.1",
+]
+lingua-language-detector = [
+    "lingua-language-detector>=2.1.0",
 ]
