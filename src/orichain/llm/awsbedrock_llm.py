@@ -1,4 +1,5 @@
 from typing import Any, List, Dict, Optional, Union, Generator, AsyncGenerator
+from botocore.eventstream import EventStream
 
 import asyncio
 from anyio import from_thread
@@ -676,33 +677,72 @@ class AsyncGenerate(object):
             # Fetching generator
             streaming_response = response.get("stream")
 
-            stream_start = False
+            stream_started = False
 
-            # Start the streaming session
-            for event in streaming_response:
-                # Waiting for text chunks to be generated
+            # Use the async wrapper to iterate over events asynchronously.
+            async for event in self._async_wrap(streaming_response):
+                # Waiting for text chunks to be generated.
                 if event.get("contentBlockDelta", {}).get("delta", {}).get("text"):
-                    if not stream_start:
-                        yield (
-                            event.get("contentBlockDelta")
-                            .get("delta")
-                            .get("text", "")
-                            .strip()
-                        )
-                        stream_start = True
+                    text = event["contentBlockDelta"]["delta"].get("text", "")
+                    if not stream_started:
+                        if text:
+                            yield text
+                        stream_started = True
                     else:
-                        yield event.get("contentBlockDelta").get("delta").get("text")
+                        yield text
                 elif event.get("metadata", {}).get("usage"):
-                    usage = event.get("metadata").get("usage")
-
-                    if event.get("metadata").get("metrics"):
-                        usage.update(event.get("metadata").get("metrics"))
-
+                    usage = event["metadata"]["usage"]
+                    if event["metadata"].get("metrics"):
+                        usage.update(event["metadata"].get("metrics"))
                     yield usage
+                elif event.get("error"):
+                    yield event
+                else:
+                    pass
+
+        except Exception as e:
+            # Handle error as needed.
+            error_explainer(e)
+            yield {"error": 500, "reason": str(e)}
 
         except Exception as e:
             error_explainer(e)
             yield {"error": 500, "reason": str(e)}
+
+    async def _async_wrap(self, sync_iterable: EventStream) -> AsyncGenerator:
+        """
+        Wrap a synchronous iterator in an asynchronous generator.
+
+        Args:
+            sync_iterable (EventStream): Synchronous iterator to wrap
+
+        Yields:
+            AsyncGenerator: Items from the synchronous iterator
+        """
+        loop = asyncio.get_running_loop()
+        it = iter(sync_iterable)
+        SENTINEL = object()
+
+        while True:
+            # Running the blocking next() in an executor.
+            event = await loop.run_in_executor(None, self._safe_next, it, SENTINEL)
+            if event is SENTINEL:
+                break
+            yield event
+
+    @staticmethod
+    def _safe_next(it: EventStream, SENTINEL: object) -> Any:
+        """
+        Safely get the next item from an iterator.
+        If the iterator is exhausted, return a sentinel value.
+        """
+        try:
+            return next(it)
+        except StopIteration:
+            return SENTINEL
+        except Exception as e:
+            error_explainer(e)
+            return {"error": 500, "reason": str(e)}
 
     async def _chat_formatter(
         self,
