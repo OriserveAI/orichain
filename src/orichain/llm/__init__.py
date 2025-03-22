@@ -243,9 +243,9 @@ class LLM(object):
 
             # Add user message and matched sentence to the response
             if "error" not in result:
-                result.update(
-                    {"message": user_message, "matched_sentence": matched_sentence}
-                )
+                result.update({"message": user_message})
+                if matched_sentence:
+                    result.update({"matched_sentence": matched_sentence})
                 # Add extra metadata to the response
                 if extra_metadata:
                     result["metadata"].update(extra_metadata)

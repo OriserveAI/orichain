@@ -99,8 +99,12 @@ class Generate(object):
             # Default empty dictionaries
             sampling_paras = sampling_paras or {}
 
+            # Setting system prompt in sampling params, as None type is not allowed
+            if system_prompt:
+                sampling_paras["system"] = system_prompt
+
+            # Setting default max_tokens if not provided
             if "max_tokens" not in sampling_paras:
-                # Set default sampling parameters if not provided
                 sampling_paras["max_tokens"] = 512
 
             # Check if the request was disconnected
@@ -111,7 +115,6 @@ class Generate(object):
             message = self.client.with_options(
                 timeout=kwds.get("timeout")
             ).messages.create(
-                system=system_prompt if system_prompt else None,
                 messages=messages,
                 model=model_name,
                 **sampling_paras,
@@ -168,12 +171,16 @@ class Generate(object):
                 # Default empty dictionaries
                 sampling_paras = sampling_paras or {}
 
+                # Setting system prompt in sampling params, as None type is not allowed
+                if system_prompt:
+                    sampling_paras["system"] = system_prompt
+
+                # Setting default max_tokens if not provided
                 if "max_tokens" not in sampling_paras:
                     sampling_paras["max_tokens"] = 512
 
                 # Start the streaming session
                 with self.client.messages.stream(
-                    system=system_prompt,
                     messages=messages,
                     model=model_name,
                     **sampling_paras,
@@ -352,8 +359,12 @@ class AsyncGenerate(object):
             # Default empty dictionaries
             sampling_paras = sampling_paras or {}
 
+            # Setting system prompt in sampling params, as None type is not allowed
+            if system_prompt:
+                sampling_paras["system"] = system_prompt
+
+            # Setting default max_tokens if not provided
             if "max_tokens" not in sampling_paras:
-                # Set default sampling parameters if not provided
                 sampling_paras["max_tokens"] = 512
 
             # Check if the request was disconnected
@@ -364,7 +375,6 @@ class AsyncGenerate(object):
             message = await self.client.with_options(
                 timeout=kwds.get("timeout")
             ).messages.create(
-                system=system_prompt if system_prompt else None,
                 messages=messages,
                 model=model_name,
                 **sampling_paras,
@@ -421,12 +431,16 @@ class AsyncGenerate(object):
                 # Default empty dictionaries
                 sampling_paras = sampling_paras or {}
 
+                # Setting system prompt in sampling params, as None type is not allowed
+                if system_prompt:
+                    sampling_paras["system"] = system_prompt
+
+                # Setting default max_tokens if not provided
                 if "max_tokens" not in sampling_paras:
                     sampling_paras["max_tokens"] = 512
 
                 # Start the streaming session
                 async with self.client.messages.stream(
-                    system=system_prompt,
                     messages=messages,
                     model=model_name,
                     **sampling_paras,

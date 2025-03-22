@@ -33,6 +33,8 @@ managed = true
 dev-dependencies = [
     "black>=25.1.0",
     "ipykernel>=6.29.5",
+    "lingua-language-detector==2.1.0",
+    "sentence-transformers==3.4.1",
 ]
 
 [tool.hatch.metadata]
@@ -50,5 +52,5 @@ sentence-transformers = [
     "sentence-transformers==3.4.1",
 ]
 lingua-language-detector = [
-    "lingua-language-detector>=2.1.0",
+    "lingua-language-detector==2.1.0",
 ]
