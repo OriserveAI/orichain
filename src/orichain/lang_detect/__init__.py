@@ -3,6 +3,7 @@ from orichain import error_explainer
 
 import asyncio
 
+
 class LanguageDetection(object):
     """
     Synchronous way to detect language of the user message using lingua-py
@@ -21,19 +22,28 @@ class LanguageDetection(object):
             low_accuracy (Optional[bool], optional): To enable low accuracy mode. Defaults to False.
         """
 
-        from lingua import Language, LanguageDetectorBuilder
+        try:
+            from lingua import Language, LanguageDetectorBuilder
 
-        if languages:
-            language_objects = [getattr(Language, lang) for lang in languages]
-            detector = LanguageDetectorBuilder.from_languages(*language_objects)
-        else:
-            detector = LanguageDetectorBuilder.from_all_languages()
-        if low_accuracy:
-            detector = detector.with_low_accuracy_mode()
+            # Loading detector with requirements
+            if languages:
+                # Loading detector with specific languages
+                language_objects = [getattr(Language, lang) for lang in languages]
+                detector = LanguageDetectorBuilder.from_languages(*language_objects)
+            else:
+                # Loading detector with all languages
+                detector = LanguageDetectorBuilder.from_all_languages()
 
-        self.detector = detector.with_preloaded_language_models().build()
+            # Enabling low accuracy mode
+            if low_accuracy:
+                detector = detector.with_low_accuracy_mode()
 
-        self.min_words = min_words
+            # Building the detector
+            self.detector = detector.with_preloaded_language_models().build()
+
+            self.min_words = min_words
+        except Exception as e:
+            error_explainer(e)
 
     def __call__(
         self,
@@ -74,6 +84,7 @@ class LanguageDetection(object):
         except Exception as e:
             error_explainer(e)
             return {"error": 500, "reason": str(e)}
+
 
 class AsyncLanguageDetection(object):
     """
@@ -131,7 +142,9 @@ class AsyncLanguageDetection(object):
                 if len(user_message.split()) < min_words:
                     return result
 
-            output = await asyncio.to_thread(self.detector.compute_language_confidence_values(text=user_message))
+            output = await asyncio.to_thread(
+                self.detector.compute_language_confidence_values, text=user_message
+            )
 
             result["user_lang"] = (
                 output[0].language.iso_code_639_1.name
