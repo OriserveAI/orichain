@@ -8,7 +8,7 @@ logging.basicConfig(
 )
 
 # Mapping of critical errors
-CRITICAL_EXCEPTIONS = (MemoryError, SystemExit, KeyboardInterrupt, RuntimeError)
+CRITICAL_EXCEPTIONS = (MemoryError, SystemExit, KeyboardInterrupt, RuntimeError, ImportError)
 
 
 def error_explainer(e: Exception) -> None:
