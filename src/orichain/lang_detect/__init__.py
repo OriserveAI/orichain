@@ -11,7 +11,7 @@ class LanguageDetection(object):
 
     def __init__(
         self,
-        languages: Optional[List] = None,
+        languages: Optional[List[str]] = None,
         min_words: Optional[int] = None,
         low_accuracy: Optional[bool] = False,
     ) -> None:
@@ -28,7 +28,7 @@ class LanguageDetection(object):
             # Loading detector with requirements
             if languages:
                 # Loading detector with specific languages
-                language_objects = [getattr(Language, lang) for lang in languages]
+                language_objects = [getattr(Language, lang.upper()) for lang in languages]
                 detector = LanguageDetectorBuilder.from_languages(*language_objects)
             else:
                 # Loading detector with all languages
@@ -93,7 +93,7 @@ class AsyncLanguageDetection(object):
 
     def __init__(
         self,
-        languages: Optional[List] = None,
+        languages: Optional[List[str]] = None,
         min_words: Optional[int] = None,
         low_accuracy: Optional[bool] = False,
     ) -> None:
@@ -107,7 +107,7 @@ class AsyncLanguageDetection(object):
         from lingua import Language, LanguageDetectorBuilder
 
         if languages:
-            language_objects = [getattr(Language, lang) for lang in languages]
+            language_objects = [getattr(Language, lang.upper()) for lang in languages]
             detector = LanguageDetectorBuilder.from_languages(*language_objects)
         else:
             detector = LanguageDetectorBuilder.from_all_languages()
