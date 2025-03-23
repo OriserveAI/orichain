@@ -50,10 +50,10 @@ class Embed(object):
         else:
             pass
 
-        from openai import AsyncAzureOpenAI
+        from openai import AzureOpenAI
         import tiktoken
 
-        self.client = AsyncAzureOpenAI(
+        self.client = AzureOpenAI(
             azure_endpoint=kwds.get("azure_endpoint"),
             api_key=kwds.get("api_key"),
             api_version=kwds.get("api_version"),

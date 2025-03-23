@@ -79,7 +79,7 @@ class EmbeddingModels(object):
         # Check if the model name is provided
         if not kwds.get("model_name"):
             warnings.warn(
-                f"No 'model_name' specified, hence defaulting to {self.default_model}",
+                f"\nNo 'model_name' specified, hence defaulting to {self.default_model}",
                 UserWarning,
             )
 
@@ -226,7 +226,7 @@ class AsyncEmbeddingModels(object):
         # Check if the model name is provided
         if not kwds.get("model_name"):
             warnings.warn(
-                f"No 'model_name' specified, hence defaulting to {self.default_model}",
+                f"\nNo 'model_name' specified, hence defaulting to {self.default_model}",
                 UserWarning,
             )
 
