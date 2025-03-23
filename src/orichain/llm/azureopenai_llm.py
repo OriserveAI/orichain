@@ -32,21 +32,6 @@ class Generate(object):
             KeyError: If required parameters are not provided.
             TypeError: If an invalid type is provided for a parameter
         """
-
-        """
-        Initialize Azure OpenAI client and set up API key.
-
-        Args:
-            - api_key (str): Azure OpenAI API key.
-            - azure_endpoint (str): Azure OpenAI endpoint.
-            - api_version (str): Azure OpenAI API version.
-            - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
-            - max_retries (int, optional): Number of retries for the request. Default: 2
-            
-        Raises:
-            KeyError: If required parameters are not provided.
-            TypeError: If an invalid type is provided for a parameter
-        """
         from httpx import Timeout
 
         # Validate input parameters
