@@ -28,7 +28,9 @@ class LanguageDetection(object):
             # Loading detector with requirements
             if languages:
                 # Loading detector with specific languages
-                language_objects = [getattr(Language, lang.upper()) for lang in languages]
+                language_objects = [
+                    getattr(Language, lang.upper()) for lang in languages
+                ]
                 detector = LanguageDetectorBuilder.from_languages(*language_objects)
             else:
                 # Loading detector with all languages
