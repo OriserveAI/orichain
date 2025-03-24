@@ -41,6 +41,9 @@ It can be said that it was inspired by LangChain but is optimized for better per
 
 ## Installation
 
+> 🚧
+> The Library was rewritten in v2.0.0 released in March of 2025. There were significant changes made.
+
 Just do this
 ```bash
 pip install orichain

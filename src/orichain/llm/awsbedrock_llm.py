@@ -9,6 +9,37 @@ from fastapi import Request
 from orichain import error_explainer
 
 
+class CreateAiter(object):
+    """
+    Asynchronous iterator wrapper to wrap synchronous iterator
+    NOTE: This is currently only for the use of awsbedrock converse stream in async method
+    """
+
+    def __init__(self, event_stream: EventStream) -> None:
+        """
+        Convert EventStream(AWS) into a iterator
+        """
+        self.sync_streamer = iter(event_stream)
+        self.SENTINEL = object()
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        """
+        Returns the next event stream asynchronously.
+        """
+        try:
+            stream_output = next(self.sync_streamer)
+        except StopIteration:
+            stream_output = self.SENTINEL
+        except Exception as e:
+            error_explainer(e)
+            stream_output = {"error": 500, "reason": str(e)}
+
+        return stream_output
+
+
 class Generate(object):
     """
     Synchronous wrapper for AWS Bedrock's API client.
@@ -280,7 +311,7 @@ class Generate(object):
             body (Dict): Contains all the paras to pass
 
         Yeilds:
-            AsyncGenerator: Chunks of the model's response or error information"""
+            Generator: Chunks of the model's response or error information"""
         try:
             # Call to Bedrock service from ConverseStream method
             response = self.client.converse_stream(**body)
@@ -288,22 +319,11 @@ class Generate(object):
             # Fetching generator
             streaming_response = response.get("stream")
 
-            stream_start = False
-
             # Start the streaming session
             for event in streaming_response:
                 # Waiting for text chunks to be generated
                 if event.get("contentBlockDelta", {}).get("delta", {}).get("text"):
-                    if not stream_start:
-                        yield (
-                            event.get("contentBlockDelta")
-                            .get("delta")
-                            .get("text", "")
-                            .strip()
-                        )
-                        stream_start = True
-                    else:
-                        yield event.get("contentBlockDelta").get("delta").get("text")
+                    yield event.get("contentBlockDelta").get("delta").get("text")
                 elif event.get("metadata", {}).get("usage"):
                     usage = event.get("metadata").get("usage")
 
@@ -675,21 +695,16 @@ class AsyncGenerate(object):
             response = await asyncio.to_thread(self.client.converse_stream, **body)
 
             # Fetching generator
-            streaming_response = response.get("stream")
-
-            stream_started = False
+            streaming_response = CreateAiter(event_stream=response.get("stream"))
 
             # Use the async wrapper to iterate over events asynchronously.
-            async for event in self._async_wrap(streaming_response):
+            async for event in streaming_response:
                 # Waiting for text chunks to be generated.
-                if event.get("contentBlockDelta", {}).get("delta", {}).get("text"):
+                if event is streaming_response.SENTINEL:
+                    break
+                elif event.get("contentBlockDelta", {}).get("delta", {}).get("text"):
                     text = event["contentBlockDelta"]["delta"].get("text", "")
-                    if not stream_started:
-                        if text:
-                            yield text
-                        stream_started = True
-                    else:
-                        yield text
+                    yield text
                 elif event.get("metadata", {}).get("usage"):
                     usage = event["metadata"]["usage"]
                     if event["metadata"].get("metrics"):
@@ -699,11 +714,6 @@ class AsyncGenerate(object):
                     yield event
                 else:
                     pass
-
-        except Exception as e:
-            # Handle error as needed.
-            error_explainer(e)
-            yield {"error": 500, "reason": str(e)}
 
         except Exception as e:
             error_explainer(e)
@@ -720,15 +730,26 @@ class AsyncGenerate(object):
             AsyncGenerator: Items from the synchronous iterator
         """
         loop = asyncio.get_running_loop()
-        it = iter(sync_iterable)
-        SENTINEL = object()
+        it = CreateAiter(sync_iterable)
+        # SENTINEL = object()
 
-        while True:
-            # Running the blocking next() in an executor.
-            event = await loop.run_in_executor(None, self._safe_next, it, SENTINEL)
-            if event is SENTINEL:
-                break
-            yield event
+        # while True:
+        #     # Running the blocking next() in an executor.
+        #     event = await loop.run_in_executor(None, self._safe_next, it, SENTINEL)
+        #     if event is SENTINEL:
+        #         break
+        #
+        # yield event
+
+        async for i in it:
+            yield i
+
+        # try:
+        #     event = await loop.run_in_executor(None, next, it)
+        # except StopIteration:
+        #     return
+
+        # yield event
 
     @staticmethod
     def _safe_next(it: EventStream, SENTINEL: object) -> Any:
@@ -823,4 +844,3 @@ class AsyncGenerate(object):
 
         except Exception as e:
             error_explainer(e)
-            return {"error": 500, "reason": str(e)}
