@@ -179,6 +179,7 @@ class Generate(object):
                     response_format={"type": "json_object"}
                     if do_json
                     else {"type": "text"},
+                    stream_options={"include_usage": True},
                 )
 
                 response = ""
@@ -190,27 +191,16 @@ class Generate(object):
                         completion.close()
                         break
                     else:
-                        if chunk.choices[0].delta.content:
+                        if chunk.choices and chunk.choices[0].delta.content:
                             response += chunk.choices[0].delta.content
                             yield chunk.choices[0].delta.content
-
-                # Final token used calculator as we are not getting this info in the api
-                with concurrent.futures.ThreadPoolExecutor() as executor:
-                    prompt_tokens, completion_tokens = executor.map(
-                        lambda args: self.num_tokens_from_string(*args),
-                        [(model_name, system_prompt), (model_name, response)],
-                    )
+                        elif chunk.usage:
+                            usage = chunk.usage.to_dict()
 
                 # Format the final response with metadata
                 result = {
                     "response": response,
-                    "metadata": {
-                        "usage": {
-                            "prompt_tokens": prompt_tokens,
-                            "completion_tokens": completion_tokens,
-                            "total_tokens": prompt_tokens + completion_tokens,
-                        }
-                    },
+                    "metadata": {"usage": usage},
                 }
 
                 yield result
@@ -448,6 +438,7 @@ class AsyncGenerate(object):
                     response_format={"type": "json_object"}
                     if do_json
                     else {"type": "text"},
+                    stream_options={"include_usage": True},
                 )
 
                 response = ""
@@ -459,28 +450,16 @@ class AsyncGenerate(object):
                         await completion.close()
                         break
                     else:
-                        if chunk.choices[0].delta.content:
+                        if chunk.choices and chunk.choices[0].delta.content:
                             response += chunk.choices[0].delta.content
                             yield chunk.choices[0].delta.content
-
-                # Final token used calculator as we are not getting this info in the api
-                prompt_tokens, completion_tokens = await asyncio.gather(
-                    self.num_tokens_from_string(
-                        string=system_prompt, model_name=model_name
-                    ),
-                    self.num_tokens_from_string(string=response, model_name=model_name),
-                )
+                        elif chunk.usage:
+                            usage = chunk.usage.to_dict()
 
                 # Format the final response with metadata
                 result = {
                     "response": response,
-                    "metadata": {
-                        "usage": {
-                            "prompt_tokens": prompt_tokens,
-                            "completion_tokens": completion_tokens,
-                            "total_tokens": prompt_tokens + completion_tokens,
-                        }
-                    },
+                    "metadata": {"usage": usage},
                 }
 
                 yield result
