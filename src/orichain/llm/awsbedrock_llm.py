@@ -1,11 +1,7 @@
 from typing import Any, List, Dict, Optional, Union, Generator, AsyncGenerator
 from botocore.eventstream import EventStream
-
 import asyncio
-from anyio import from_thread
-
 from fastapi import Request
-
 from orichain import error_explainer
 
 
@@ -111,7 +107,6 @@ class Generate(object):
         self,
         model_name: str,
         user_message: Union[str, List[Dict[str, str]]],
-        request: Optional[Request] = None,
         chat_hist: Optional[List[Dict[str, str]]] = None,
         sampling_paras: Optional[Dict] = None,
         system_prompt: Optional[str] = None,
@@ -124,7 +119,6 @@ class Generate(object):
         Args:
             model_name (str): Name of the AWS Bedrock model to use
             user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
-            request (Optional[Request], optional): FastAPI request object for connection tracking
             chat_hist (Optional[List[str]], optional): Previous conversation history
             sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
             system_prompt (Optional[str], optional): System prompt to provide context to the model
@@ -148,10 +142,6 @@ class Generate(object):
 
             # Default empty dictionaries
             sampling_paras = sampling_paras or {}
-
-            # Check if the request was disconnected
-            if request and from_thread.run(request.is_disconnected):
-                return {"error": 400, "reason": "request aborted by user"}
 
             # Setting up the request body
             body = {
@@ -178,7 +168,6 @@ class Generate(object):
         self,
         model_name: str,
         user_message: Union[str, List[Dict[str, str]]],
-        request: Optional[Request] = None,
         chat_hist: Optional[List[Dict[str, str]]] = None,
         sampling_paras: Optional[Dict] = None,
         system_prompt: Optional[str] = None,
@@ -191,7 +180,6 @@ class Generate(object):
         Args:
             model_name (str): Name of the AWS Bedrock model to use
             user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
-            request (Optional[Request], optional): FastAPI request object for connection tracking
             chat_hist (Optional[List[str]], optional): Previous conversation history
             sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
             system_prompt (Optional[str], optional): System prompt to provide context to the model
@@ -238,12 +226,7 @@ class Generate(object):
 
                 # Stream text chunks as they become available
                 for text in streaming_response:
-                    # Check if the request was disconnected
-                    if request and from_thread.run(request.is_disconnected):
-                        yield {"error": 400, "reason": "request aborted by user"}
-                        streaming_response.close()
-                        break
-                    elif text and isinstance(text, str):
+                    if text and isinstance(text, str):
                         response += text
                         yield text
                     elif isinstance(text, Dict) and "error" not in text:
@@ -718,52 +701,6 @@ class AsyncGenerate(object):
         except Exception as e:
             error_explainer(e)
             yield {"error": 500, "reason": str(e)}
-
-    async def _async_wrap(self, sync_iterable: EventStream) -> AsyncGenerator:
-        """
-        Wrap a synchronous iterator in an asynchronous generator.
-
-        Args:
-            sync_iterable (EventStream): Synchronous iterator to wrap
-
-        Yields:
-            AsyncGenerator: Items from the synchronous iterator
-        """
-        loop = asyncio.get_running_loop()
-        it = CreateAiter(sync_iterable)
-        # SENTINEL = object()
-
-        # while True:
-        #     # Running the blocking next() in an executor.
-        #     event = await loop.run_in_executor(None, self._safe_next, it, SENTINEL)
-        #     if event is SENTINEL:
-        #         break
-        #
-        # yield event
-
-        async for i in it:
-            yield i
-
-        # try:
-        #     event = await loop.run_in_executor(None, next, it)
-        # except StopIteration:
-        #     return
-
-        # yield event
-
-    @staticmethod
-    def _safe_next(it: EventStream, SENTINEL: object) -> Any:
-        """
-        Safely get the next item from an iterator.
-        If the iterator is exhausted, return a sentinel value.
-        """
-        try:
-            return next(it)
-        except StopIteration:
-            return SENTINEL
-        except Exception as e:
-            error_explainer(e)
-            return {"error": 500, "reason": str(e)}
 
     async def _chat_formatter(
         self,

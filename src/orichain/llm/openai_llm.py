@@ -1,7 +1,4 @@
 from typing import Dict, List, Optional, Generator, AsyncGenerator
-import asyncio
-from anyio import from_thread
-import concurrent.futures
 
 from fastapi import Request
 
@@ -67,7 +64,6 @@ class Generate(object):
         self,
         model_name: str,
         user_message: str,
-        request: Optional[Request] = None,
         chat_hist: Optional[List[str]] = None,
         sampling_paras: Optional[Dict] = None,
         system_prompt: Optional[str] = None,
@@ -79,7 +75,6 @@ class Generate(object):
         Args:
             model_name (str): Name of the OpenAI model to use
             user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
-            request (Optional[Request], optional): FastAPI request object for connection tracking
             chat_hist (Optional[List[str]], optional): Previous conversation history
             sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
             system_prompt (Optional[str], optional): System prompt to provide context to the model
@@ -103,10 +98,6 @@ class Generate(object):
 
             # Default empty dictionaries
             sampling_paras = sampling_paras or {}
-
-            # Check if the request was disconnected
-            if request and from_thread.run(request.is_disconnected()):
-                return {"error": 400, "reason": "request aborted by user"}
 
             # Call the OpenAI API with the formatted messages
             completion = self.client.chat.completions.create(
@@ -133,7 +124,6 @@ class Generate(object):
         self,
         model_name: str,
         user_message: str,
-        request: Optional[Request] = None,
         chat_hist: Optional[List[str]] = None,
         sampling_paras: Optional[Dict] = None,
         system_prompt: Optional[str] = None,
@@ -145,7 +135,6 @@ class Generate(object):
         Args:
             model_name (str): Name of the OpenAI model to use
             user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
-            request (Optional[Request], optional): FastAPI request object for connection tracking
             chat_hist (Optional[List[str]], optional): Previous conversation history
             sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
             system_prompt (Optional[str], optional): System prompt to provide context to the model
@@ -186,16 +175,11 @@ class Generate(object):
 
                 # Stream text chunks as they become available
                 for chunk in completion:
-                    if request and from_thread.run(request.is_disconnected):
-                        yield {"error": 400, "reason": "request aborted by user"}
-                        completion.close()
-                        break
-                    else:
-                        if chunk.choices and chunk.choices[0].delta.content:
-                            response += chunk.choices[0].delta.content
-                            yield chunk.choices[0].delta.content
-                        elif chunk.usage:
-                            usage = chunk.usage.to_dict()
+                    if chunk.choices and chunk.choices[0].delta.content:
+                        response += chunk.choices[0].delta.content
+                        yield chunk.choices[0].delta.content
+                    elif chunk.usage:
+                        usage = chunk.usage.to_dict()
 
                 # Format the final response with metadata
                 result = {

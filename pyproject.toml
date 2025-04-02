@@ -1,6 +1,6 @@
 [project]
 name = "orichain"
-version = "2.0.dev1"
+version = "2.0.0"
 description = "Python lib created only for RAG related text based enterprise solutions"
 authors = [
     { name = "apoorv-singh-107", email = "apoorv.singh@oriserve.com" },
@@ -20,7 +20,6 @@ dependencies = [
     "chromadb==0.6.3",
     "pysqlite3-binary==0.5.4",
     "pinecone[grpc]==6.0.1",
-    "together==1.4.6",
 ]
 readme = "README.md"
 requires-python = ">= 3.10.13"

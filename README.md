@@ -49,7 +49,7 @@ Just do this
 pip install orichain
 ```
 
-We have added Sentence Transformers as an optional package, so if you want to use it, please do one of the following:
+We have added Sentence Transformers and Lingua Language Detector as optional packages, so if you want to use them, please do one of the following:
 
 1. Install with orichain:
 
@@ -68,13 +68,16 @@ pip install sentence-transformers==3.4.1
 A quick example of how to use Orichain:
 
 ```python
-from orichain.llm import LLM
+from orichain.llm import AsyncLLM
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-llm = LLM(api_key=os.getenv("OPENAI_KEY"))
+llm = AsyncLLM(
+    model_name="gpt-4o-mini", 
+    api_key=os.getenv("OPENAI_KEY")
+    )
 
 user_message = "I am feeling sad"
 
@@ -94,9 +97,9 @@ llm_response = await llm(
 ## Features
 
 Reasons to use Orichain:
-
-- Optimized: The whole code is async, and parts of it are also threaded, you will be using FastAPI, so the code will be highly efficient
-- Hot Swappable: You can easily change the parts of RAG, whenever the requirements change of the project. Highly flexible.
+- Supports Both Sync and Async: Provides flexibility for different use cases.
+- Optimized Performance: Utilizes threading for efficiency, especially when used with FastAPI.
+- Hot-Swappable Components: Easily modify RAG components as project requirements evolve, ensuring high flexibility.
 
 ## Documentation
 
@@ -104,15 +107,15 @@ Coming soon...
 
 ## Example
 
-I will give you a basic example of how to use this code
+Here is a basic example of how to use this code: 
 
 ```python
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 
-from orichain.embeddings import EmbeddingModels
-from orichain.knowledge_base import KnowledgeBase
-from orichain.llm import LLM
+from orichain.embeddings import AsyncEmbeddingModels
+from orichain.knowledge_base import AsyncKnowledgeBase
+from orichain.llm import AsyncLLM
 
 import os
 from dotenv import load_dotenv
@@ -120,16 +123,19 @@ from typing import Dict
 
 load_dotenv()
 
-embedding_model = EmbeddingModels(api_key=os.getenv("OPENAI_KEY"))
+embedding_model = AsyncEmbeddingModels(api_key=os.getenv("OPENAI_KEY"))
 
-knowledge_base_manager = KnowledgeBase(
+knowledge_base_manager = AsyncKnowledgeBase(
     vector_db_type="pinecone",
     api_key=os.getenv("PINECONE_KEY"),
     index_name="<depends on your creds>", 
     namespace="<choose your desired namespace",
 )
 
-llm = LLM(api_key=os.getenv("OPENAI_KEY"))
+llm = AsyncLLM(
+    model_name="gpt-4o-mini", 
+    api_key=os.getenv("OPENAI_KEY")
+    )
 
 app = FastAPI(redoc_url=None, docs_url=None)
 
@@ -141,6 +147,7 @@ async def generate(request: Request) -> Response:
     # Fetching valid keys
     user_message = request_json.get("user_message")
     prev_pairs = request_json.get("prev_pairs")
+    metadata = request_json.get("metadata")
 
     # Embedding creation for retrieval
     user_message_vector = await embedding_model(user_message=user_message)
@@ -152,7 +159,7 @@ async def generate(request: Request) -> Response:
     # Fetching relevant data chunks from knowledgebase
     retrived_chunks = await knowledge_base_manager(
         user_message_vector=user_message_vector,
-        num_of_chunks=parameters.num_of_chunks,
+        num_of_chunks=5,
     )
 
     # Checking for error while fetching relevant data chunks
@@ -160,6 +167,11 @@ async def generate(request: Request) -> Response:
         return JSONResponse(user_message_vector)
 
     matched_sentence = convert_to_text_list(retrived_chunks) # Create a funtion that converts your data into a list of relevant information
+
+    system_prompt = f"""As a helpful, engaging and friendly chatbot, you will answer the user's query based on the following information provided: 
+    <data>
+    {"\n\n".join(matched_sentence)}
+    </data>"""
 
     # Streaming
     if metadata.get("stream"):
@@ -245,6 +257,7 @@ git tag -d vX.X.X
 ```bash
 git push origin --delete vX.X.X
 ```
+
 ## License
 
 [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)

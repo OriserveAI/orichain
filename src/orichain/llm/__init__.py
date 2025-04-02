@@ -1,8 +1,6 @@
 from typing import Any, Optional, List, Dict, Generator, AsyncGenerator
 import warnings
 import json
-
-from anyio import from_thread
 from fastapi import Request
 
 from orichain import error_explainer
@@ -189,7 +187,6 @@ class LLM(object):
     def __call__(
         self,
         user_message: str,
-        request: Optional[Request] = None,
         matched_sentence: Optional[List[str]] = None,
         system_prompt: Optional[str] = None,
         chat_hist: Optional[List[Dict[str, str]]] = None,
@@ -202,7 +199,6 @@ class LLM(object):
 
         Args:
             user_message (str): The user's input message.
-            request (Request, optional): FastAPI request object for cancellation detection.
             matched_sentence (List[str], optional): List of matched sentences for context.
             system_prompt (str, optional): System prompt to guide the model's behavior.
             chat_hist (List[Dict[str, str]], optional): Chat history for context.
@@ -225,13 +221,8 @@ class LLM(object):
             sampling_paras = sampling_paras or {}
             extra_metadata = extra_metadata or {}
 
-            # Check if request is disconnected
-            if request and from_thread.run(request.is_disconnected):
-                return {"error": 400, "reason": "request aborted by user"}
-
             # Generate the response
             result = self.model(
-                request=request,
                 model_name=model_name,
                 user_message=user_message,
                 system_prompt=system_prompt,
@@ -259,7 +250,6 @@ class LLM(object):
     def stream(
         self,
         user_message: str,
-        request: Optional[Request] = None,
         matched_sentence: Optional[List[str]] = None,
         system_prompt: Optional[str] = None,
         chat_hist: List = None,
@@ -273,7 +263,6 @@ class LLM(object):
 
         Args:
             user_message (str): The user's input message.
-            request (Request, optional): FastAPI request object for cancellation detection.
             matched_sentence (List[str], optional): List of matched sentences for context.
             system_prompt (str, optional): System prompt to guide the model's behavior.
             chat_hist (List[Dict[str, str]], optional): Chat history for context.
@@ -297,46 +286,39 @@ class LLM(object):
             sampling_paras = sampling_paras or {}
             extra_metadata = extra_metadata or {}
 
-            # Check if the request has been disconnected
-            if request and from_thread.run(request.is_disconnected):
-                yield self._format_sse(
-                    {"error": 400, "reason": "request aborted by user"}, event="body"
-                )
-            else:
-                # Stream responses from the model
-                result = self.model.streaming(
-                    request=request,
-                    model_name=model_name,
-                    user_message=user_message,
-                    system_prompt=system_prompt,
-                    chat_hist=chat_hist,
-                    sampling_paras=sampling_paras,
-                    do_json=do_json,
-                    **kwds,
-                )
+            # Stream responses from the model
+            result = self.model.streaming(
+                model_name=model_name,
+                user_message=user_message,
+                system_prompt=system_prompt,
+                chat_hist=chat_hist,
+                sampling_paras=sampling_paras,
+                do_json=do_json,
+                **kwds,
+            )
 
-                # Process each chunk in the stream
-                for chunk in result:
-                    if isinstance(chunk, str):
-                        if do_sse:
-                            yield self._format_sse(chunk, event="text")
-                        else:
-                            yield chunk
-                    elif isinstance(chunk, Dict):
-                        if "error" not in chunk:
-                            chunk.update(
-                                {
-                                    "message": user_message,
-                                }
-                            )
-                            if matched_sentence:
-                                chunk.update({"matched_sentence": matched_sentence})
-                            if extra_metadata:
-                                chunk["metadata"].update(extra_metadata)
-                        if do_sse:
-                            yield self._format_sse(chunk, event="body")
-                        else:
-                            yield chunk
+            # Process each chunk in the stream
+            for chunk in result:
+                if isinstance(chunk, str):
+                    if do_sse:
+                        yield self._format_sse(chunk, event="text")
+                    else:
+                        yield chunk
+                elif isinstance(chunk, Dict):
+                    if "error" not in chunk:
+                        chunk.update(
+                            {
+                                "message": user_message,
+                            }
+                        )
+                        if matched_sentence:
+                            chunk.update({"matched_sentence": matched_sentence})
+                        if extra_metadata:
+                            chunk["metadata"].update(extra_metadata)
+                    if do_sse:
+                        yield self._format_sse(chunk, event="body")
+                    else:
+                        yield chunk
 
         except Exception as e:
             error_explainer(e)

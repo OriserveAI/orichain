@@ -1,5 +1,4 @@
 from typing import Any, List, Dict, Optional, Union, Generator, AsyncGenerator
-from anyio import from_thread
 
 from fastapi import Request
 
@@ -71,7 +70,6 @@ class Generate(object):
         self,
         model_name: str,
         user_message: Union[str, List[Dict[str, str]]],
-        request: Optional[Request] = None,
         chat_hist: Optional[List[str]] = None,
         sampling_paras: Optional[Dict] = None,
         system_prompt: Optional[str] = None,
@@ -84,7 +82,6 @@ class Generate(object):
         Args:
             model_name (str): Name of the AWSBedrock Anthropic model to use
             user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
-            request (Optional[Request], optional): FastAPI request object for connection tracking
             chat_hist (Optional[List[str]], optional): Previous conversation history
             sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
             system_prompt (Optional[str], optional): System prompt to provide context to the model
@@ -115,10 +112,6 @@ class Generate(object):
             if "max_tokens" not in sampling_paras:
                 sampling_paras["max_tokens"] = 512
 
-            # Check if the request was disconnected
-            if request and from_thread.run(request.is_disconnected):
-                return {"error": 400, "reason": "request aborted by user"}
-
             # Call the AWSBedrock Anthropic API with the formatted messages
             message = self.client.with_options(
                 timeout=kwds.get("timeout")
@@ -145,7 +138,6 @@ class Generate(object):
         self,
         model_name: str,
         user_message: Union[str, List[Dict[str, str]]],
-        request: Optional[Request] = None,
         chat_hist: Optional[List[str]] = None,
         sampling_paras: Optional[Dict] = None,
         system_prompt: Optional[str] = None,
@@ -157,7 +149,6 @@ class Generate(object):
         Args:
             model_name (str): Name of the AWSBedrock Anthropic model to use
             user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
-            request (Optional[Request], optional): FastAPI request object for connection tracking
             chat_hist (Optional[List[str]], optional): Previous conversation history
             sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
             system_prompt (Optional[str], optional): System prompt to provide context to the model
@@ -199,12 +190,6 @@ class Generate(object):
 
                     # Stream text chunks as they become available
                     for chunk in stream.text_stream:
-                        # Check if the request was disconnected
-                        if request and from_thread.run(request.is_disconnected):
-                            yield {"error": 400, "reason": "request aborted by user"}
-                            stream.close()
-                            break
-
                         # Yield non-empty chunks
                         if chunk:
                             yield chunk
