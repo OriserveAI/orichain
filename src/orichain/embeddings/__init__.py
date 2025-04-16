@@ -20,7 +20,7 @@ MODEL_CLASS = {
 }
 
 
-class EmbeddingModels(object):
+class EmbeddingModel(object):
     """Synchronus Base class for embedding generation
     Default embedding model that will be used is `text-embedding-ada-002`"""
 
@@ -167,7 +167,7 @@ class EmbeddingModels(object):
         return user_message_vector
 
 
-class AsyncEmbeddingModels(object):
+class AsyncEmbeddingModel(object):
     """Asynchronus Base class for embedding generation
     Default embedding model that will be used is `text-embedding-ada-002`"""
 

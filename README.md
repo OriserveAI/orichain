@@ -87,7 +87,6 @@ system_prompt = """You need to return a JSON object with a key emotion and detec
 }"""
 
 llm_response = await llm(
-                request=request, # Request of endpoint when using Fastapi, checks whether the request has been aborted
                 user_message=user_message,
                 system_prompt=system_prompt,
                 do_json=True # This insures that the response will be a json
@@ -113,7 +112,7 @@ Here is a basic example of how to use this code:
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 
-from orichain.embeddings import AsyncEmbeddingModels
+from orichain.embeddings import AsyncEmbeddingModel
 from orichain.knowledge_base import AsyncKnowledgeBase
 from orichain.llm import AsyncLLM
 
@@ -123,7 +122,7 @@ from typing import Dict
 
 load_dotenv()
 
-embedding_model = AsyncEmbeddingModels(api_key=os.getenv("OPENAI_KEY"))
+embedding_model = AsyncEmbeddingModel(api_key=os.getenv("OPENAI_KEY"))
 
 knowledge_base_manager = AsyncKnowledgeBase(
     vector_db_type="pinecone",
