@@ -51,16 +51,26 @@ pip install orichain
 
 We have added Sentence Transformers and Lingua Language Detector as optional packages, so if you want to use them, please do one of the following:
 
-1. Install with orichain:
+### Installation Options
 
+#### 1. Install with orichain:
+- For `sentence-transformers`:
 ```bash
 pip install "orichain[sentence-transformers]"
 ```
+- For `lingua-language-detector`:
+```bash
+pip install "orichain[lingua-language-detector]"
+```
 
-2. Install directly:
-
+#### 2. Install directly:
+- For `sentence-transformers`:
 ```bash
 pip install sentence-transformers==3.4.1
+```
+- For `lingua-language-detector`:
+```bash
+pip install lingua-language-detector==2.1.0
 ```
 
 ## Usage
