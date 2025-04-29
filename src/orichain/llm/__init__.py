@@ -72,6 +72,8 @@ MODEL_CLASS = {
     "us.meta.llama3-2-11b-instruct-v1:0": "AWSBedrock",
     "meta.llama3-2-90b-instruct-v1:0": "AWSBedrock",
     "us.meta.llama3-2-90b-instruct-v1:0": "AWSBedrock",
+    "meta.llama3-3-70b-instruct-v1:0": "AWSBedrock",
+    "us.meta.llama3-3-70b-instruct-v1:0": "AWSBedrock",
     "mistral.mistral-7b-instruct-v0:2": "AWSBedrock",
     "mistral.mixtral-8x7b-instruct-v0:1": "AWSBedrock",
     "mistral.mistral-large-2402-v1:0": "AWSBedrock",

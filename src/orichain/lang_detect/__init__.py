@@ -3,6 +3,8 @@ from orichain import error_explainer
 
 import asyncio
 
+VERSION = "2.1.0"
+
 
 class LanguageDetection(object):
     """
@@ -24,7 +26,27 @@ class LanguageDetection(object):
 
         try:
             from lingua import Language, LanguageDetectorBuilder
+        except ImportError:
+            install = (
+                input(
+                    "lingua-language-detector is not installed. Do you want to install it now? (y/n): "
+                )
+                .strip()
+                .lower()
+            )
+            if install == "y" or install == "yes":
+                import subprocess
 
+                subprocess.run(
+                    ["pip", "install", f"lingua-language-detector=={VERSION}"],
+                    check=True,
+                )
+            else:
+                raise ImportError(
+                    f"lingua-language-detector is required for LanguageDetection class. Please install it manually using `pip install orichain[lingua-language-detector]' or 'pip install lingua-language-detector=={VERSION}`."
+                )
+
+        try:
             # Loading detector with requirements
             if languages:
                 # Loading detector with specific languages
@@ -106,19 +128,44 @@ class AsyncLanguageDetection(object):
             low_accuracy (Optional[bool], optional): To enable low accuracy mode. Defaults to False.
         """
 
-        from lingua import Language, LanguageDetectorBuilder
+        try:
+            from lingua import Language, LanguageDetectorBuilder
+        except ImportError:
+            install = (
+                input(
+                    "lingua-language-detector is not installed. Do you want to install it now? (y/n): "
+                )
+                .strip()
+                .lower()
+            )
+            if install == "y" or install == "yes":
+                import subprocess
 
-        if languages:
-            language_objects = [getattr(Language, lang.upper()) for lang in languages]
-            detector = LanguageDetectorBuilder.from_languages(*language_objects)
-        else:
-            detector = LanguageDetectorBuilder.from_all_languages()
-        if low_accuracy:
-            detector = detector.with_low_accuracy_mode()
+                subprocess.run(
+                    ["pip", "install", f"lingua-language-detector=={VERSION}"],
+                    check=True,
+                )
+            else:
+                raise ImportError(
+                    f"lingua-language-detector is required for AsyncLanguageDetection class. Please install it manually using `pip install orichain[lingua-language-detector]' or 'pip install lingua-language-detector=={VERSION}`."
+                )
 
-        self.detector = detector.with_preloaded_language_models().build()
+        try:
+            if languages:
+                language_objects = [
+                    getattr(Language, lang.upper()) for lang in languages
+                ]
+                detector = LanguageDetectorBuilder.from_languages(*language_objects)
+            else:
+                detector = LanguageDetectorBuilder.from_all_languages()
+            if low_accuracy:
+                detector = detector.with_low_accuracy_mode()
 
-        self.min_words = min_words
+            self.detector = detector.with_preloaded_language_models().build()
+
+            self.min_words = min_words
+        except Exception as e:
+            error_explainer(e)
 
     async def __call__(
         self,
