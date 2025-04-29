@@ -56,6 +56,10 @@ We have added Sentence Transformers and Lingua Language Detector as optional pac
 ```bash
 pip install "orichain[sentence-transformers]"
 ```
+or
+```bash
+pip install "orichain[lingua-language-detector]"
+```
 
 2. Install directly:
 
