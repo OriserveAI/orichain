@@ -20,7 +20,7 @@ It is a custom wrapper made for RAG use cases made to be integrated with your en
     - Anthropic
     - AWS Bedrock
         - Anthropic models (Series 3, 3.5, 3.7)
-        - LLAMA models (Series 3, 3.1, 3.2)
+        - LLAMA models (Series 3, 3.1, 3.2, 3.3)
         - Amazon Titan text models
         - Amazon Nova series models
         - Mistral models
