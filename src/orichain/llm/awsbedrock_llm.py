@@ -85,10 +85,10 @@ class Generate(object):
             )
         else:
             pass
-        
-        if kwds.get("prompt_caching") != False: 
+
+        if kwds.get("prompt_caching", True):
             self.prompt_caching = True
-        else: 
+        else:
             self.prompt_caching = False
 
         import boto3
@@ -159,13 +159,9 @@ class Generate(object):
             # Check for system_prompt
             if system_prompt:
                 system = [{"text": system_prompt}]
-                if self.prompt_caching: 
+                if self.prompt_caching:
                     system.append({"cachePoint": {"type": "default"}})
-                body.update(
-                    {
-                        "system": system
-                    }
-                )
+                body.update({"system": system})
 
             # Call the AWSBedrock client with the formatted messages
             result = self._generate_response(body=body)
@@ -228,13 +224,9 @@ class Generate(object):
                 # Check for system_prompt
                 if system_prompt:
                     system = [{"text": system_prompt}]
-                    if self.prompt_caching: 
+                    if self.prompt_caching:
                         system.append({"cachePoint": {"type": "default"}})
-                    body.update(
-                        {
-                            "system": system
-                        }
-                    )
+                    body.update({"system": system})
 
                 # Start the streaming session
                 streaming_response = self._stream_response(body=body)
@@ -376,19 +368,15 @@ class Generate(object):
             # Add user message based on its type
             if isinstance(user_message, str):
                 content = [
-                            {
-                                "text": user_message
-                                + "\n(Respond in JSON and do not give any explanation or notes)"
-                                if do_json
-                                else user_message
-                            }
-                        ]
-                if self.prompt_caching: 
-                    content.append({
-                                "cachePoint": {
-                                    "type": "default"
-                                }
-                            })
+                    {
+                        "text": user_message
+                        + "\n(Respond in JSON and do not give any explanation or notes)"
+                        if do_json
+                        else user_message
+                    }
+                ]
+                if self.prompt_caching:
+                    content.append({"cachePoint": {"type": "default"}})
                 messages.append(
                     {
                         "role": "user",
@@ -476,10 +464,10 @@ class AsyncGenerate(object):
             )
         else:
             pass
-        
-        if kwds.get("prompt_caching") != False: 
+
+        if kwds.get("prompt_caching", True):
             self.prompt_caching = True
-        else: 
+        else:
             self.prompt_caching = False
 
         import boto3
@@ -556,13 +544,9 @@ class AsyncGenerate(object):
             # Check for system_prompt
             if system_prompt:
                 system = [{"text": system_prompt}]
-                if self.prompt_caching: 
+                if self.prompt_caching:
                     system.append({"cachePoint": {"type": "default"}})
-                body.update(
-                    {
-                        "system": system
-                    }
-                )
+                body.update({"system": system})
 
             # Call the AWSBedrock client with the formatted messages
             result = await self._generate_response(body=body)
@@ -627,13 +611,9 @@ class AsyncGenerate(object):
                 # Check for system_prompt
                 if system_prompt:
                     system = [{"text": system_prompt}]
-                    if self.prompt_caching: 
+                    if self.prompt_caching:
                         system.append({"cachePoint": {"type": "default"}})
-                    body.update(
-                        {
-                            "system": system
-                        }
-                    )
+                    body.update({"system": system})
 
                 # Start the streaming session
                 streaming_response = self._stream_response(body=body)
@@ -785,19 +765,15 @@ class AsyncGenerate(object):
             # Add user message based on its type
             if isinstance(user_message, str):
                 content = [
-                            {
-                                "text": user_message
-                                + "\n(Respond in JSON and do not give any explanation or notes)"
-                                if do_json
-                                else user_message
-                            }
-                        ]
-                if self.prompt_caching: 
-                    content.append({
-                                "cachePoint": {
-                                    "type": "default"
-                                }
-                            })
+                    {
+                        "text": user_message
+                        + "\n(Respond in JSON and do not give any explanation or notes)"
+                        if do_json
+                        else user_message
+                    }
+                ]
+                if self.prompt_caching:
+                    content.append({"cachePoint": {"type": "default"}})
                 messages.append(
                     {
                         "role": "user",
