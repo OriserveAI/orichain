@@ -52,6 +52,11 @@ class Generate(object):
             )
         else:
             pass
+        
+        if kwds.get("prompt_caching") != False: 
+            self.prompt_caching = True
+        else: 
+            self.prompt_caching = False
 
         from anthropic import AnthropicBedrock
 
@@ -105,8 +110,16 @@ class Generate(object):
             sampling_paras = sampling_paras or {}
 
             # Setting system prompt in sampling params, as None type is not allowed
-            if system_prompt:
-                sampling_paras["system"] = system_prompt
+            if system_prompt: 
+                system = [
+                    {
+                        "type": "text",
+                        "text": system_prompt
+                    }
+                ]
+                if self.prompt_caching: 
+                    system[0].update({"cache_control": {"type": "ephemeral"}})
+                sampling_paras["system"] = system
 
             # Setting default max_tokens if not provided
             if "max_tokens" not in sampling_paras:
@@ -171,8 +184,16 @@ class Generate(object):
                 sampling_paras = sampling_paras or {}
 
                 # Setting system prompt in sampling params, as None type is not allowed
-                if system_prompt:
-                    sampling_paras["system"] = system_prompt
+                if system_prompt: 
+                    system = [
+                        {
+                            "type": "text",
+                            "text": system_prompt
+                        }
+                    ]
+                    if self.prompt_caching: 
+                        system[0].update({"cache_control": {"type": "ephemeral"}})
+                    sampling_paras["system"] = system
 
                 # Setting default max_tokens if not provided
                 if "max_tokens" not in sampling_paras:
@@ -239,7 +260,15 @@ class Generate(object):
 
             # Add user message based on its type
             if isinstance(user_message, str):
-                messages.append({"role": "user", "content": user_message})
+                content = [
+                    {
+                        "type": "text",
+                        "text": user_message
+                    }
+                ]
+                if self.prompt_caching: 
+                    content[0].update({"cache_control": {"type": "ephemeral"}})
+                messages.append({"role": "user", "content": content})
             elif isinstance(user_message, List):
                 messages.extend(user_message)
             else:
@@ -306,6 +335,11 @@ class AsyncGenerate(object):
             )
         else:
             pass
+        
+        if kwds.get("prompt_caching") != False: 
+            self.prompt_caching = True
+        else: 
+            self.prompt_caching = False
 
         from anthropic import AsyncAnthropicBedrock
 
@@ -361,8 +395,16 @@ class AsyncGenerate(object):
             sampling_paras = sampling_paras or {}
 
             # Setting system prompt in sampling params, as None type is not allowed
-            if system_prompt:
-                sampling_paras["system"] = system_prompt
+            if system_prompt: 
+                system = [
+                    {
+                        "type": "text",
+                        "text": system_prompt
+                    }
+                ]
+                if self.prompt_caching: 
+                    system[0].update({"cache_control": {"type": "ephemeral"}})
+                sampling_paras["system"] = system
 
             # Setting default max_tokens if not provided
             if "max_tokens" not in sampling_paras:
@@ -433,8 +475,16 @@ class AsyncGenerate(object):
                 sampling_paras = sampling_paras or {}
 
                 # Setting system prompt in sampling params, as None type is not allowed
-                if system_prompt:
-                    sampling_paras["system"] = system_prompt
+                if system_prompt: 
+                    system = [
+                        {
+                            "type": "text",
+                            "text": system_prompt
+                        }
+                    ]
+                    if self.prompt_caching: 
+                        system[0].update({"cache_control": {"type": "ephemeral"}})
+                    sampling_paras["system"] = system
 
                 # Setting default max_tokens if not provided
                 if "max_tokens" not in sampling_paras:
@@ -507,7 +557,15 @@ class AsyncGenerate(object):
 
             # Add user message based on its type
             if isinstance(user_message, str):
-                messages.append({"role": "user", "content": user_message})
+                content = [
+                    {
+                        "type": "text",
+                        "text": user_message
+                    }
+                ]
+                if self.prompt_caching: 
+                    content[0].update({"cache_control": {"type": "ephemeral"}})
+                messages.append({"role": "user", "content": content})
             elif isinstance(user_message, List):
                 messages.extend(user_message)
             else:

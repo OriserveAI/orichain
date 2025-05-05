@@ -118,6 +118,7 @@ class LLM(object):
             - aws_access_key (str): AWS access key.
             - aws_secret_key (str): AWS secret key.
             - aws_region (str): AWS region name.
+            - prompt_caching (bool, optional): Whether to use prompt caching. Default: True
             - config (Config, optional):
                 - connect_timeout (float or int, optional): The time in seconds till a timeout exception is
                 thrown when attempting to make a connection. Default: 60
@@ -132,6 +133,7 @@ class LLM(object):
             - api_key (str): Anthropic API key.
             - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
             - max_retries (int, optional): Number of retries for the request. Default: 2
+            - prompt_caching (bool, optional): Whether to use prompt caching. Default: True
 
             #### Azure OpenAI models
             - api_key (str): Azure OpenAI API key.
@@ -414,6 +416,7 @@ class AsyncLLM(object):
             - aws_access_key (str): AWS access key.
             - aws_secret_key (str): AWS secret key.
             - aws_region (str): AWS region name.
+            - prompt_caching (bool, optional): Whether to use prompt caching. Default: True
             - config (Config, optional):
                 - connect_timeout (float or int, optional): The time in seconds till a timeout exception is
                 thrown when attempting to make a connection. Default: 60
@@ -428,6 +431,7 @@ class AsyncLLM(object):
             - api_key (str): Anthropic API key.
             - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
             - max_retries (int, optional): Number of retries for the request. Default: 2
+            - prompt_caching (bool, optional): Whether to use prompt caching. Default: True
 
             #### Azure OpenAI models
             - api_key (str): Azure OpenAI API key.
