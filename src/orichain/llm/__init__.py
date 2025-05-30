@@ -14,90 +14,109 @@ from orichain.llm import (
 )
 
 DEFAULT_MODEL = "gpt-4o-mini"
-MODEL_CLASS = {
-    "gpt-4o": "OpenAI",
-    "gpt-4-turbo": "OpenAI",
-    "gpt-4-turbo-preview": "OpenAI",
-    "gpt-4o-mini": "OpenAI",
-    "gpt-4": "OpenAI",
-    "gpt-4.1": "OpenAI",
-    "gpt-4.1-mini": "OpenAI",
-    "gpt-4.1-nano": "OpenAI",
-    "anthropic.claude-3-haiku-20240307-v1:0": "AnthropicAWSBedrock",
-    "us.anthropic.claude-3-haiku-20240307-v1:0": "AnthropicAWSBedrock",
-    "us-gov.anthropic.claude-3-haiku-20240307-v1:0": "AnthropicAWSBedrock",
-    "eu.anthropic.claude-3-haiku-20240307-v1:0": "AnthropicAWSBedrock",
-    "apac.anthropic.claude-3-haiku-20240307-v1:0": "AnthropicAWSBedrock",
-    "anthropic.claude-3-5-haiku-20241022-v1:0": "AnthropicAWSBedrock",
-    "us.anthropic.claude-3-5-haiku-20241022-v1:0": "AnthropicAWSBedrock",
-    "anthropic.claude-3-sonnet-20240229-v1:0": "AnthropicAWSBedrock",
-    "us.anthropic.claude-3-sonnet-20240229-v1:0": "AnthropicAWSBedrock",
-    "eu.anthropic.claude-3-sonnet-20240229-v1:0": "AnthropicAWSBedrock",
-    "apac.anthropic.claude-3-sonnet-20240229-v1:0": "AnthropicAWSBedrock",
-    "anthropic.claude-3-5-sonnet-20240620-v1:0": "AnthropicAWSBedrock",
-    "us.anthropic.claude-3-5-sonnet-20240620-v1:0": "AnthropicAWSBedrock",
-    "us-gov.anthropic.claude-3-5-sonnet-20240620-v1:0": "AnthropicAWSBedrock",
-    "eu.anthropic.claude-3-5-sonnet-20240620-v1:0": "AnthropicAWSBedrock",
-    "apac.anthropic.claude-3-5-sonnet-20240620-v1:0": "AnthropicAWSBedrock",
-    "anthropic.claude-3-5-sonnet-20241022-v2:0": "AnthropicAWSBedrock",
-    "us.anthropic.claude-3-5-sonnet-20241022-v2:0": "AnthropicAWSBedrock",
-    "anthropic.claude-3-7-sonnet-20250219-v1:0": "AnthropicAWSBedrock",
-    "us.anthropic.claude-3-7-sonnet-20250219-v1:0": "AnthropicAWSBedrock",
-    "anthropic.claude-sonnet-4-20250514-v1:0": "AnthropicAWSBedrock",
-    "us.anthropic.claude-sonnet-4-20250514-v1:0": "AnthropicAWSBedrock",
-    "anthropic.claude-3-opus-20240229-v1:0": "AnthropicAWSBedrock",
-    "us.anthropic.claude-3-opus-20240229-v1:0": "AnthropicAWSBedrock",
-    "anthropic.claude-opus-4-20250514-v1:0": "AnthropicAWSBedrock",
-    "us.anthropic.claude-opus-4-20250514-v1:0": "AnthropicAWSBedrock",
-    "claude-3-haiku-20240307": "Anthropic",
-    "claude-3-5-haiku-latest": "Anthropic",
-    "claude-3-sonnet-20240229": "Anthropic",
-    "claude-3-5-sonnet-latest": "Anthropic",
-    "claude-3-7-sonnet-latest": "Anthropic",
-    "claude-sonnet-4-20250514": "Anthropic",
-    "claude-3-opus-latest": "Anthropic",
-    "claude-opus-4-20250514": "Anthropic",
-    "cohere.command-text-v14": "AWSBedrock",
-    "cohere.command-light-text-v14": "AWSBedrock",
-    "cohere.command-r-v1:0": "AWSBedrock",
-    "cohere.command-r-plus-v1:0": "AWSBedrock",
-    "meta.llama3-8b-instruct-v1:0": "AWSBedrock",
-    "meta.llama3-70b-instruct-v1:0": "AWSBedrock",
-    "meta.llama3-1-8b-instruct-v1:0": "AWSBedrock",
-    "us.meta.llama3-1-8b-instruct-v1:0": "AWSBedrock",
-    "meta.llama3-1-70b-instruct-v1:0": "AWSBedrock",
-    "us.meta.llama3-1-70b-instruct-v1:0": "AWSBedrock",
-    "meta.llama3-1-405b-instruct-v1:0": "AWSBedrock",
-    "meta.llama3-2-1b-instruct-v1:0": "AWSBedrock",
-    "us.meta.llama3-2-1b-instruct-v1:0": "AWSBedrock",
-    "eu.meta.llama3-2-1b-instruct-v1:0": "AWSBedrock",
-    "meta.llama3-2-3b-instruct-v1:0": "AWSBedrock",
-    "us.meta.llama3-2-3b-instruct-v1:0": "AWSBedrock",
-    "eu.meta.llama3-2-3b-instruct-v1:0": "AWSBedrock",
-    "meta.llama3-2-11b-instruct-v1:0": "AWSBedrock",
-    "us.meta.llama3-2-11b-instruct-v1:0": "AWSBedrock",
-    "meta.llama3-2-90b-instruct-v1:0": "AWSBedrock",
-    "us.meta.llama3-2-90b-instruct-v1:0": "AWSBedrock",
-    "meta.llama3-3-70b-instruct-v1:0": "AWSBedrock",
-    "us.meta.llama3-3-70b-instruct-v1:0": "AWSBedrock",
-    "meta.llama4-maverick-17b-instruct-v1:0": "AWSBedrock",
-    "us.meta.llama4-maverick-17b-instruct-v1:0": "AWSBedrock",
-    "meta.llama4-scout-17b-instruct-v1:0": "AWSBedrock",
-    "us.meta.llama4-scout-17b-instruct-v1:0": "AWSBedrock",
-    "mistral.mistral-7b-instruct-v0:2": "AWSBedrock",
-    "mistral.mixtral-8x7b-instruct-v0:1": "AWSBedrock",
-    "mistral.mistral-large-2402-v1:0": "AWSBedrock",
-    "mistral.mistral-large-2407-v1:0": "AWSBedrock",
-    "mistral.mistral-small-2402-v1:0": "AWSBedrock",
-    "amazon.titan-text-express-v1": "AWSBedrock",
-    "amazon.titan-text-lite-v1": "AWSBedrock",
-    "amazon.titan-text-premier-v1:0": "AWSBedrock",
-    "amazon.nova-pro-v1:0": "AWSBedrock",
-    "us.amazon.nova-pro-v1:0": "AWSBedrock",
-    "amazon.nova-lite-v1:0": "AWSBedrock",
-    "us.amazon.nova-lite-v1:0": "AWSBedrock",
-    "amazon.nova-micro-v1:0": "AWSBedrock",
-    "us.amazon.nova-micro-v1:0": "AWSBedrock",
+DEFAULT_MODEL_PROVIDER = "OpenAI"
+SUPPORTED_MODELS = {
+    "OpenAI": [
+        "gpt-4o",
+        "gpt-4-turbo",
+        "gpt-4-turbo-preview",
+        "gpt-4o-mini",
+        "gpt-4",
+        "gpt-4.1",
+        "gpt-4.1-mini",
+        "gpt-4.1-nano",
+    ],
+    "AzureOpenAI": [
+        "gpt-4o",
+        "gpt-4-turbo",
+        "gpt-4-turbo-preview",
+        "gpt-4o-mini",
+        "gpt-4",
+        "gpt-4.1",
+        "gpt-4.1-mini",
+        "gpt-4.1-nano",
+    ],
+    "AnthropicAWSBedrock": [
+        "anthropic.claude-3-haiku-20240307-v1:0",
+        "us.anthropic.claude-3-haiku-20240307-v1:0",
+        "us-gov.anthropic.claude-3-haiku-20240307-v1:0",
+        "eu.anthropic.claude-3-haiku-20240307-v1:0",
+        "apac.anthropic.claude-3-haiku-20240307-v1:0",
+        "anthropic.claude-3-5-haiku-20241022-v1:0",
+        "us.anthropic.claude-3-5-haiku-20241022-v1:0",
+        "anthropic.claude-3-sonnet-20240229-v1:0",
+        "us.anthropic.claude-3-sonnet-20240229-v1:0",
+        "eu.anthropic.claude-3-sonnet-20240229-v1:0",
+        "apac.anthropic.claude-3-sonnet-20240229-v1:0",
+        "anthropic.claude-3-5-sonnet-20240620-v1:0",
+        "us.anthropic.claude-3-5-sonnet-20240620-v1:0",
+        "us-gov.anthropic.claude-3-5-sonnet-20240620-v1:0",
+        "eu.anthropic.claude-3-5-sonnet-20240620-v1:0",
+        "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
+        "anthropic.claude-3-5-sonnet-20241022-v2:0",
+        "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+        "anthropic.claude-3-7-sonnet-20250219-v1:0",
+        "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+        "anthropic.claude-sonnet-4-20250514-v1:0",
+        "us.anthropic.claude-sonnet-4-20250514-v1:0",
+        "anthropic.claude-3-opus-20240229-v1:0",
+        "us.anthropic.claude-3-opus-20240229-v1:0",
+        "anthropic.claude-opus-4-20250514-v1:0",
+        "us.anthropic.claude-opus-4-20250514-v1:0",
+    ],
+    "Anthropic": [
+        "claude-3-haiku-20240307",
+        "claude-3-5-haiku-latest",
+        "claude-3-sonnet-20240229",
+        "claude-3-5-sonnet-latest",
+        "claude-3-7-sonnet-latest",
+        "claude-sonnet-4-20250514",
+        "claude-3-opus-latest",
+        "claude-opus-4-20250514",
+    ],
+    "AWSBedrock": [
+        "cohere.command-text-v14",
+        "cohere.command-light-text-v14",
+        "cohere.command-r-v1:0",
+        "cohere.command-r-plus-v1:0",
+        "meta.llama3-8b-instruct-v1:0",
+        "meta.llama3-70b-instruct-v1:0",
+        "meta.llama3-1-8b-instruct-v1:0",
+        "us.meta.llama3-1-8b-instruct-v1:0",
+        "meta.llama3-1-70b-instruct-v1:0",
+        "us.meta.llama3-1-70b-instruct-v1:0",
+        "meta.llama3-1-405b-instruct-v1:0",
+        "meta.llama3-2-1b-instruct-v1:0",
+        "us.meta.llama3-2-1b-instruct-v1:0",
+        "eu.meta.llama3-2-1b-instruct-v1:0",
+        "meta.llama3-2-3b-instruct-v1:0",
+        "us.meta.llama3-2-3b-instruct-v1:0",
+        "eu.meta.llama3-2-3b-instruct-v1:0",
+        "meta.llama3-2-11b-instruct-v1:0",
+        "us.meta.llama3-2-11b-instruct-v1:0",
+        "meta.llama3-2-90b-instruct-v1:0",
+        "us.meta.llama3-2-90b-instruct-v1:0",
+        "meta.llama3-3-70b-instruct-v1:0",
+        "us.meta.llama3-3-70b-instruct-v1:0",
+        "meta.llama4-maverick-17b-instruct-v1:0",
+        "us.meta.llama4-maverick-17b-instruct-v1:0",
+        "meta.llama4-scout-17b-instruct-v1:0",
+        "us.meta.llama4-scout-17b-instruct-v1:0",
+        "mistral.mistral-7b-instruct-v0:2",
+        "mistral.mixtral-8x7b-instruct-v0:1",
+        "mistral.mistral-large-2402-v1:0",
+        "mistral.mistral-large-2407-v1:0",
+        "mistral.mistral-small-2402-v1:0",
+        "amazon.titan-text-express-v1",
+        "amazon.titan-text-lite-v1",
+        "amazon.titan-text-premier-v1:0",
+        "amazon.nova-pro-v1:0",
+        "us.amazon.nova-pro-v1:0",
+        "amazon.nova-lite-v1:0",
+        "us.amazon.nova-lite-v1:0",
+        "amazon.nova-micro-v1:0",
+        "us.amazon.nova-micro-v1:0",
+    ],
 }
 
 
@@ -109,13 +128,22 @@ class LLM(object):
     """
 
     default_model = DEFAULT_MODEL
-    model_class = MODEL_CLASS
+    default_model_provider = DEFAULT_MODEL_PROVIDER
+    supported_models = SUPPORTED_MODELS
+    model_handler = {
+        "OpenAI": openai_llm.Generate,
+        "AWSBedrock": awsbedrock_llm.Generate,
+        "AnthropicAWSBedrock": anthropicbedrock_llm.Generate,
+        "Anthropic": anthropic_llm.Generate,
+        "AzureOpenAI": azureopenai_llm.Generate,
+    }
 
     def __init__(self, **kwds: Any) -> None:
         """Initialize the Language Model class with the required parameters.
 
-        Args:
+        ### Args:
             - model_name (str, optional): Name of the model to be used. Default: "gpt-4o-mini"
+            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AzureOpenAI", "AWSBedrock", "AnthropicAWSBedrock", "Anthropic"]
 
             ### Authentication parameters by provider:
 
@@ -162,44 +190,34 @@ class LLM(object):
             UserWarning: If the model name is not provided, it defaults to the default model.
         """
 
-        # Set model name, defaulting if not provided
+        # Set model name and model provider, defaulting if not provided
         if not kwds.get("model_name"):
-            if kwds.get("use_azure_openai"):
-                warnings.warn(
-                    f"\nNo 'model_name' specified, hence defaulting to {self.default_model} (Azure OpenAI)",
-                    UserWarning,
-                )
-            else:
-                warnings.warn(
-                    f"\nNo 'model_name' specified, hence defaulting to {self.default_model} (OpenAI)",
-                    UserWarning,
-                )
+            warnings.warn(
+                f"\nNo 'model_name' specified, hence defaulting to {self.default_model}",
+                UserWarning,
+            )
+        if not kwds.get("provider"):
+            warnings.warn(
+                f"\nNo 'provider' specified, hence defaulting to {self.default_model_provider}",
+                UserWarning,
+            )
         self.model_name = kwds.get("model_name", self.default_model)
+        self.model_provider = kwds.get("provider", self.default_model_provider)
 
-        # Check if Azure OpenAI model is to be used
-        if kwds.get("use_azure_openai"):
-            self.model_type = "AzureOpenAI"
-        else:
-            # Determine model type
-            self.model_type = self.model_class.get(self.model_name)
-
-        if not self.model_type:
+        # Validating model name and model provider name
+        if self.model_provider not in self.model_handler:
             raise ValueError(
-                f"\nUnsupported model: {self.model_name}\nSupported models are:"
-                f"\n- " + "\n- ".join(list(self.model_class.keys()))
+                f"\nUnsupported model provider: {self.model_provider}\nSupported providers are:"
+                f"\n- " + "\n- ".join(list(self.model_handler.keys()))
+            )
+        elif self.model_name not in self.supported_models.get(self.model_provider):
+            warnings.warn(
+                f"\nModel {self.model_name} for provider {self.model_provider} is not supported by Orichain. Supported models for {self.model_provider} are: [{', '.join(self.supported_models.get(self.model_provider))}] \nUsing an unsupported model may lead to unexpected issues. Please verify that you are using the correct 'model_name' and 'provider'",
+                UserWarning,
             )
 
-        # Initialize model handler and map model types to their respective handler classes
-        model_handler = {
-            "OpenAI": openai_llm.Generate,
-            "AWSBedrock": awsbedrock_llm.Generate,
-            "AnthropicAWSBedrock": anthropicbedrock_llm.Generate,
-            "Anthropic": anthropic_llm.Generate,
-            "AzureOpenAI": azureopenai_llm.Generate,
-        }
-
         # Initialize the appropriate model handler
-        self.model = model_handler.get(self.model_type)(**kwds)
+        self.model = self.model_handler.get(self.model_provider)(**kwds)
 
     def __call__(
         self,
@@ -368,33 +386,25 @@ class LLM(object):
             bool: True if the model is compatible, False otherwise.
         """
 
-        if self.model_type == "AzureOpenAI":
-            return True
-        elif kwds.get("model_name"):
-            if self.model_class.get(kwds.get("model_name")) == self.model_type:
+        if kwds.get("model_name"):
+            if kwds.get("model_name") in self.supported_models.get(self.model_provider):
                 return True
-            elif (
-                self.model_class.get(kwds.get("model_name"))
-                and self.model_class.get(kwds.get("model_name")) != self.model_type
-            ):
+            elif kwds.get("model_name") in [
+                item for sublist in self.supported_models.values() for item in sublist
+            ]:
                 warnings.warn(
-                    f"{kwds.get('model_name')} is a supported model but "
-                    f"does not belong to {self.model_type}, again reinitialize the "
-                    f"LLM class with {self.model_class.get(kwds.get('model_name'))} model class. "
+                    f"{kwds.get('model_name')} is a supported model but does not belong to {self.model_provider} provider. "
+                    f"Please reinitialize the LLM class with the '{kwds.get('model_name')}' model and the correct provider. "
                     f"Hence defaulting the model to {self.model_name}",
                     UserWarning,
                 )
                 return False
             else:
                 warnings.warn(
-                    f"Unsupported model: {kwds.get('model_name')}\nSupported models are:"
-                    f"\n- "
-                    + "\n- ".join(list(self.model_class.keys()))
-                    + "\n- All sentence-transformers models\n"
-                    f"Hence defaulting to {self.model_name}",
+                    f"\nModel {kwds.get('model_name')} for provider {self.model_provider} is not supported by Orichain. Supported models for {self.model_provider} are: [{', '.join(self.supported_models.get(self.model_provider))}] \nUsing an unsupported model may lead to unexpected issues. Please verify that you are using the correct 'model_name'",
                     UserWarning,
                 )
-                return False
+                return True
         else:
             return False
 
@@ -407,13 +417,22 @@ class AsyncLLM(object):
     """
 
     default_model = DEFAULT_MODEL
-    model_class = MODEL_CLASS
+    default_model_provider = DEFAULT_MODEL_PROVIDER
+    supported_models = SUPPORTED_MODELS
+    model_handler = model_handler = {
+        "OpenAI": openai_llm.AsyncGenerate,
+        "AWSBedrock": awsbedrock_llm.AsyncGenerate,
+        "AnthropicAWSBedrock": anthropicbedrock_llm.AsyncGenerate,
+        "Anthropic": anthropic_llm.AsyncGenerate,
+        "AzureOpenAI": azureopenai_llm.AsyncGenerate,
+    }
 
     def __init__(self, **kwds: Any) -> None:
         """Initialize the Language Model class with the required parameters.
 
-        Args:
+        ### Args:
             - model_name (str, optional): Name of the model to be used. Default: "gpt-4o-mini"
+            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AzureOpenAI", "AWSBedrock", "AnthropicAWSBedrock", "Anthropic"]
 
             ### Authentication parameters by provider:
 
@@ -460,38 +479,34 @@ class AsyncLLM(object):
             UserWarning: If the model name is not provided, it defaults to the default model.
         """
 
-        # Set model name, defaulting if not provided
+        # Set model name and model provider, defaulting if not provided
         if not kwds.get("model_name"):
             warnings.warn(
-                f"\nNo 'model_name' specified, hence defaulting to {self.default_model} (OpenAI)",
+                f"\nNo 'model_name' specified, hence defaulting to {self.default_model}",
+                UserWarning,
+            )
+        if not kwds.get("provider"):
+            warnings.warn(
+                f"\nNo 'provider' specified, hence defaulting to {self.default_model_provider}",
                 UserWarning,
             )
         self.model_name = kwds.get("model_name", self.default_model)
+        self.model_provider = kwds.get("provider", self.default_model_provider)
 
-        # Determine model type
-        self.model_type = self.model_class.get(self.model_name)
-
-        # Check if Azure OpenAI model is to be used
-        if kwds.get("use_azure_openai"):
-            self.model_type = "AzureOpenAI"
-
-        if not self.model_type:
+        # Validating model name and model provider name
+        if self.model_provider not in self.model_handler:
             raise ValueError(
-                f"\nUnsupported model: {self.model_name}\nSupported models are:"
-                f"\n- " + "\n- ".join(list(self.model_class.keys()))
+                f"\nUnsupported model provider: {self.model_provider}\nSupported providers are:"
+                f"\n- " + "\n- ".join(list(self.model_handler.keys()))
+            )
+        elif self.model_name not in self.supported_models.get(self.model_provider):
+            warnings.warn(
+                f"\nModel {self.model_name} for provider {self.model_provider} is not supported by Orichain. Supported models for {self.model_provider} are: [{', '.join(self.supported_models.get(self.model_provider))}] \nUsing an unsupported model may lead to unexpected issues. Please verify that you are using the correct 'model_name' and 'provider'",
+                UserWarning,
             )
 
-        # Initialize model handler and map model types to their respective handler classes
-        model_handler = {
-            "OpenAI": openai_llm.AsyncGenerate,
-            "AWSBedrock": awsbedrock_llm.AsyncGenerate,
-            "AnthropicAWSBedrock": anthropicbedrock_llm.AsyncGenerate,
-            "Anthropic": anthropic_llm.AsyncGenerate,
-            "AzureOpenAI": azureopenai_llm.AsyncGenerate,
-        }
-
         # Initialize the appropriate model handler
-        self.model = model_handler.get(self.model_type)(**kwds)
+        self.model = self.model_handler.get(self.model_provider)(**kwds)
 
     async def __call__(
         self,
@@ -676,32 +691,24 @@ class AsyncLLM(object):
             bool: True if the model is compatible, False otherwise.
         """
 
-        if self.model_type == "AzureOpenAI":
-            return True
-        elif kwds.get("model_name"):
-            if self.model_class.get(kwds.get("model_name")) == self.model_type:
+        if kwds.get("model_name"):
+            if kwds.get("model_name") in self.supported_models.get(self.model_provider):
                 return True
-            elif (
-                self.model_class.get(kwds.get("model_name"))
-                and self.model_class.get(kwds.get("model_name")) != self.model_type
-            ):
+            elif kwds.get("model_name") in [
+                item for sublist in self.supported_models.values() for item in sublist
+            ]:
                 warnings.warn(
-                    f"{kwds.get('model_name')} is a supported model but "
-                    f"does not belong to {self.model_type}, again reinitialize the "
-                    f"LLM class with {self.model_class.get(kwds.get('model_name'))} model class. "
+                    f"{kwds.get('model_name')} is a supported model but does not belong to {self.model_provider} provider. "
+                    f"Please reinitialize the AsyncLLM class with the '{kwds.get('model_name')}' model and the correct provider. "
                     f"Hence defaulting the model to {self.model_name}",
                     UserWarning,
                 )
                 return False
             else:
                 warnings.warn(
-                    f"Unsupported model: {kwds.get('model_name')}\nSupported models are:"
-                    f"\n- "
-                    + "\n- ".join(list(self.model_class.keys()))
-                    + "\n- All sentence-transformers models\n"
-                    f"Hence defaulting to {self.model_name}",
+                    f"\nModel {kwds.get('model_name')} for provider {self.model_provider} is not supported by Orichain. Supported models for {self.model_provider} are: [{', '.join(self.supported_models.get(self.model_provider))}] \nUsing an unsupported model may lead to unexpected issues. Please verify that you are using the correct 'model_name'",
                     UserWarning,
                 )
-                return False
+                return True
         else:
             return False

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2025-05-30
+
+### Added
+- Added a `provider` argument to the initialization of `LLM` and `EmbeddingModel`, which:
+  1. Removes ambiguity about which provider is being used.
+  2. Enables support for new LLMs and Embedding Models not yet added to Orichain.
+
+### Fixed
+- Now can use different model of the same class in EmbeddingModel
+- Fixed SentenceTransformer embeddings "List object has not attribute tolist" error.
+
 ## [2.0.5] - 2025-05-29
 
 ### Added

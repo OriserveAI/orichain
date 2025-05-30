@@ -9,14 +9,24 @@ import warnings
 from orichain import hf_repo_exists
 
 DEFUALT_EMBEDDING_MODEL = "text-embedding-ada-002"
-MODEL_CLASS = {
-    "text-embedding-ada-002": "OpenAI",
-    "text-embedding-3-large": "OpenAI",
-    "text-embedding-3-small": "OpenAI",
-    "amazon.titan-embed-text-v1": "AWSBedrock",
-    "amazon.titan-embed-text-v2:0": "AWSBedrock",
-    "cohere.embed-english-v3": "AWSBedrock",
-    "cohere.embed-multilingual-v3": "AWSBedrock",
+DEFAULT_MODEL_PROVIDER = "OpenAI"
+SUPPORTED_MODELS = {
+    "OpenAI": [
+        "text-embedding-ada-002",
+        "text-embedding-3-large",
+        "text-embedding-3-small",
+    ],
+    "AzureOpenAI": [
+        "text-embedding-ada-002",
+        "text-embedding-3-large",
+        "text-embedding-3-small",
+    ],
+    "AWSBedrock": [
+        "amazon.titan-embed-text-v1",
+        "amazon.titan-embed-text-v2:0",
+        "cohere.embed-english-v3",
+        "cohere.embed-multilingual-v3",
+    ],
 }
 
 
@@ -25,12 +35,20 @@ class EmbeddingModel(object):
     Default embedding model that will be used is `text-embedding-ada-002`"""
 
     default_model = DEFUALT_EMBEDDING_MODEL
-    model_class = MODEL_CLASS
+    default_model_provider = DEFAULT_MODEL_PROVIDER
+    supported_models = SUPPORTED_MODELS
+    model_handler = {
+        "OpenAI": openai_embeddings.Embed,
+        "AWSBedrock": awsbedrock_embeddings.Embed,
+        "SentenceTransformer": stransformers_embeddings.Embed,
+        "AzureOpenAI": azureopenai_embeddings.Embed,
+    }
 
     def __init__(self, **kwds: Any) -> None:
         """Initialize the Embedding Models class with the required parameters.
-        Args:
-            - model_name (str, optional): Name of the model to be used. Default: "gpt-4o-mini"
+        ### Args:
+            - model_name (str, optional): Name of the model to be used. Default: "text-embedding-ada-002"
+            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AWSBedrock", "AzureOpenAI", "SentenceTransformer"]
 
             ### Authentication parameters by provider:
 
@@ -82,38 +100,41 @@ class EmbeddingModel(object):
                 f"\nNo 'model_name' specified, hence defaulting to {self.default_model}",
                 UserWarning,
             )
-
-        self.model_name = kwds.get("model_name", self.default_model)
-
-        # Check if the model is supported
-        if kwds.get("use_azure_openai"):
-            self.model_type = "AzureOpenAI"
-        elif hf_repo_exists(
-            repo_id=self.model_name,
-            repo_type=kwds.get("repo_type"),
-            token=kwds.get("token"),
-        ):
-            self.model_type = "SentenceTransformer"
-        else:
-            self.model_type = self.model_class.get(self.model_name)
-
-        if not self.model_type:
-            raise ValueError(
-                f"Unsupported model: {self.model_name}\n"
-                f"Supported models are:\n"
-                f"- "
-                + "\n- ".join(list(self.model_class.keys()))
-                + "\n- All sentence-transformers models"
+        if not kwds.get("provider"):
+            warnings.warn(
+                f"\nNo 'provider' specified, hence defaulting to {self.default_model_provider}",
+                UserWarning,
             )
 
+        self.model_name = kwds.get("model_name", self.default_model)
+        self.model_provider = kwds.get("provider", self.default_model_provider)
+
+        # Validating model name and model provider name
+        if self.model_provider not in self.model_handler:
+            raise ValueError(
+                f"\nUnsupported model provider: {self.model_provider}\nSupported providers are:"
+                f"\n- " + "\n- ".join(list(self.model_handler.keys()))
+            )
+        elif self.model_provider == "SentenceTransformer":
+            repo_check = hf_repo_exists(
+                repo_id=self.model_name,
+                repo_type=kwds.get("repo_type"),
+                token=kwds.get("token"),
+            )
+            if not repo_check:
+                raise ValueError(
+                    f"\nThe Huggingface repository '{self.model_name}' does not exist. \nPlease ensure you provide the full repository path in 'model_name'."
+                )
+        elif self.model_name not in self.supported_models.get(self.model_provider):
+            warnings.warn(
+                f"\nModel {self.model_name} for provider {self.model_provider} is not supported by Orichain. Supported models for {self.model_provider} are: [{', '.join(self.supported_models.get(self.model_provider))}] \nPlease make sure you're using the correct 'model_name' and 'provider'",
+                UserWarning,
+            )
+        else:
+            pass
+
         # Initialize the model
-        model_handler = {
-            "OpenAI": openai_embeddings.Embed,
-            "AWSBedrock": awsbedrock_embeddings.Embed,
-            "SentenceTransformer": stransformers_embeddings.Embed,
-            "AzureOpenAI": azureopenai_embeddings.Embed,
-        }
-        self.model = model_handler.get(self.model_type)(**kwds)
+        self.model = self.model_handler.get(self.model_provider)(**kwds)
 
     def __call__(
         self, user_message: Union[str, List[str]], **kwds: Any
@@ -128,34 +149,34 @@ class EmbeddingModel(object):
             KeyError: If required parameters are missing
             TypeError: If the type of the parameter is incorrect
         Warns:
-            UserWarning: If the model is not supported or if the model is not found in the model type
+            UserWarning: If the model is not supported or if the model is not found in the model provider
         """
 
         # Check if the model name is provided
         if kwds.get("model_name"):
-            # Check if the model is supported in the model type class
-            if self.model_class.get(kwds.get("model_name")) == self.model_type:
-                model_name = kwds.get("model_name")
-            elif self.model_type == "SentenceTransformer":
-                warnings.warn(
-                    f"\nFor using different sentence-transformers model: {kwds.get('model_name')}\n"
-                    f"again reinitialize the EmbeddingModels class as currently {self.model_name} is already loaded"
-                    f"Hence defaulting the model to {self.model_name}",
-                    UserWarning,
-                )
+            if self.model_provider == "SentenceTransformer":
+                if kwds.get("model_name") != self.model_name:
+                    warnings.warn(
+                        f"\nFor using different sentence-transformers model: {kwds.get('model_name')}\n"
+                        f"again reinitialize the EmbeddingModels class as currently {self.model_name} is already loaded "
+                        f"Hence defaulting the model to {self.model_name}",
+                        UserWarning,
+                    )
                 # Defaulting to the model_name that is already loaded
                 model_name = self.model_name
+            # Check if the model is supported in the model type class
+            elif kwds.get("model_name") in self.supported_models.get(
+                self.model_provider
+            ):
+                model_name = kwds.get("model_name")
             else:
                 warnings.warn(
-                    f"Unsupported model: {kwds.get('model_name')}\nSupported models are:"
-                    f"\n- "
-                    + "\n- ".join(list(self.model_class.keys()))
-                    + "\n- All sentence-transformers models\n"
-                    f"Hence defaulting to {self.model_name}",
+                    f"\nModel {kwds.get('model_name')} for provider {self.model_provider} is not supported by Orichain. Supported models for {self.model_provider} are: [{', '.join(self.supported_models.get(self.model_provider))}] \nUsing an unsupported model may lead to unexpected issues. Please verify that you are using the correct 'model_name'.",
                     UserWarning,
                 )
-                # Defaulting to the model_name that is already loaded
-                model_name = self.model_name
+                # Proceeding with the given model name regardless
+                model_name = kwds.get("model_name")
+            kwds.pop("model_name")
         else:
             model_name = self.model_name
 
@@ -172,12 +193,20 @@ class AsyncEmbeddingModel(object):
     Default embedding model that will be used is `text-embedding-ada-002`"""
 
     default_model = DEFUALT_EMBEDDING_MODEL
-    model_class = MODEL_CLASS
+    default_model_provider = DEFAULT_MODEL_PROVIDER
+    supported_models = SUPPORTED_MODELS
+    model_handler = {
+        "OpenAI": openai_embeddings.AsyncEmbed,
+        "AWSBedrock": awsbedrock_embeddings.AsyncEmbed,
+        "SentenceTransformer": stransformers_embeddings.AsyncEmbed,
+        "AzureOpenAI": azureopenai_embeddings.AsyncEmbed,
+    }
 
     def __init__(self, **kwds: Any) -> None:
         """Initialize the Embedding Models class with the required parameters.
-        Args:
-            - model_name (str, optional): Name of the model to be used. Default: "gpt-4o-mini"
+        ### Args:
+            - model_name (str, optional): Name of the model to be used. Default: "text-embedding-ada-002"
+            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AWSBedrock", "AzureOpenAI", "SentenceTransformer"]
 
             ### Authentication parameters by provider:
 
@@ -229,38 +258,41 @@ class AsyncEmbeddingModel(object):
                 f"\nNo 'model_name' specified, hence defaulting to {self.default_model}",
                 UserWarning,
             )
-
-        self.model_name = kwds.get("model_name", self.default_model)
-
-        # Check if the model is supported
-        if kwds.get("use_azure_openai"):
-            self.model_type = "AzureOpenAI"
-        elif hf_repo_exists(
-            repo_id=self.model_name,
-            repo_type=kwds.get("repo_type"),
-            token=kwds.get("token"),
-        ):
-            self.model_type = "SentenceTransformer"
-        else:
-            self.model_type = self.model_class.get(self.model_name)
-
-        if not self.model_type:
-            raise ValueError(
-                f"Unsupported model: {self.model_name}\n"
-                f"Supported models are:\n"
-                f"- "
-                + "\n- ".join(list(self.model_class.keys()))
-                + "\n- All sentence-transformers models"
+        if not kwds.get("provider"):
+            warnings.warn(
+                f"\nNo 'provider' specified, hence defaulting to {self.default_model_provider}",
+                UserWarning,
             )
 
+        self.model_name = kwds.get("model_name", self.default_model)
+        self.model_provider = kwds.get("provider", self.default_model_provider)
+
+        # Validating model name and model provider name
+        if self.model_provider not in self.model_handler:
+            raise ValueError(
+                f"\nUnsupported model provider: {self.model_provider}\nSupported providers are:"
+                f"\n- " + "\n- ".join(list(self.model_handler.keys()))
+            )
+        elif self.model_provider == "SentenceTransformer":
+            repo_check = hf_repo_exists(
+                repo_id=self.model_name,
+                repo_type=kwds.get("repo_type"),
+                token=kwds.get("token"),
+            )
+            if not repo_check:
+                raise ValueError(
+                    f"\nThe Huggingface repository '{self.model_name}' does not exist. \nPlease ensure you provide the full repository path in 'model_name'."
+                )
+        elif self.model_name not in self.supported_models.get(self.model_provider):
+            warnings.warn(
+                f"\nModel {self.model_name} for provider {self.model_provider} is not supported by Orichain. Supported models for {self.model_provider} are: [{', '.join(self.supported_models.get(self.model_provider))}] \nPlease make sure you're using the correct 'model_name' and 'provider'",
+                UserWarning,
+            )
+        else:
+            pass
+
         # Initialize the model
-        model_handler = {
-            "OpenAI": openai_embeddings.AsyncEmbed,
-            "AWSBedrock": awsbedrock_embeddings.AsyncEmbed,
-            "SentenceTransformer": stransformers_embeddings.AsyncEmbed,
-            "AzureOpenAI": azureopenai_embeddings.AsyncEmbed,
-        }
-        self.model = model_handler.get(self.model_type)(**kwds)
+        self.model = self.model_handler.get(self.model_provider)(**kwds)
 
     async def __call__(
         self, user_message: Union[str, List[str]], **kwds: Any
@@ -275,34 +307,34 @@ class AsyncEmbeddingModel(object):
             KeyError: If required parameters are missing
             TypeError: If the type of the parameter is incorrect
         Warns:
-            UserWarning: If the model is not supported or if the model is not found in the model type
+            UserWarning: If the model is not supported or if the model is not found in the model provider
         """
 
         # Check if the model name is provided
         if kwds.get("model_name"):
-            # Check if the model is supported in the model type class
-            if self.model_class.get(kwds.get("model_name")) == self.model_type:
-                model_name = kwds.get("model_name")
-            elif self.model_type == "SentenceTransformer":
-                warnings.warn(
-                    f"\nFor using different sentence-transformers model: {kwds.get('model_name')}\n"
-                    f"again reinitialize the EmbeddingModels class as currently {self.model_name} is already loaded"
-                    f"Hence defaulting the model to {self.model_name}",
-                    UserWarning,
-                )
+            if self.model_provider == "SentenceTransformer":
+                if kwds.get("model_name") != self.model_name:
+                    warnings.warn(
+                        f"\nFor using different sentence-transformers model: {kwds.get('model_name')}\n"
+                        f"again reinitialize the EmbeddingModels class as currently {self.model_name} is already loaded "
+                        f"Hence defaulting the model to {self.model_name}",
+                        UserWarning,
+                    )
                 # Defaulting to the model_name that is already loaded
                 model_name = self.model_name
+            # Check if the model is supported in the model type class
+            elif kwds.get("model_name") in self.supported_models.get(
+                self.model_provider
+            ):
+                model_name = kwds.get("model_name")
             else:
                 warnings.warn(
-                    f"Unsupported model: {kwds.get('model_name')}\nSupported models are:"
-                    f"\n- "
-                    + "\n- ".join(list(self.model_class.keys()))
-                    + "\n- All sentence-transformers models\n"
-                    f"Hence defaulting to {self.model_name}",
+                    f"\nModel {kwds.get('model_name')} for provider {self.model_provider} is not supported by Orichain. Supported models for {self.model_provider} are: [{', '.join(self.supported_models.get(self.model_provider))}] \nUsing an unsupported model may lead to unexpected issues. Please verify that you are using the correct 'model_name'.",
                     UserWarning,
                 )
-                # Defaulting to the model_name that is already loaded
-                model_name = self.model_name
+                # Proceeding with the given model name regardless
+                model_name = kwds.get("model_name")
+            kwds.pop("model_name")
         else:
             model_name = self.model_name
 

@@ -103,9 +103,10 @@ class Embed(object):
                 device=kwds.get("device", None),
             )
 
-            embeddings = embeddings.tolist()
             if len(embeddings) == 1:
-                embeddings = embeddings[0]
+                embeddings = embeddings[0].tolist()
+            else:
+                embeddings = [embedding.tolist() for embedding in embeddings]
 
             return embeddings
         except Exception as e:
@@ -212,9 +213,10 @@ class AsyncEmbed(object):
                 device=kwds.get("device", None),
             )
 
-            embeddings = embeddings.tolist()
             if len(embeddings) == 1:
-                embeddings = embeddings[0]
+                embeddings = embeddings[0].tolist()
+            else:
+                embeddings = [embedding.tolist() for embedding in embeddings]
 
             return embeddings
         except Exception as e:

@@ -19,8 +19,8 @@ It is a custom wrapper made for RAG use cases made to be integrated with your en
     - Azure OpenAI
     - Anthropic
     - AWS Bedrock
-        - Anthropic models (Series 3, 3.5, 3.7)
-        - LLAMA models (Series 3, 3.1, 3.2, 3.3)
+        - Anthropic models (Series 3, 3.5, 3.7, 4)
+        - LLAMA models (Series 3, 3.1, 3.2, 3.3, 4)
         - Amazon Titan text models
         - Amazon Nova series models
         - Mistral models
@@ -43,6 +43,7 @@ It can be said that it was inspired by LangChain but is optimized for better per
 
 > 🚧
 > The Library was rewritten in v2.0.0 released in March of 2025. There were significant changes made.
+> Starting from version 2.0.1 (May 2025), a `provider` argument is now required when initializing the LLM and EmbeddingModel classes.
 
 Just do this
 ```bash
@@ -86,8 +87,9 @@ load_dotenv()
 
 llm = AsyncLLM(
     model_name="gpt-4o-mini", 
+    provider="OpenAI",
     api_key=os.getenv("OPENAI_KEY")
-    )
+)
 
 user_message = "I am feeling sad"
 
@@ -132,7 +134,11 @@ from typing import Dict
 
 load_dotenv()
 
-embedding_model = AsyncEmbeddingModel(api_key=os.getenv("OPENAI_KEY"))
+embedding_model = AsyncEmbeddingModel(
+    model_name="text-embedding-ada-002",
+    provider="OpenAI",
+    api_key=os.getenv("OPENAI_KEY")
+)
 
 knowledge_base_manager = AsyncKnowledgeBase(
     vector_db_type="pinecone",
@@ -143,8 +149,9 @@ knowledge_base_manager = AsyncKnowledgeBase(
 
 llm = AsyncLLM(
     model_name="gpt-4o-mini", 
+    provider="OpenAI",
     api_key=os.getenv("OPENAI_KEY")
-    )
+)
 
 app = FastAPI(redoc_url=None, docs_url=None)
 
