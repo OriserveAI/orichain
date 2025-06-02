@@ -8,7 +8,7 @@ from orichain.embeddings import (
 import warnings
 from orichain import hf_repo_exists
 
-DEFUALT_EMBEDDING_MODEL = "text-embedding-ada-002"
+DEFUALT_EMBEDDING_MODEL = "text-embedding-3-small"
 DEFAULT_MODEL_PROVIDER = "OpenAI"
 SUPPORTED_MODELS = {
     "OpenAI": [
