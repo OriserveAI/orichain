@@ -42,8 +42,8 @@ It can be said that it was inspired by LangChain but is optimized for better per
 ## Installation
 
 > 🚧
-> The Library was rewritten in v2.0.0 released in March of 2025. There were significant changes made.
-> Starting from version 2.0.1 (May 2025), a `provider` argument is now required when initializing the LLM and EmbeddingModel classes.
+> - The Library was rewritten in v2.0.0 released in March of 2025. There were significant changes made.
+> - Starting from version 2.0.1 (May 2025), a `provider` argument is now required when initializing the LLM and EmbeddingModel classes.
 
 Just do this
 ```bash
