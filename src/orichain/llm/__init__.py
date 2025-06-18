@@ -11,6 +11,8 @@ from orichain.llm import (
     anthropic_llm,
     awsbedrock_llm,
     azureopenai_llm,
+    gcp_gemini_llm,
+    gcp_vertex_llm,
 )
 
 DEFAULT_MODEL = "gpt-4o-mini"

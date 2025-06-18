@@ -20,6 +20,7 @@ dependencies = [
     "chromadb==0.6.3",
     "pysqlite3-binary==0.5.4",
     "pinecone[grpc]==6.0.1",
+    "google-genai>=1.20.0",
 ]
 readme = "README.md"
 requires-python = ">= 3.10.13"
