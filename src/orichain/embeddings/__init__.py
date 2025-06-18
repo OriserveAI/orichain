@@ -4,6 +4,8 @@ from orichain.embeddings import (
     awsbedrock_embeddings,
     stransformers_embeddings,
     azureopenai_embeddings,
+    gcp_gemini_embeddings,
+    gcp_vertex_embeddings,
 )
 import warnings
 from orichain import hf_repo_exists
