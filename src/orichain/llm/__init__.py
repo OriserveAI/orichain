@@ -15,7 +15,7 @@ from orichain.llm import (
     gcp_vertex_llm,
 )
 
-DEFAULT_MODEL = "gpt-4o-mini"
+DEFAULT_MODEL = "gpt-4.1-mini"
 DEFAULT_MODEL_PROVIDER = "OpenAI"
 SUPPORTED_MODELS = {
     "OpenAI": [
@@ -119,6 +119,26 @@ SUPPORTED_MODELS = {
         "amazon.nova-micro-v1:0",
         "us.amazon.nova-micro-v1:0",
     ],
+    "GoogleGemini": [
+        "gemini-1.5-pro",
+        "gemini-1.5-flash-8b",
+        "gemini-1.5-flash",
+        "gemini-2.0-flash-lite",
+        "gemini-2.0-flash",
+        "gemini-2.5-flash-lite-preview-06-17",
+        "gemini-2.5-flash",
+        "gemini-2.5-pro",
+    ],
+    "GoogleVertexAI": [
+        "gemini-1.5-pro",
+        "gemini-1.5-flash-8b",
+        "gemini-1.5-flash",
+        "gemini-2.0-flash-lite",
+        "gemini-2.0-flash",
+        "gemini-2.5-flash-lite-preview-06-17",
+        "gemini-2.5-flash",
+        "gemini-2.5-pro",
+    ],
 }
 
 
@@ -126,7 +146,7 @@ class LLM(object):
     """Synchronous Language Model class for interacting with various LLM providers.
 
     This class provides a unified interface to interact with different language models
-    from providers such as OpenAI, AWS Bedrock, Anthropic, and Azure OpenAI.
+    from providers such as OpenAI, AWS Bedrock, Google Gemini and Vertex AI, Anthropic, and Azure OpenAI.
     """
 
     default_model = DEFAULT_MODEL
@@ -138,14 +158,16 @@ class LLM(object):
         "AnthropicAWSBedrock": anthropicbedrock_llm.Generate,
         "Anthropic": anthropic_llm.Generate,
         "AzureOpenAI": azureopenai_llm.Generate,
+        "GoogleGemini": gcp_gemini_llm.Generate,
+        "GoogleVertexAI": gcp_vertex_llm.Generate,
     }
 
     def __init__(self, **kwds: Any) -> None:
         """Initialize the Language Model class with the required parameters.
 
         ### Args:
-            - model_name (str, optional): Name of the model to be used. Default: "gpt-4o-mini"
-            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AzureOpenAI", "AWSBedrock", "AnthropicAWSBedrock", "Anthropic"]
+            - model_name (str, optional): Name of the model to be used. Default: "gpt-4.1-mini"
+            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AzureOpenAI", "AWSBedrock", "GoogleGemini", "GoogleVertexAI", "AnthropicAWSBedrock", "Anthropic"]
 
             ### Authentication parameters by provider:
 
@@ -168,6 +190,19 @@ class LLM(object):
                 - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
                 - retries (Dict, optional):
                     - total_max_attempts: Number of retries for the request. Default: 2
+
+            #### Google Gemini models
+            - api_key (str): Gemini API key
+            - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
+            - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
+
+            #### Google Vertex AI models
+            - api_key (str): Vertex AI API key
+            - credentials (google.auth.credentials.Credentials): The credentials to use for authentication when calling the Vertex AI APIs.
+            - project (str): The Google Cloud project ID to use for quota.
+            - location (str): The location to send API requests to (for example, us-central1).
+            - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
+            - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
 
             #### Anthropic models
             - api_key (str): Anthropic API key.
@@ -415,7 +450,7 @@ class AsyncLLM(object):
     """Asynchronous Language Model class for interacting with various LLM providers.
 
     This class provides a unified interface to interact with different language models
-    from providers such as OpenAI, AWS Bedrock, Anthropic, and Azure OpenAI.
+    from providers such as OpenAI, AWS Bedrock, Google Gemini and Vertex AI, Anthropic, and Azure OpenAI.
     """
 
     default_model = DEFAULT_MODEL
@@ -427,14 +462,15 @@ class AsyncLLM(object):
         "AnthropicAWSBedrock": anthropicbedrock_llm.AsyncGenerate,
         "Anthropic": anthropic_llm.AsyncGenerate,
         "AzureOpenAI": azureopenai_llm.AsyncGenerate,
+        "GoogleGemini": gcp_gemini_llm.AsyncGenerate,
+        "GoogleVertexAI": gcp_vertex_llm.AsyncGenerate,
     }
 
     def __init__(self, **kwds: Any) -> None:
         """Initialize the Language Model class with the required parameters.
-
         ### Args:
-            - model_name (str, optional): Name of the model to be used. Default: "gpt-4o-mini"
-            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AzureOpenAI", "AWSBedrock", "AnthropicAWSBedrock", "Anthropic"]
+            - model_name (str, optional): Name of the model to be used. Default: "gpt-4.1-mini"
+            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AzureOpenAI", "AWSBedrock", "GoogleGemini", "GoogleVertexAI", "AnthropicAWSBedrock", "Anthropic"]
 
             ### Authentication parameters by provider:
 
@@ -457,6 +493,19 @@ class AsyncLLM(object):
                 - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
                 - retries (Dict, optional):
                     - total_max_attempts: Number of retries for the request. Default: 2
+
+            #### Google Gemini models
+            - api_key (str): Gemini API key
+            - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
+            - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
+
+            #### Google Vertex AI models
+            - api_key (str): Vertex AI API key
+            - credentials (google.auth.credentials.Credentials): The credentials to use for authentication when calling the Vertex AI APIs.
+            - project (str): The Google Cloud project ID to use for quota.
+            - location (str): The location to send API requests to (for example, us-central1).
+            - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
+            - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
 
             #### Anthropic models
             - api_key (str): Anthropic API key.

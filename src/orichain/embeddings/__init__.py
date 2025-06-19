@@ -29,12 +29,25 @@ SUPPORTED_MODELS = {
         "cohere.embed-english-v3",
         "cohere.embed-multilingual-v3",
     ],
+    "GoogleGemini": [
+        "text-embedding-004",
+        "gemini-embedding-exp-03-07",
+        "embedding-001",
+    ],
+    "GoogleVertexAI": [
+        "text-multilingual-embedding-002",
+        "text-embedding-004",
+        "text-embedding-005",
+        "gemini-embedding-001",
+        "gemini-embedding-exp-03-07",
+        "embedding-001",
+    ],
 }
 
 
 class EmbeddingModel(object):
     """Synchronus Base class for embedding generation
-    Default embedding model that will be used is `text-embedding-ada-002`"""
+    Default embedding model that will be used is `text-embedding-3-small`"""
 
     default_model = DEFUALT_EMBEDDING_MODEL
     default_model_provider = DEFAULT_MODEL_PROVIDER
@@ -44,13 +57,15 @@ class EmbeddingModel(object):
         "AWSBedrock": awsbedrock_embeddings.Embed,
         "SentenceTransformer": stransformers_embeddings.Embed,
         "AzureOpenAI": azureopenai_embeddings.Embed,
+        "GoogleGemini": gcp_gemini_embeddings.Embed,
+        "GoogleVertexAI": gcp_vertex_embeddings.Embed,
     }
 
     def __init__(self, **kwds: Any) -> None:
         """Initialize the Embedding Models class with the required parameters.
         ### Args:
-            - model_name (str, optional): Name of the model to be used. Default: "text-embedding-ada-002"
-            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AWSBedrock", "AzureOpenAI", "SentenceTransformer"]
+            - model_name (str, optional): Name of the model to be used. Default: "text-embedding-3-small"
+            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AWSBedrock", "GoogleGemini", "GoogleVertexAI", "AzureOpenAI", "SentenceTransformer"]
 
             ### Authentication parameters by provider:
 
@@ -72,6 +87,19 @@ class EmbeddingModel(object):
                 - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
                 - retries (Dict, optional):
                     - total_max_attempts: Number of retries for the request. Default: 2
+
+            #### Google Gemini models
+            - api_key (str): Gemini API key
+            - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
+            - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
+
+            #### Google Vertex AI models
+            - api_key (str): Vertex AI API key
+            - credentials (google.auth.credentials.Credentials): The credentials to use for authentication when calling the Vertex AI APIs.
+            - project (str): The Google Cloud project ID to use for quota.
+            - location (str): The location to send API requests to (for example, us-central1).
+            - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
+            - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
 
             #### Sentence Transformers models
             - model_download_path (str, optional): Path to download the model. Default: "/home/ubuntu/projects/models/embedding_models"
@@ -192,7 +220,7 @@ class EmbeddingModel(object):
 
 class AsyncEmbeddingModel(object):
     """Asynchronus Base class for embedding generation
-    Default embedding model that will be used is `text-embedding-ada-002`"""
+    Default embedding model that will be used is `text-embedding-3-small`"""
 
     default_model = DEFUALT_EMBEDDING_MODEL
     default_model_provider = DEFAULT_MODEL_PROVIDER
@@ -202,13 +230,15 @@ class AsyncEmbeddingModel(object):
         "AWSBedrock": awsbedrock_embeddings.AsyncEmbed,
         "SentenceTransformer": stransformers_embeddings.AsyncEmbed,
         "AzureOpenAI": azureopenai_embeddings.AsyncEmbed,
+        "GoogleGemini": gcp_gemini_embeddings.AsyncEmbed,
+        "GoogleVertexAI": gcp_vertex_embeddings.AsyncEmbed,
     }
 
     def __init__(self, **kwds: Any) -> None:
         """Initialize the Embedding Models class with the required parameters.
         ### Args:
-            - model_name (str, optional): Name of the model to be used. Default: "text-embedding-ada-002"
-            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AWSBedrock", "AzureOpenAI", "SentenceTransformer"]
+            - model_name (str, optional): Name of the model to be used. Default: "text-embedding-3-small"
+            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AWSBedrock", "GoogleGemini", "GoogleVertexAI", "AzureOpenAI", "SentenceTransformer"]
 
             ### Authentication parameters by provider:
 
@@ -230,6 +260,19 @@ class AsyncEmbeddingModel(object):
                 - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
                 - retries (Dict, optional):
                     - total_max_attempts: Number of retries for the request. Default: 2
+
+            #### Google Gemini models
+            - api_key (str): Gemini API key
+            - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
+            - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
+
+            #### Google Vertex AI models
+            - api_key (str): Vertex AI API key
+            - credentials (google.auth.credentials.Credentials): The credentials to use for authentication when calling the Vertex AI APIs.
+            - project (str): The Google Cloud project ID to use for quota.
+            - location (str): The location to send API requests to (for example, us-central1).
+            - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
+            - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
 
             #### Sentence Transformers models
             - model_download_path (str, optional): Path to download the model. Default: "/home/ubuntu/projects/models/embedding_models"

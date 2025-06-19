@@ -7,6 +7,7 @@ It is a custom wrapper made for RAG use cases made to be integrated with your en
         - Cohere embeddings
         - Titian embeddings
     - OpenAI Embeddings
+    - Google Gemini & Vertex AI Embeddings
     - Azure OpenAI Embeddings
     - Sentence Transformers
 
@@ -18,6 +19,7 @@ It is a custom wrapper made for RAG use cases made to be integrated with your en
     - OpenAI
     - Azure OpenAI
     - Anthropic
+    - Google Gemini & Vertex AI Models
     - AWS Bedrock
         - Anthropic models (Series 3, 3.5, 3.7, 4)
         - LLAMA models (Series 3, 3.1, 3.2, 3.3, 4)
@@ -86,7 +88,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 llm = AsyncLLM(
-    model_name="gpt-4o-mini", 
+    model_name="gpt-4.1-mini", 
     provider="OpenAI",
     api_key=os.getenv("OPENAI_KEY")
 )
@@ -148,7 +150,7 @@ knowledge_base_manager = AsyncKnowledgeBase(
 )
 
 llm = AsyncLLM(
-    model_name="gpt-4o-mini", 
+    model_name="gpt-4.1-mini", 
     provider="OpenAI",
     api_key=os.getenv("OPENAI_KEY")
 )
