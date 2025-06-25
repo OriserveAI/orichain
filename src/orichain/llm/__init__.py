@@ -216,7 +216,6 @@ class LLM(object):
             - api_version (str): Azure OpenAI API version.
             - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
             - max_retries (int, optional): Number of retries for the request. Default: 2
-            - use_azure_openai (bool, optional): Whether to use Azure OpenAI service. Default: False
 
         Raises:
             ValueError: If an unsupported model is specified.
@@ -519,7 +518,6 @@ class AsyncLLM(object):
             - api_version (str): Azure OpenAI API version.
             - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
             - max_retries (int, optional): Number of retries for the request. Default: 2
-            - use_azure_openai (bool, optional): Whether to use Azure OpenAI service. Default: False
 
         Raises:
             ValueError: If an unsupported model is specified.
