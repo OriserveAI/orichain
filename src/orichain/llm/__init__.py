@@ -38,7 +38,7 @@ SUPPORTED_MODELS = {
         "gpt-4.1-mini",
         "gpt-4.1-nano",
     ],
-    "AnthropicAWSBedrock": [
+    "AnthropicBedrock": [
         "anthropic.claude-3-haiku-20240307-v1:0",
         "us.anthropic.claude-3-haiku-20240307-v1:0",
         "us-gov.anthropic.claude-3-haiku-20240307-v1:0",
@@ -155,7 +155,7 @@ class LLM(object):
     model_handler = {
         "OpenAI": openai_llm.Generate,
         "AWSBedrock": awsbedrock_llm.Generate,
-        "AnthropicAWSBedrock": anthropicbedrock_llm.Generate,
+        "AnthropicBedrock": anthropicbedrock_llm.Generate,
         "Anthropic": anthropic_llm.Generate,
         "AzureOpenAI": azureopenai_llm.Generate,
         "GoogleGemini": gcp_gemini_llm.Generate,
@@ -167,7 +167,7 @@ class LLM(object):
 
         ### Args:
             - model_name (str, optional): Name of the model to be used. Default: "gpt-4.1-mini"
-            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AzureOpenAI", "AWSBedrock", "GoogleGemini", "GoogleVertexAI", "AnthropicAWSBedrock", "Anthropic"]
+            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AzureOpenAI", "AWSBedrock", "GoogleGemini", "GoogleVertexAI", "AnthropicBedrock", "Anthropic"]
 
             ### Authentication parameters by provider:
 
@@ -458,7 +458,7 @@ class AsyncLLM(object):
     model_handler = model_handler = {
         "OpenAI": openai_llm.AsyncGenerate,
         "AWSBedrock": awsbedrock_llm.AsyncGenerate,
-        "AnthropicAWSBedrock": anthropicbedrock_llm.AsyncGenerate,
+        "AnthropicBedrock": anthropicbedrock_llm.AsyncGenerate,
         "Anthropic": anthropic_llm.AsyncGenerate,
         "AzureOpenAI": azureopenai_llm.AsyncGenerate,
         "GoogleGemini": gcp_gemini_llm.AsyncGenerate,
@@ -469,7 +469,7 @@ class AsyncLLM(object):
         """Initialize the Language Model class with the required parameters.
         ### Args:
             - model_name (str, optional): Name of the model to be used. Default: "gpt-4.1-mini"
-            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AzureOpenAI", "AWSBedrock", "GoogleGemini", "GoogleVertexAI", "AnthropicAWSBedrock", "Anthropic"]
+            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AzureOpenAI", "AWSBedrock", "GoogleGemini", "GoogleVertexAI", "AnthropicBedrock", "Anthropic"]
 
             ### Authentication parameters by provider:
 
