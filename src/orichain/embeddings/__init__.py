@@ -77,48 +77,48 @@ class EmbeddingModel(object):
 
             **Authentication parameters by provider:**
 
-            **OpenAI models:**
-                - api_key (str): OpenAI API key.
-                - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
-                - max_retries (int, optional): Number of retries for the request. Default: 2
+                **OpenAI models:**
+                    - api_key (str): OpenAI API key.
+                    - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
+                    - max_retries (int, optional): Number of retries for the request. Default: 2
 
-            **AWS Bedrock models:**
-                - aws_access_key (str): AWS access key.
-                - aws_secret_key (str): AWS secret key.
-                - aws_region (str): AWS region name.
-                - config (Config, optional):
-                    - connect_timeout (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to make a connection. Default: 60
-                    - read_timeout: (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to read from a connection. Default: 60
-                    - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
-                    - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
-                    - retries (Dict, optional):
-                        - total_max_attempts: Number of retries for the request. Default: 2
+                **AWS Bedrock models:**
+                    - aws_access_key (str): AWS access key.
+                    - aws_secret_key (str): AWS secret key.
+                    - aws_region (str): AWS region name.
+                    - config (Config, optional):
+                        - connect_timeout (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to make a connection. Default: 60
+                        - read_timeout: (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to read from a connection. Default: 60
+                        - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
+                        - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
+                        - retries (Dict, optional):
+                            - total_max_attempts: Number of retries for the request. Default: 2
 
-            **Google Gemini models:**
-                - api_key (str): Gemini API key
-                - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
-                - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
+                **Google Gemini models:**
+                    - api_key (str): Gemini API key
+                    - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
+                    - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
 
-            **Google Vertex AI models:**
-                - api_key (str): Vertex AI API key
-                - credentials (google.auth.credentials.Credentials): The credentials to use for authentication when calling the Vertex AI APIs.
-                - project (str): The Google Cloud project ID to use for quota.
-                - location (str): The location to send API requests to (for example, us-central1).
-                - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
-                - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
+                **Google Vertex AI models:**
+                    - api_key (str): Vertex AI API key
+                    - credentials (google.auth.credentials.Credentials): The credentials to use for authentication when calling the Vertex AI APIs.
+                    - project (str): The Google Cloud project ID to use for quota.
+                    - location (str): The location to send API requests to (for example, us-central1).
+                    - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
+                    - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
 
-            **Sentence Transformers models:**
-                - model_download_path (str, optional): Path to download the model. Default: "/home/ubuntu/projects/models/embedding_models"
-                - device (str, optional): Device to run the model. Default: "cpu"
-                - trust_remote_code (bool, optional): Trust remote code. Default: False
-                - token (str, optional): Hugging Face API token
+                **Sentence Transformers models:**
+                    - model_download_path (str, optional): Path to download the model. Default: "/home/ubuntu/projects/models/embedding_models"
+                    - device (str, optional): Device to run the model. Default: "cpu"
+                    - trust_remote_code (bool, optional): Trust remote code. Default: False
+                    - token (str, optional): Hugging Face API token
 
-            **Azure OpenAI models:**
-                - api_key (str): Azure OpenAI API key.
-                - azure_endpoint (str): Azure OpenAI endpoint.
-                - api_version (str): Azure OpenAI API version.
-                - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
-                - max_retries (int, optional): Number of retries for the request. Default: 2
+                **Azure OpenAI models:**
+                    - api_key (str): Azure OpenAI API key.
+                    - azure_endpoint (str): Azure OpenAI endpoint.
+                    - api_version (str): Azure OpenAI API version.
+                    - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
+                    - max_retries (int, optional): Number of retries for the request. Default: 2
 
         Raises:
             - ValueError: If the model is not supported
@@ -260,48 +260,48 @@ class AsyncEmbeddingModel(object):
 
             **Authentication parameters by provider:**
 
-            **OpenAI models:**
-                - api_key (str): OpenAI API key.
-                - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
-                - max_retries (int, optional): Number of retries for the request. Default: 2
+                **OpenAI models:**
+                    - api_key (str): OpenAI API key.
+                    - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
+                    - max_retries (int, optional): Number of retries for the request. Default: 2
 
-            **AWS Bedrock models:**
-                - aws_access_key (str): AWS access key.
-                - aws_secret_key (str): AWS secret key.
-                - aws_region (str): AWS region name.
-                - config (Config, optional):
-                    - connect_timeout (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to make a connection. Default: 60
-                    - read_timeout: (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to read from a connection. Default: 60
-                    - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
-                    - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
-                    - retries (Dict, optional):
-                        - total_max_attempts: Number of retries for the request. Default: 2
+                **AWS Bedrock models:**
+                    - aws_access_key (str): AWS access key.
+                    - aws_secret_key (str): AWS secret key.
+                    - aws_region (str): AWS region name.
+                    - config (Config, optional):
+                        - connect_timeout (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to make a connection. Default: 60
+                        - read_timeout: (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to read from a connection. Default: 60
+                        - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
+                        - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
+                        - retries (Dict, optional):
+                            - total_max_attempts: Number of retries for the request. Default: 2
 
-            **Google Gemini models:**
-                - api_key (str): Gemini API key
-                - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
-                - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
+                **Google Gemini models:**
+                    - api_key (str): Gemini API key
+                    - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
+                    - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
 
-            **Google Vertex AI models:**
-                - api_key (str): Vertex AI API key
-                - credentials (google.auth.credentials.Credentials): The credentials to use for authentication when calling the Vertex AI APIs.
-                - project (str): The Google Cloud project ID to use for quota.
-                - location (str): The location to send API requests to (for example, us-central1).
-                - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
-                - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
+                **Google Vertex AI models:**
+                    - api_key (str): Vertex AI API key
+                    - credentials (google.auth.credentials.Credentials): The credentials to use for authentication when calling the Vertex AI APIs.
+                    - project (str): The Google Cloud project ID to use for quota.
+                    - location (str): The location to send API requests to (for example, us-central1).
+                    - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
+                    - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
 
-            **Sentence Transformers models:**
-                - model_download_path (str, optional): Path to download the model. Default: "/home/ubuntu/projects/models/embedding_models"
-                - device (str, optional): Device to run the model. Default: "cpu"
-                - trust_remote_code (bool, optional): Trust remote code. Default: False
-                - token (str, optional): Hugging Face API token
+                **Sentence Transformers models:**
+                    - model_download_path (str, optional): Path to download the model. Default: "/home/ubuntu/projects/models/embedding_models"
+                    - device (str, optional): Device to run the model. Default: "cpu"
+                    - trust_remote_code (bool, optional): Trust remote code. Default: False
+                    - token (str, optional): Hugging Face API token
 
-            **Azure OpenAI models:**
-                - api_key (str): Azure OpenAI API key.
-                - azure_endpoint (str): Azure OpenAI endpoint.
-                - api_version (str): Azure OpenAI API version.
-                - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
-                - max_retries (int, optional): Number of retries for the request. Default: 2
+                **Azure OpenAI models:**
+                    - api_key (str): Azure OpenAI API key.
+                    - azure_endpoint (str): Azure OpenAI endpoint.
+                    - api_version (str): Azure OpenAI API version.
+                    - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
+                    - max_retries (int, optional): Number of retries for the request. Default: 2
 
         Raises:
             - ValueError: If the model is not supported
