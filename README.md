@@ -228,7 +228,7 @@ Here's our plan for upcoming features and improvements:
 ### Short-term goals
 - [X] Do testing of the latest version
 - [X] Release stable 1.0.0 version
-- [ ] Create Documentation
+- [x] Create Documentation
 - [ ] Write class and function definitions
 
 ### Long-term goals

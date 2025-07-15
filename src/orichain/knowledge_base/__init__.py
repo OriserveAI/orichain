@@ -9,7 +9,10 @@ DEFAULT_KNOWLEDGE_BASE = "pinecone"
 
 class KnowledgeBase(object):
     """
-    Synchronous way to retrieve chunks from the knowledge base
+    Synchronous interface for interacting with vector databases.
+
+    This class provides a unified API to communicate with supported vector databases.
+    Currently, Pinecone and ChromaDB are supported.
     """
 
     default_knowledge_base = DEFAULT_KNOWLEDGE_BASE
@@ -18,25 +21,25 @@ class KnowledgeBase(object):
         """Initializes the knowledge base.
 
         Args:
-            vector_db_type (str, optional): Type of knowledge base. Default: pinecone
+            - vector_db_type (str, optional): Type of knowledge base. Default: pinecone
 
-        Authentication parameters by provider:
+        **Authentication parameters by provider:**
 
-            Pinecone:
-            api_key (str): Pinecone API key
-            index_name (str): Pinecone index name
-            namespace (str): Pinecone namespace
+            **Pinecone:**
+                - api_key (str): Pinecone API key
+                - index_name (str): Pinecone index name
+                - namespace (str): Pinecone namespace
 
-            ChromaDB:
-            collection_name (str): ChromaDB collection name
-            path (str, optional): Path to the ChromaDB database Default: `/home/ubuntu/projects/chromadb`
+            **ChromaDB:**
+                - collection_name (str): ChromaDB collection name
+                - path (str, optional): Path to the ChromaDB database Default: `/home/ubuntu/projects/chromadb`
 
         Raises:
-            ValueError: If the knowledge base type is not supported
-            KeyError: If the required params is not found
+            - ValueError: If the knowledge base type is not supported
+            - KeyError: If the required params is not found
 
         Warns:
-            UserWarning: If the knowledge base type is not defined Default: pinecone
+            - UserWarning: If the knowledge base type is not defined Default: pinecone
         """
         try:
             # Dictionary mapping vector database types to their respective handler classes
@@ -77,16 +80,17 @@ class KnowledgeBase(object):
         **kwds: Any,
     ) -> Dict:
         """Retrieves the chunks from the knowledge base
+
         Args:
-            num_of_chunks (int): Number of chunks to retrieve
-            user_message_vector (Optional[List[Union[int, float]]]): Embedding of text. Defaults to None.
+            - num_of_chunks (int): Number of chunks to retrieve
+            - user_message_vector (Optional[List[Union[int, float]]]): Embedding of text. Defaults to None.
 
         Returns:
             Dict: Result of retrieving the chunks
 
         Raises:
-            ValueError: If `user_message_vector` is needed except for pinecone but if ids are also not provided for pinecone this error will be raised
-            KeyError: If required `namespace` is not found for pinecone
+            - ValueError: If `user_message_vector` is needed except for pinecone but if ids are also not provided for pinecone this error will be raised
+            - KeyError: If required `namespace` is not found for pinecone
         """
         try:
             if not user_message_vector and not self.vector_db_type == "pinecone":
@@ -110,8 +114,9 @@ class KnowledgeBase(object):
         **kwds: Any,
     ) -> Dict:
         """Fetches the chunks based on the ids from the knowledge base
+
         Args:
-            ids (List[str]): List of ids to fetch
+            - ids (List[str]): List of ids to fetch
 
         Returns:
             Dict: Result of fetching the chunks
@@ -132,7 +137,10 @@ class KnowledgeBase(object):
 
 class AsyncKnowledgeBase(object):
     """
-    Asynchronous way to retrieve chunks from the knowledge base
+    Asynchronous interface for interacting with vector databases.
+
+    This class provides a unified API to communicate with supported vector databases.
+    Currently, Pinecone and ChromaDB are supported.
     """
 
     default_knowledge_base = DEFAULT_KNOWLEDGE_BASE
@@ -141,25 +149,25 @@ class AsyncKnowledgeBase(object):
         """Initializes the knowledge base.
 
         Args:
-            vector_db_type (str, optional): Type of knowledge base. Default: pinecone
+            - vector_db_type (str, optional): Type of knowledge base. Default: pinecone
 
-        Authentication parameters by provider:
+        **Authentication parameters by provider:**
 
-            Pinecone:
-            api_key (str): Pinecone API key
-            index_name (str): Pinecone index name
-            namespace (str): Pinecone namespace
+            **Pinecone:**
+                - api_key (str): Pinecone API key
+                - index_name (str): Pinecone index name
+                - namespace (str): Pinecone namespace
 
-            ChromaDB:
-            collection_name (str): ChromaDB collection name
-            path (str, optional): Path to the ChromaDB database Default: `/home/ubuntu/projects/chromadb`
+            **ChromaDB:**
+                - collection_name (str): ChromaDB collection name
+                - path (str, optional): Path to the ChromaDB database Default: `/home/ubuntu/projects/chromadb`
 
         Raises:
-            ValueError: If the knowledge base type is not supported
-            KeyError: If the required params is not found
+            - ValueError: If the knowledge base type is not supported
+            - KeyError: If the required params is not found
 
         Warns:
-            UserWarning: If the knowledge base type is not defined Default: pinecone
+            - UserWarning: If the knowledge base type is not defined Default: pinecone
         """
         try:
             # Dictionary mapping vector database types to their respective handler classes
@@ -200,16 +208,17 @@ class AsyncKnowledgeBase(object):
         **kwds: Any,
     ) -> Dict:
         """Retrieves the chunks from the knowledge base
+
         Args:
-            num_of_chunks (int): Number of chunks to retrieve
-            user_message_vector (Optional[List[Union[int, float]]]): Embedding of text. Defaults to None.
+            - num_of_chunks (int): Number of chunks to retrieve
+            - user_message_vector (Optional[List[Union[int, float]]]): Embedding of text. Defaults to None.
 
         Returns:
             Dict: Result of retrieving the chunks
 
         Raises:
-            ValueError: If `user_message_vector` is needed except for pinecone but if ids are also not provided for pinecone this error will be raised
-            KeyError: If required `namespace` is not found for pinecone
+            - ValueError: If `user_message_vector` is needed except for pinecone but if ids are also not provided for pinecone this error will be raised
+            - KeyError: If required `namespace` is not found for pinecone
         """
         try:
             if not user_message_vector and not self.vector_db_type == "pinecone":
@@ -233,8 +242,9 @@ class AsyncKnowledgeBase(object):
         **kwds: Any,
     ) -> Dict:
         """Fetches the chunks based on the ids from the knowledge base
+
         Args:
-            ids (List[str]): List of ids to fetch
+            - ids (List[str]): List of ids to fetch
 
         Returns:
             Dict: Result of fetching the chunks

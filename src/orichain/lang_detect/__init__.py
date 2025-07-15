@@ -8,7 +8,7 @@ VERSION = "2.1.0"
 
 class LanguageDetection(object):
     """
-    Synchronous way to detect language of the user message using lingua-py
+    Synchronous interface for detecting the language of user messages using lingua-language-detector library.
     """
 
     def __init__(
@@ -18,10 +18,11 @@ class LanguageDetection(object):
         low_accuracy: Optional[bool] = False,
     ) -> None:
         """Loading detector with requirements, by default loads all the languages with 0.0 min confidence
+
         Args:
-            languages (Optional[List], optional): List of languages to load. Defaults to None.
-            min_words (Optional[int], optional): Minimum words in the user message to detect language. Defaults to None.
-            low_accuracy (Optional[bool], optional): To enable low accuracy mode. Defaults to False.
+            - languages (Optional[List], optional): List of languages to load. Defaults to None.
+            - min_words (Optional[int], optional): Minimum words in the user message to detect language. Defaults to None.
+            - low_accuracy (Optional[bool], optional): To enable low accuracy mode. Defaults to False.
         """
 
         try:
@@ -77,11 +78,13 @@ class LanguageDetection(object):
         iso_code_639_3: Optional[bool] = False,
     ) -> Dict:
         """Runs language detection
+
         Args:
-            user_message (str): User message to detect language
-            min_words (Optional[int], optional): Minimum words in the user message to detect language. Defaults to None.
-            add_confidence (Optional[bool], optional): To add confidence in the result. Defaults to False.
-            iso_code_639_3 (Optional[bool], optional): To get iso code 639-3 instead of 639-1. Defaults to False.
+            - user_message (str): User message to detect language
+            - min_words (Optional[int], optional): Minimum words in the user message to detect language. Defaults to None.
+            - add_confidence (Optional[bool], optional): To add confidence in the result. Defaults to False.
+            - iso_code_639_3 (Optional[bool], optional): To get iso code 639-3 instead of 639-1. Defaults to False.
+
         Returns:
             Dict: Result of language detection
         """
@@ -112,7 +115,7 @@ class LanguageDetection(object):
 
 class AsyncLanguageDetection(object):
     """
-    Asynchronous way to detect language of the user message using lingua-py
+    Asynchronous interface for detecting the language of user messages using lingua-language-detector library.
     """
 
     def __init__(
@@ -122,10 +125,11 @@ class AsyncLanguageDetection(object):
         low_accuracy: Optional[bool] = False,
     ) -> None:
         """Loading detector with requirements, by default loads all the languages with 0.0 min confidence
+
         Args:
-            languages (Optional[List], optional): List of languages to load. Defaults to None.
-            min_words (Optional[int], optional): Minimum words in the user message to detect language. Defaults to None.
-            low_accuracy (Optional[bool], optional): To enable low accuracy mode. Defaults to False.
+            - languages (Optional[List], optional): List of languages to load. Defaults to None.
+            - min_words (Optional[int], optional): Minimum words in the user message to detect language. Defaults to None.
+            - low_accuracy (Optional[bool], optional): To enable low accuracy mode. Defaults to False.
         """
 
         try:
@@ -175,11 +179,13 @@ class AsyncLanguageDetection(object):
         iso_code_639_3: Optional[bool] = False,
     ) -> Dict:
         """Runs language detection
+
         Args:
-            user_message (str): User message to detect language
-            min_words (Optional[int], optional): Minimum words in the user message to detect language. Defaults to None.
-            add_confidence (Optional[bool], optional): To add confidence in the result. Defaults to False.
-            iso_code_639_3 (Optional[bool], optional): To get iso code 639-3 instead of 639-1. Defaults to False.
+            - user_message (str): User message to detect language
+            - min_words (Optional[int], optional): Minimum words in the user message to detect language. Defaults to None.
+            - add_confidence (Optional[bool], optional): To add confidence in the result. Defaults to False.
+            - iso_code_639_3 (Optional[bool], optional): To get iso code 639-3 instead of 639-1. Defaults to False.
+
         Returns:
             Dict: Result of language detection
         """

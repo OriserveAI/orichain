@@ -22,8 +22,8 @@ class Embed(object):
             - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
 
         Raises:
-            KeyError: If required parameters are not provided.
-            TypeError: If an invalid type is provided for a parameter
+            - KeyError: If required parameters are not provided.
+            - TypeError: If an invalid type is provided for a parameter
         """
 
         from google.genai import Client, types
@@ -62,7 +62,15 @@ class Embed(object):
         self, text: Union[str, List[str]], model_name: str, **kwds: Any
     ) -> Union[List[float], List[List[float]], Dict]:
         """
-        Asynchronous Embed class to get embeddings from Gemini.
+        Get embeddings for the given text(s).
+
+        Args:
+            - text (Union[str, List[str]]): Input text or list of texts
+            - model_name (str): Name of the embedding model to use
+            - **kwargs: Additional keyword arguments for the embedding API
+
+        Returns:
+            (Union[List[float], List[List[float]], Dict[str, Any]]): Embeddings or error information
         """
         try:
             response = self.client.models.embed_content(
@@ -96,8 +104,8 @@ class AsyncEmbed(object):
             - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
 
         Raises:
-            KeyError: If required parameters are not provided.
-            TypeError: If an invalid type is provided for a parameter
+            - KeyError: If required parameters are not provided.
+            - TypeError: If an invalid type is provided for a parameter
         """
 
         from google.genai import Client, types
@@ -139,9 +147,9 @@ class AsyncEmbed(object):
         Get embeddings for the given text(s).
 
         Args:
-            text (Union[str, List[str]]): Input text or list of texts
-            model_name (str): Name of the embedding model to use
-            **kwargs: Additional keyword arguments for the embedding API
+            - text (Union[str, List[str]]): Input text or list of texts
+            - model_name (str): Name of the embedding model to use
+            - **kwargs: Additional keyword arguments for the embedding API
 
         Returns:
             (Union[List[float], List[List[float]], Dict[str, Any]]): Embeddings or error information

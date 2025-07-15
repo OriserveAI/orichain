@@ -11,12 +11,14 @@ class DataBase(object):
 
     def __init__(self, **kwds) -> None:
         """Initializes the Pinecone GRPC client.
+
         Args:
-            api_key (str): Pinecone API key
-            index_name (str): Pinecone index name
-            namespace (str): Pinecone namespace
+            - api_key (str): Pinecone API key
+            - index_name (str): Pinecone index name
+            - namespace (str): Pinecone namespace
+
         Raises:
-            KeyError: If required parameters are not found
+            - KeyError: If required parameters are not found
         """
         if not kwds.get("api_key"):
             raise KeyError("Required `api_key` not found")
@@ -38,30 +40,31 @@ class DataBase(object):
         **kwds: Any,
     ) -> Dict:
         """Retrieves chunks from the knowledge base using query method
+
         Args:
-            vector (List[float]): The query vector. This should be the same length as the dimension of the index
-                                    being queried. Each `query()` request can contain only one of the parameters
-                                    `id` or `vector`.. [optional]
-            id (str): The unique ID of the vector to be used as a query vector.
-                        Each `query()` request can contain only one of the parameters
-                        `vector` or  `id`.. [optional]
-            top_k (int): The number of results to return for each query. Must be an integer greater than 1.
-            namespace (str): The namespace to fetch vectors from.
-                                If not specified, the default namespace is used. [optional]
-            filter (Dict[str, Union[str, float, int, bool, List, dict]]):
-                    The filter to apply. You can use vector metadata to limit your search.
-                    See https://www.pinecone.io/docs/metadata-filtering/.. [optional]
-            include_values (bool): Indicates whether vector values are included in the response.
-                                    If omitted the server will use the default value of False [optional]
-            include_metadata (bool): Indicates whether metadata is included in the response as well as the ids.
-                                        If omitted the server will use the default value of False  [optional]
-            sparse_vector: (Union[SparseValues, Dict[str, Union[List[float], List[int]]]]): sparse values of the query vector.
-                            Expected to be either a SparseValues object or a dict of the form:
-                                {'indices': List[int], 'values': List[float]}, where the lists each have the same length.
+            - vector (List[float]): The query vector. This should be the same length as the dimension of the index
+              being queried. Each `query()` request can contain only one of the parameters `id` or `vector`.. [optional]
+            - id (str): The unique ID of the vector to be used as a query vector.
+              Each `query()` request can contain only one of the parameters `vector` or  `id`.. [optional]
+            - top_k (int): The number of results to return for each query. Must be an integer greater than 1.
+            - namespace (str): The namespace to fetch vectors from.
+              If not specified, the default namespace is used. [optional]
+            - filter (Dict[str, Union[str, float, int, bool, List, dict]]):
+              The filter to apply. You can use vector metadata to limit your search.
+              See https://www.pinecone.io/docs/metadata-filtering/ [optional]
+            - include_values (bool): Indicates whether vector values are included in the response.
+              If omitted the server will use the default value of False [optional]
+            - include_metadata (bool): Indicates whether metadata is included in the response as well as the ids.
+              If omitted the server will use the default value of False  [optional]
+            - sparse_vector: (Union[SparseValues, Dict[str, Union[List[float], List[int]]]]): sparse values of the query vector.
+              Expected to be either a SparseValues object or a dict of the form:
+              {'indices': List[int], 'values': List[float]}, where the lists each have the same length.
+
         Returns:
             Dict: Result of retrieving the chunks
+
         Raises:
-            ValueError: If `user_message_vector` or `id` is not provided
+            - ValueError: If `user_message_vector` or `id` is not provided
         """
         try:
             if not user_message_vector and not kwds.get("id"):
@@ -89,10 +92,11 @@ class DataBase(object):
 
     def fetch(self, ids: List[str], **kwds: Any) -> Dict:
         """Fetches the chunks based on the ids from the knowledge base using fetch method
+
         Args:
-            ids (List[str]): List of ids to fetch
-            namespace (str, optional): The namespace to fetch vectors from.
-                                If not specified, the default namespace is used.
+            - ids (List[str]): List of ids to fetch
+            - namespace (str, optional): The namespace to fetch vectors from. If not specified, the default namespace is used.
+
         Returns:
             Dict: Result of fetching the chunks
         """
@@ -117,12 +121,14 @@ class AsyncDataBase(object):
 
     def __init__(self, **kwds) -> None:
         """Initializes the Pinecone GRPC client.
+
         Args:
-            api_key (str): Pinecone API key
-            index_name (str): Pinecone index name
-            namespace (str): Pinecone namespace
+            - api_key (str): Pinecone API key
+            - index_name (str): Pinecone index name
+            - namespace (str): Pinecone namespace
+
         Raises:
-            KeyError: If required parameters are not found
+            - KeyError: If required parameters are not found
         """
         if not kwds.get("api_key"):
             raise KeyError("Required `api_key` not found")
@@ -144,30 +150,31 @@ class AsyncDataBase(object):
         **kwds: Any,
     ) -> Dict:
         """Retrieves chunks from the knowledge base using query method
+
         Args:
-            vector (List[float]): The query vector. This should be the same length as the dimension of the index
-                                    being queried. Each `query()` request can contain only one of the parameters
-                                    `id` or `vector`.. [optional]
-            id (str): The unique ID of the vector to be used as a query vector.
-                        Each `query()` request can contain only one of the parameters
-                        `vector` or  `id`.. [optional]
-            top_k (int): The number of results to return for each query. Must be an integer greater than 1.
-            namespace (str): The namespace to fetch vectors from.
-                                If not specified, the default namespace is used. [optional]
-            filter (Dict[str, Union[str, float, int, bool, List, dict]]):
-                    The filter to apply. You can use vector metadata to limit your search.
-                    See https://www.pinecone.io/docs/metadata-filtering/.. [optional]
-            include_values (bool): Indicates whether vector values are included in the response.
-                                    If omitted the server will use the default value of False [optional]
-            include_metadata (bool): Indicates whether metadata is included in the response as well as the ids.
-                                        If omitted the server will use the default value of False  [optional]
-            sparse_vector: (Union[SparseValues, Dict[str, Union[List[float], List[int]]]]): sparse values of the query vector.
-                            Expected to be either a SparseValues object or a dict of the form:
-                                {'indices': List[int], 'values': List[float]}, where the lists each have the same length.
+            - vector (List[float]): The query vector. This should be the same length as the dimension of the index
+              being queried. Each `query()` request can contain only one of the parameters `id` or `vector`.. [optional]
+            - id (str): The unique ID of the vector to be used as a query vector.
+              Each `query()` request can contain only one of the parameters `vector` or  `id`.. [optional]
+            - top_k (int): The number of results to return for each query. Must be an integer greater than 1.
+            - namespace (str): The namespace to fetch vectors from.
+              If not specified, the default namespace is used. [optional]
+            - filter (Dict[str, Union[str, float, int, bool, List, dict]]):
+              The filter to apply. You can use vector metadata to limit your search.
+              See https://www.pinecone.io/docs/metadata-filtering/ [optional]
+            - include_values (bool): Indicates whether vector values are included in the response.
+              If omitted the server will use the default value of False [optional]
+            - include_metadata (bool): Indicates whether metadata is included in the response as well as the ids.
+              If omitted the server will use the default value of False  [optional]
+            - sparse_vector: (Union[SparseValues, Dict[str, Union[List[float], List[int]]]]): sparse values of the query vector.
+              Expected to be either a SparseValues object or a dict of the form:
+              {'indices': List[int], 'values': List[float]}, where the lists each have the same length.
+
         Returns:
             Dict: Result of retrieving the chunks
+
         Raises:
-            ValueError: If `user_message_vector` or `id` is not provided
+            - ValueError: If `user_message_vector` or `id` is not provided
         """
         try:
             if not user_message_vector and not kwds.get("id"):
@@ -196,10 +203,11 @@ class AsyncDataBase(object):
 
     async def fetch(self, ids: List[str], **kwds: Any) -> Dict:
         """Fetches the chunks based on the ids from the knowledge base using fetch method
+
         Args:
-            ids (List[str]): List of ids to fetch
-            namespace (str, optional): The namespace to fetch vectors from.
-                                If not specified, the default namespace is used.
+            - ids (List[str]): List of ids to fetch
+            - namespace (str, optional): The namespace to fetch vectors from. If not specified, the default namespace is used.
+
         Returns:
             Dict: Result of fetching the chunks
         """

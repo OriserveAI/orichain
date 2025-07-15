@@ -16,14 +16,14 @@ class Embed(object):
         Loads SentenceTransformer model and initializes it.
 
         Args:
-            model_name (str): name of hf model to be loaded
-            model_download_path (str): path to download the model
-            device (str): device to be used for inference
-            trust_remote_code (bool): whether to trust remote code
-            token (str): token for downloading model
+            - model_name (str): name of hf model to be loaded
+            - model_download_path (str): path to download the model
+            - device (str): device to be used for inference
+            - trust_remote_code (bool): whether to trust remote code
+            - token (str): token for downloading model
 
         Raises:
-            ImportError: If sentence-transformers is not installed, it raises ImportError.
+            - ImportError: If sentence-transformers is not installed, it raises ImportError.
         """
 
         # Check if sentence-transformers is installed
@@ -80,8 +80,8 @@ class Embed(object):
         Get embeddings for the given text(s).
 
         Args:
-            text (Union[str, List[str]]): Input text or list of texts
-            **kwargs: Additional keyword arguments for the embedding API
+            - text (Union[str, List[str]]): Input text or list of texts
+            - **kwargs: Additional keyword arguments for the embedding API
 
         Returns:
             (Union[List[float], List[List[float]], Dict[str, Any]]): Embeddings or error information
@@ -124,15 +124,14 @@ class AsyncEmbed(object):
         Loads SentenceTransformer model and initializes it.
 
         Args:
-            model_name (str): name of hf model to be loaded
-            model_download_path (str): path to download the model
-            device (str): device to be used for inference
-            trust_remote_code (bool): whether to trust remote code
-            token (str): token for downloading model
+            - model_name (str): name of hf model to be loaded
+            - model_download_path (str): path to download the model
+            - device (str): device to be used for inference
+            - trust_remote_code (bool): whether to trust remote code
+            - token (str): token for downloading model
 
         Raises:
-            ImportError: If sentence-transformers is not
-            installed, it raises ImportError.
+            - ImportError: If sentence-transformers is not installed, it raises ImportError.
         """
 
         # Check if sentence-transformers is installed
@@ -189,8 +188,8 @@ class AsyncEmbed(object):
         Get embeddings for the given text(s).
 
         Args:
-            text (Union[str, List[str]]): Input text or list of texts
-            **kwargs: Additional keyword arguments for the embedding API
+            - text (Union[str, List[str]]): Input text or list of texts
+            - **kwargs: Additional keyword arguments for the embedding API
 
         Returns:
             (Union[List[float], List[List[float]], Dict[str, Any]]): Embeddings or error information

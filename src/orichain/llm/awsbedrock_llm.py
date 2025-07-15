@@ -54,18 +54,16 @@ class Generate(object):
             - aws_secret_key (str): api key
             - aws_region (str): region name
             - config (Config, optional):
-                - connect_timeout (float or int, optional): The time in seconds till a timeout exception is
-                thrown when attempting to make a connection. Default: 60
-                - read_timeout: (float or int, optional): The time in seconds till a timeout exception is
-                thrown when attempting to read from a connection. Default: 60
+                - connect_timeout (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to make a connection. Default: 60
+                - read_timeout: (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to read from a connection. Default: 60
                 - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
                 - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
                 - retries (Dict, optional):
                     - total_max_attempts: Number of retries for the request. Default: 2
 
         Raises:
-            KeyError: If required parameters are not provided.
-            TypeError: If an invalid type is provided for a parameter
+            - KeyError: If required parameters are not provided.
+            - TypeError: If an invalid type is provided for a parameter
         """
 
         from botocore.config import Config
@@ -122,13 +120,13 @@ class Generate(object):
         Generate a response from the specified model.
 
         Args:
-            model_name (str): Name of the AWS Bedrock model to use
-            user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
-            chat_hist (Optional[List[str]], optional): Previous conversation history
-            sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            system_prompt (Optional[str], optional): System prompt to provide context to the model
-            do_json (bool, optional): Whether to format the response as JSON. Defaults to False
-            **kwds: Additional keyword arguments to pass to the client
+            - model_name (str): Name of the AWS Bedrock model to use
+            - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - chat_hist (Optional[List[str]], optional): Previous conversation history
+            - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
+            - **kwds: Additional keyword arguments to pass to the client
 
         Returns:
             Dict: Response from the model or error information
@@ -186,12 +184,12 @@ class Generate(object):
         Stream responses from the specified model.
 
         Args:
-            model_name (str): Name of the AWS Bedrock model to use
-            user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
-            chat_hist (Optional[List[str]], optional): Previous conversation history
-            sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            system_prompt (Optional[str], optional): System prompt to provide context to the model
-            do_json (bool, optional): Whether to format the response as JSON. Defaults to False
+            - model_name (str): Name of the AWS Bedrock model to use
+            - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - chat_hist (Optional[List[str]], optional): Previous conversation history
+            - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
 
         Yields:
             Generator: Chunks of the model's response or error information
@@ -433,18 +431,16 @@ class AsyncGenerate(object):
             - aws_secret_key (str): api key
             - aws_region (str): region name
             - config (Config, optional):
-                - connect_timeout (float or int, optional): The time in seconds till a timeout exception is
-                thrown when attempting to make a connection. Default: 60
-                - read_timeout: (float or int, optional): The time in seconds till a timeout exception is
-                thrown when attempting to read from a connection. Default: 60
+                - connect_timeout (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to make a connection. Default: 60
+                - read_timeout: (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to read from a connection. Default: 60
                 - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
                 - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
                 - retries (Dict, optional):
                     - total_max_attempts: Number of retries for the request. Default: 2
 
         Raises:
-            KeyError: If required parameters are not provided.
-            TypeError: If an invalid type is provided for a parameter
+            - KeyError: If required parameters are not provided.
+            - TypeError: If an invalid type is provided for a parameter
         """
 
         from botocore.config import Config
@@ -502,14 +498,14 @@ class AsyncGenerate(object):
         Generate a response from the specified model.
 
         Args:
-            model_name (str): Name of the AWS Bedrock model to use
-            user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
-            request (Optional[Request], optional): FastAPI request object for connection tracking
-            chat_hist (Optional[List[str]], optional): Previous conversation history
-            sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            system_prompt (Optional[str], optional): System prompt to provide context to the model
-            do_json (bool, optional): Whether to format the response as JSON. Defaults to False
-            **kwds: Additional keyword arguments to pass to the client
+            - model_name (str): Name of the AWS Bedrock model to use
+            - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - request (Optional[Request], optional): FastAPI request object for connection tracking
+            - chat_hist (Optional[List[str]], optional): Previous conversation history
+            - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
+            - **kwds: Additional keyword arguments to pass to the client
 
         Returns:
             Dict: Response from the model or error information
@@ -572,13 +568,13 @@ class AsyncGenerate(object):
         Stream responses from the specified model.
 
         Args:
-            model_name (str): Name of the AWS Bedrock model to use
-            user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
-            request (Optional[Request], optional): FastAPI request object for connection tracking
-            chat_hist (Optional[List[str]], optional): Previous conversation history
-            sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            system_prompt (Optional[str], optional): System prompt to provide context to the model
-            do_json (bool, optional): Whether to format the response as JSON. Defaults to False
+            - model_name (str): Name of the AWS Bedrock model to use
+            - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - request (Optional[Request], optional): FastAPI request object for connection tracking
+            - chat_hist (Optional[List[str]], optional): Previous conversation history
+            - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
 
         Yields:
             AsyncGenerator: Chunks of the model's response or error information

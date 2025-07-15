@@ -26,8 +26,8 @@ class Generate(object):
             - max_retries (int, optional): Number of retries for the request. Default is 2
 
         Raises:
-            KeyError: If required parameters are not provided.
-            TypeError: If an invalid type is provided for a parameter
+            - KeyError: If required parameters are not provided.
+            - TypeError: If an invalid type is provided for a parameter
         """
         from httpx import Timeout
 
@@ -85,13 +85,13 @@ class Generate(object):
         Generate a response from the specified model.
 
         Args:
-            model_name (str): Name of the AWSBedrock Anthropic model to use
-            user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
-            chat_hist (Optional[List[str]], optional): Previous conversation history
-            sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            system_prompt (Optional[str], optional): System prompt to provide context to the model
-            do_json (bool, optional): Whether to format the response as JSON. Defaults to False
-            **kwds: Additional keyword arguments to pass to the client
+            - model_name (str): Name of the AWSBedrock Anthropic model to use
+            - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - chat_hist (Optional[List[str]], optional): Previous conversation history
+            - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
+            - **kwds: Additional keyword arguments to pass to the client
 
         Returns:
             Dict: Response from the model or error information
@@ -155,12 +155,12 @@ class Generate(object):
         Stream responses from the specified model.
 
         Args:
-            model_name (str): Name of the AWSBedrock Anthropic model to use
-            user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
-            chat_hist (Optional[List[str]], optional): Previous conversation history
-            sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            system_prompt (Optional[str], optional): System prompt to provide context to the model
-            do_json (bool, optional): Whether to format the response as JSON. Defaults to False
+            - model_name (str): Name of the AWSBedrock Anthropic model to use
+            - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - chat_hist (Optional[List[str]], optional): Previous conversation history
+            - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
 
         Yields:
             Generator: Chunks of the model's response or error information
@@ -294,8 +294,8 @@ class AsyncGenerate(object):
             - max_retries (int, optional): Number of retries for the request. Default is 2
 
         Raises:
-            KeyError: If required parameters are not provided.
-            TypeError: If an invalid type is provided for a parameter
+            - KeyError: If required parameters are not provided.
+            - TypeError: If an invalid type is provided for a parameter
         """
         from httpx import Timeout
 
@@ -354,14 +354,14 @@ class AsyncGenerate(object):
         Generate a response from the specified model.
 
         Args:
-            model_name (str): Name of the AWSBedrock Anthropic model to use
-            user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
-            request (Optional[Request], optional): FastAPI request object for connection tracking
-            chat_hist (Optional[List[str]], optional): Previous conversation history
-            sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            system_prompt (Optional[str], optional): System prompt to provide context to the model
-            do_json (bool, optional): Whether to format the response as JSON. Defaults to False
-            **kwds: Additional keyword arguments to pass to the client
+            - model_name (str): Name of the AWSBedrock Anthropic model to use
+            - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - request (Optional[Request], optional): FastAPI request object for connection tracking
+            - chat_hist (Optional[List[str]], optional): Previous conversation history
+            - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
+            - **kwds: Additional keyword arguments to pass to the client
 
         Returns:
             Dict: Response from the model or error information
@@ -430,13 +430,13 @@ class AsyncGenerate(object):
         Stream responses from the specified model.
 
         Args:
-            model_name (str): Name of the AWSBedrock Anthropic model to use
-            user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
-            request (Optional[Request], optional): FastAPI request object for connection tracking
-            chat_hist (Optional[List[str]], optional): Previous conversation history
-            sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            system_prompt (Optional[str], optional): System prompt to provide context to the model
-            do_json (bool, optional): Whether to format the response as JSON. Defaults to False
+            - model_name (str): Name of the AWSBedrock Anthropic model to use
+            - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - request (Optional[Request], optional): FastAPI request object for connection tracking
+            - chat_hist (Optional[List[str]], optional): Previous conversation history
+            - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
 
         Yields:
             AsyncGenerator: Chunks of the model's response or error information

@@ -21,8 +21,8 @@ class Embed(object):
             - max_retries (int, optional): Number of retries for the request. Default is 2
 
         Raises:
-            KeyError: If required parameters are not provided.
-            TypeError: If an invalid type is provided for a parameter
+            - KeyError: If required parameters are not provided.
+            - TypeError: If an invalid type is provided for a parameter
         """
         from httpx import Timeout
 
@@ -61,9 +61,9 @@ class Embed(object):
         Get embeddings for the given text(s).
 
         Args:
-            text (Union[str, List[str]]): Input text or list of texts
-            model_name (str): Name of the embedding model to use
-            **kwargs: Additional keyword arguments for the embedding API
+            - text (Union[str, List[str]]): Input text or list of texts
+            - model_name (str): Name of the embedding model to use
+            - **kwargs: Additional keyword arguments for the embedding API
 
         Returns:
             (Union[List[float], List[List[float]], Dict[str, Any]]): Embeddings or error information
@@ -104,9 +104,11 @@ class Embed(object):
 
     def num_tokens_from_string(self, string: str, model_name: str) -> int:
         """Returns the number of tokens in a text string.
+
         Args:
             string (str): Input text
             model_name (str): Name of the embedding model
+
         Returns:
             (int): Number of tokens in the text string
         """
@@ -130,8 +132,8 @@ class AsyncEmbed(object):
             - max_retries (int, optional): Number of retries for the request. Default is 2
 
         Raises:
-            KeyError: If required parameters are not provided.
-            TypeError: If an invalid type is provided for a parameter
+            - KeyError: If required parameters are not provided.
+            - TypeError: If an invalid type is provided for a parameter
         """
         from httpx import Timeout
 
@@ -170,9 +172,9 @@ class AsyncEmbed(object):
         Get embeddings for the given text(s).
 
         Args:
-            text (Union[str, List[str]]): Input text or list of texts
-            model_name (str): Name of the embedding model to use
-            **kwargs: Additional keyword arguments for the embedding API
+            - text (Union[str, List[str]]): Input text or list of texts
+            - model_name (str): Name of the embedding model to use
+            - **kwargs: Additional keyword arguments for the embedding API
 
         Returns:
             (Union[List[float], List[List[float]], Dict[str, Any]]): Embeddings or error information
@@ -211,8 +213,10 @@ class AsyncEmbed(object):
     async def num_tokens_from_string(self, string: str, model_name: str) -> int:
         """Returns the number of tokens in a text string.
         Args:
+
             string (str): Input text
             model_name (str): Name of the embedding model
+
         Returns:
             (int): Number of tokens in the text string
         """

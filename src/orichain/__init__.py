@@ -68,6 +68,7 @@ logger.addHandler(console_handler)
 def error_explainer(e: Exception) -> None:
     """
     Logs exception details with severity level and color coding based on the error type.
+
     Args:
         e (Exception): The exception object.
     """
@@ -105,10 +106,12 @@ def hf_repo_exists(
     repo_id: str, repo_type: Optional[str] = None, token: Optional[str] = None
 ) -> bool:
     """Checks whether repo_id mentioned is available on huggingface
+
     Args:
         repo_id (str): Huggingface repo id
         repo_type (str): Type of repo
         token (str): Huggingface API token
+
     Returns:
         bool: True if repo exists, False otherwise
     """

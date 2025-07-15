@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.2] - 2025-07-15
+
+### Changed
+- Changed the docstrings of most of the classes to support reStructuredText (reST) format.
+- Changed the provider name of sentence transformers embeddings from "SentenceTransformer" to "SentenceTransformers"
+
+### Added
+- Added Documentation for Orichain.
+
 ## [2.2.1] - 2025-07-14
 
 ### Changed

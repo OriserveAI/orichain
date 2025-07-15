@@ -1,6 +1,6 @@
 [project]
 name = "orichain"
-version = "2.2.1"
+version = "2.2.2"
 description = "Python lib created only for RAG related text based enterprise solutions"
 authors = [
     { name = "apoorv-singh-107", email = "apoorv.singh@oriserve.com" },
@@ -36,6 +36,8 @@ dev-dependencies = [
     "ipykernel==6.29.5",
     "lingua-language-detector==2.1.0",
     "sentence-transformers==3.4.1",
+    "sphinx==8.1.3",
+    "furo==2024.8.6",
 ]
 
 [tool.hatch.metadata]

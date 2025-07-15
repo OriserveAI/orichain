@@ -12,11 +12,13 @@ class DataBase(object):
 
     def __init__(self, **kwds) -> None:
         """Initializes the Chromadb client.
+
         Args:
-            path (str, optional): Path to the Chromadb Defualt: `/home/ubuntu/projects/chromadb`
-            collection_name (str): Chromadb collection name
+            - path (str, optional): Path to the Chromadb Defualt: `/home/ubuntu/projects/chromadb`
+            - collection_name (str): Chromadb collection name
+
         Raises:
-            KeyError: If required parameters are not found
+            - KeyError: If required parameters are not found
         """
         if not kwds.get("collection_name"):
             raise KeyError("Required `collection_name` not found")
@@ -70,9 +72,11 @@ class DataBase(object):
         **kwds: Any,
     ) -> Any:
         """Retrieves the chunks from the knowledge base using query method
+
         Args:
-            user_message_vector (List[Union[int, float]]): Embedding of text
-            num_of_chunks (int): Number of chunks to retrieve
+            - user_message_vector (List[Union[int, float]]): Embedding of text
+            - num_of_chunks (int): Number of chunks to retrieve
+
         Returns:
             Dict: Result of retrieving the chunks
         """
@@ -104,8 +108,10 @@ class DataBase(object):
 
     def fetch(self, ids: List[str], **kwds: Any) -> Dict:
         """Fetches the chunks based on the ids from the knowledge base using get method
+
         Args:
-            ids (List[str]): List of ids to fetch
+            - ids (List[str]): List of ids to fetch
+
         Returns:
             Dict: Result of fetching the chunks
         """
@@ -144,11 +150,13 @@ class AsyncDataBase(object):
 
     def __init__(self, **kwds) -> None:
         """Initializes the Chromadb client.
+
         Args:
-            path (str): Path to the Chromadb
-            collection_name (str): Chromadb collection name
+            - path (str): Path to the Chromadb
+            - collection_name (str): Chromadb collection name
+
         Raises:
-            KeyError: If required parameters are not found
+            - KeyError: If required parameters are not found
         """
         if not kwds.get("collection_name"):
             raise KeyError("Required `collection_name` not found")
@@ -202,9 +210,11 @@ class AsyncDataBase(object):
         **kwds: Any,
     ) -> Any:
         """Retrieves the chunks from the knowledge base using query method
+
         Args:
-            user_message_vector (List[Union[int, float]]): Embedding of text
-            num_of_chunks (int): Number of chunks to retrieve
+            - user_message_vector (List[Union[int, float]]): Embedding of text
+            - num_of_chunks (int): Number of chunks to retrieve
+
         Returns:
             Dict: Result of retrieving the chunks
         """
@@ -237,8 +247,10 @@ class AsyncDataBase(object):
 
     async def fetch(self, ids: List[str], **kwds: Any) -> Dict:
         """Fetches the chunks based on the ids from the knowledge base using get method
+
         Args:
-            ids (List[str]): List of ids to fetch
+            - ids (List[str]): List of ids to fetch
+
         Returns:
             Dict: Result of fetching the chunks
         """

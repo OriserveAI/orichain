@@ -165,65 +165,70 @@ class LLM(object):
     def __init__(self, **kwds: Any) -> None:
         """Initialize the Language Model class with the required parameters.
 
-        ### Args:
+        Args:
             - model_name (str, optional): Name of the model to be used. Default: "gpt-4.1-mini"
-            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AzureOpenAI", "AWSBedrock", "GoogleGemini", "GoogleVertexAI", "AnthropicBedrock", "Anthropic"]
+            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values:
+                - OpenAI
+                - AzureOpenAI
+                - AWSBedrock
+                - GoogleGemini
+                - GoogleVertexAI
+                - AnthropicBedrock
+                - Anthropic
 
-            ### Authentication parameters by provider:
+            **Authentication parameters by provider:**
 
-            #### OpenAI models
-            - api_key (str): OpenAI API key.
-            - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
-            - max_retries (int, optional): Number of retries for the request. Default: 2
+                **OpenAI models:**
+                    - api_key (str): OpenAI API key.
+                    - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
+                    - max_retries (int, optional): Number of retries for the request. Default: 2
 
-            #### AWS Bedrock models
-            - aws_access_key (str): AWS access key.
-            - aws_secret_key (str): AWS secret key.
-            - aws_region (str): AWS region name.
-            - prompt_caching (bool, optional): Whether to use prompt caching. Default: True
-            - config (Config, optional):
-                - connect_timeout (float or int, optional): The time in seconds till a timeout exception is
-                thrown when attempting to make a connection. Default: 60
-                - read_timeout: (float or int, optional): The time in seconds till a timeout exception is
-                thrown when attempting to read from a connection. Default: 60
-                - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
-                - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
-                - retries (Dict, optional):
-                    - total_max_attempts: Number of retries for the request. Default: 2
+                **AWS Bedrock models:**
+                    - aws_access_key (str): AWS access key.
+                    - aws_secret_key (str): AWS secret key.
+                    - aws_region (str): AWS region name.
+                    - prompt_caching (bool, optional): Whether to use prompt caching. Default: True
+                    - config (Config, optional):
+                        - connect_timeout (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to make a connection. Default: 60
+                        - read_timeout: (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to read from a connection. Default: 60
+                        - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
+                        - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
+                        - retries (Dict, optional):
+                            - total_max_attempts: Number of retries for the request. Default: 2
 
-            #### Google Gemini models
-            - api_key (str): Gemini API key
-            - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
-            - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
+                **Google Gemini models:**
+                    - api_key (str): Gemini API key
+                    - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
+                    - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
 
-            #### Google Vertex AI models
-            - api_key (str): Vertex AI API key
-            - credentials (google.auth.credentials.Credentials): The credentials to use for authentication when calling the Vertex AI APIs.
-            - project (str): The Google Cloud project ID to use for quota.
-            - location (str): The location to send API requests to (for example, us-central1).
-            - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
-            - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
+                **Google Vertex AI models:**
+                    - api_key (str): Vertex AI API key
+                    - credentials (google.auth.credentials.Credentials): The credentials to use for authentication when calling the Vertex AI APIs.
+                    - project (str): The Google Cloud project ID to use for quota.
+                    - location (str): The location to send API requests to (for example, us-central1).
+                    - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
+                    - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
 
-            #### Anthropic models
-            - api_key (str): Anthropic API key.
-            - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
-            - max_retries (int, optional): Number of retries for the request. Default: 2
-            - prompt_caching (bool, optional): Whether to use prompt caching. Default: True
+                **Anthropic models:**
+                    - api_key (str): Anthropic API key.
+                    - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
+                    - max_retries (int, optional): Number of retries for the request. Default: 2
+                    - prompt_caching (bool, optional): Whether to use prompt caching. Default: True
 
-            #### Azure OpenAI models
-            - api_key (str): Azure OpenAI API key.
-            - azure_endpoint (str): Azure OpenAI endpoint.
-            - api_version (str): Azure OpenAI API version.
-            - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
-            - max_retries (int, optional): Number of retries for the request. Default: 2
+                **Azure OpenAI models:**
+                    - api_key (str): Azure OpenAI API key.
+                    - azure_endpoint (str): Azure OpenAI endpoint.
+                    - api_version (str): Azure OpenAI API version.
+                    - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
+                    - max_retries (int, optional): Number of retries for the request. Default: 2
 
         Raises:
-            ValueError: If an unsupported model is specified.
-            KeyError: If required parameters are not provided.
-            TypeError: If an invalid type is provided for a parameter.
+            - ValueError: If an unsupported model is specified.
+            - KeyError: If required parameters are not provided.
+            - TypeError: If an invalid type is provided for a parameter.
 
         Warns:
-            UserWarning: If the model name is not provided, it defaults to the default model.
+            - UserWarning: If the model name is not provided, it defaults to the default model.
         """
 
         # Set model name and model provider, defaulting if not provided
@@ -269,14 +274,14 @@ class LLM(object):
         """Generate a synchronous response from the language model.
 
         Args:
-            user_message (str): The user's input message.
-            matched_sentence (List[str], optional): List of matched sentences for context.
-            system_prompt (str, optional): System prompt to guide the model's behavior.
-            chat_hist (List[Dict[str, str]], optional): Chat history for context.
-            sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
-            extra_metadata (Dict, optional): Additional metadata to include in the response.
-            do_json (bool, optional): Whether to return a JSON response. Default: False.
-            **kwds: Additional keyword arguments to pass to the model.
+            - user_message (str): The user's input message.
+            - matched_sentence (List[str], optional): List of matched sentences for context.
+            - system_prompt (str, optional): System prompt to guide the model's behavior.
+            - chat_hist (List[Dict[str, str]], optional): Chat history for context.
+            - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
+            - extra_metadata (Dict, optional): Additional metadata to include in the response.
+            - do_json (bool, optional): Whether to return a JSON response. Default: False.
+            - **kwds: Additional keyword arguments to pass to the model.
 
         Returns:
             Dict: The model's response with metadata.
@@ -333,15 +338,15 @@ class LLM(object):
         """Stream responses from the language model.
 
         Args:
-            user_message (str): The user's input message.
-            matched_sentence (List[str], optional): List of matched sentences for context.
-            system_prompt (str, optional): System prompt to guide the model's behavior.
-            chat_hist (List[Dict[str, str]], optional): Chat history for context.
-            sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
-            extra_metadata (Dict, optional): Additional metadata to include in the response.
-            do_json (bool, optional): Whether to return JSON responses. Default: False.
-            do_sse (bool, optional): Whether to format responses as Server-Sent Events. Default: True.
-            **kwds: Additional keyword arguments to pass to the model.
+            - user_message (str): The user's input message.
+            - matched_sentence (List[str], optional): List of matched sentences for context.
+            - system_prompt (str, optional): System prompt to guide the model's behavior.
+            - chat_hist (List[Dict[str, str]], optional): Chat history for context.
+            - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
+            - extra_metadata (Dict, optional): Additional metadata to include in the response.
+            - do_json (bool, optional): Whether to return JSON responses. Default: False.
+            - do_sse (bool, optional): Whether to format responses as Server-Sent Events. Default: True.
+            - **kwds: Additional keyword arguments to pass to the model.
 
         Yields:
             Generator: Stream of responses from the language model.
@@ -467,65 +472,71 @@ class AsyncLLM(object):
 
     def __init__(self, **kwds: Any) -> None:
         """Initialize the Language Model class with the required parameters.
-        ### Args:
+
+        Args:
             - model_name (str, optional): Name of the model to be used. Default: "gpt-4.1-mini"
-            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values ["OpenAI", "AzureOpenAI", "AWSBedrock", "GoogleGemini", "GoogleVertexAI", "AnthropicBedrock", "Anthropic"]
+            - provider (str, optional): Name of the model provider. Default: "OpenAI". Allowed values:
+                - OpenAI
+                - AzureOpenAI
+                - AWSBedrock
+                - GoogleGemini
+                - GoogleVertexAI
+                - AnthropicBedrock
+                - Anthropic
 
-            ### Authentication parameters by provider:
+            **Authentication parameters by provider:**
 
-            #### OpenAI models
-            - api_key (str): OpenAI API key.
-            - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
-            - max_retries (int, optional): Number of retries for the request. Default: 2
+                **OpenAI models:**
+                    - api_key (str): OpenAI API key.
+                    - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
+                    - max_retries (int, optional): Number of retries for the request. Default: 2
 
-            #### AWS Bedrock models
-            - aws_access_key (str): AWS access key.
-            - aws_secret_key (str): AWS secret key.
-            - aws_region (str): AWS region name.
-            - prompt_caching (bool, optional): Whether to use prompt caching. Default: True
-            - config (Config, optional):
-                - connect_timeout (float or int, optional): The time in seconds till a timeout exception is
-                thrown when attempting to make a connection. Default: 60
-                - read_timeout: (float or int, optional): The time in seconds till a timeout exception is
-                thrown when attempting to read from a connection. Default: 60
-                - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
-                - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
-                - retries (Dict, optional):
-                    - total_max_attempts: Number of retries for the request. Default: 2
+                **AWS Bedrock models:**
+                    - aws_access_key (str): AWS access key.
+                    - aws_secret_key (str): AWS secret key.
+                    - aws_region (str): AWS region name.
+                    - prompt_caching (bool, optional): Whether to use prompt caching. Default: True
+                    - config (Config, optional):
+                        - connect_timeout (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to make a connection. Default: 60
+                        - read_timeout: (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to read from a connection. Default: 60
+                        - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
+                        - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
+                        - retries (Dict, optional):
+                            - total_max_attempts: Number of retries for the request. Default: 2
 
-            #### Google Gemini models
-            - api_key (str): Gemini API key
-            - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
-            - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
+                **Google Gemini models:**
+                    - api_key (str): Gemini API key
+                    - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
+                    - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
 
-            #### Google Vertex AI models
-            - api_key (str): Vertex AI API key
-            - credentials (google.auth.credentials.Credentials): The credentials to use for authentication when calling the Vertex AI APIs.
-            - project (str): The Google Cloud project ID to use for quota.
-            - location (str): The location to send API requests to (for example, us-central1).
-            - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
-            - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
+                **Google Vertex AI models:**
+                    - api_key (str): Vertex AI API key
+                    - credentials (google.auth.credentials.Credentials): The credentials to use for authentication when calling the Vertex AI APIs.
+                    - project (str): The Google Cloud project ID to use for quota.
+                    - location (str): The location to send API requests to (for example, us-central1).
+                    - http_options (types.HttpOptions, optional): HTTP options to be used in each of the requests. Default is None
+                    - debug_config (DebugConfig, optional): Configuration options that change client network behavior when testing. Default is None
 
-            #### Anthropic models
-            - api_key (str): Anthropic API key.
-            - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
-            - max_retries (int, optional): Number of retries for the request. Default: 2
-            - prompt_caching (bool, optional): Whether to use prompt caching. Default: True
+                **Anthropic models:**
+                    - api_key (str): Anthropic API key.
+                    - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
+                    - max_retries (int, optional): Number of retries for the request. Default: 2
+                    - prompt_caching (bool, optional): Whether to use prompt caching. Default: True
 
-            #### Azure OpenAI models
-            - api_key (str): Azure OpenAI API key.
-            - azure_endpoint (str): Azure OpenAI endpoint.
-            - api_version (str): Azure OpenAI API version.
-            - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
-            - max_retries (int, optional): Number of retries for the request. Default: 2
+                **Azure OpenAI models:**
+                    - api_key (str): Azure OpenAI API key.
+                    - azure_endpoint (str): Azure OpenAI endpoint.
+                    - api_version (str): Azure OpenAI API version.
+                    - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
+                    - max_retries (int, optional): Number of retries for the request. Default: 2
 
         Raises:
-            ValueError: If an unsupported model is specified.
-            KeyError: If required parameters are not provided.
-            TypeError: If an invalid type is provided for a parameter.
+            - ValueError: If an unsupported model is specified.
+            - KeyError: If required parameters are not provided.
+            - TypeError: If an invalid type is provided for a parameter.
 
         Warns:
-            UserWarning: If the model name is not provided, it defaults to the default model.
+            - UserWarning: If the model name is not provided, it defaults to the default model.
         """
 
         # Set model name and model provider, defaulting if not provided
@@ -572,15 +583,15 @@ class AsyncLLM(object):
         """Generate a synchronous response from the language model.
 
         Args:
-            user_message (str): The user's input message.
-            request (Request, optional): FastAPI request object for cancellation detection.
-            matched_sentence (List[str], optional): List of matched sentences for context.
-            system_prompt (str, optional): System prompt to guide the model's behavior.
-            chat_hist (List[Dict[str, str]], optional): Chat history for context.
-            sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
-            extra_metadata (Dict, optional): Additional metadata to include in the response.
-            do_json (bool, optional): Whether to return a JSON response. Default: False.
-            **kwds: Additional keyword arguments to pass to the model.
+            - user_message (str): The user's input message.
+            - request (Request, optional): FastAPI request object for cancellation detection.
+            - matched_sentence (List[str], optional): List of matched sentences for context.
+            - system_prompt (str, optional): System prompt to guide the model's behavior.
+            - chat_hist (List[Dict[str, str]], optional): Chat history for context.
+            - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
+            - extra_metadata (Dict, optional): Additional metadata to include in the response.
+            - do_json (bool, optional): Whether to return a JSON response. Default: False.
+            - **kwds: Additional keyword arguments to pass to the model.
 
         Returns:
             Dict: The model's response with metadata.
@@ -643,16 +654,16 @@ class AsyncLLM(object):
         """Stream responses from the language model.
 
         Args:
-            user_message (str): The user's input message.
-            request (Request, optional): FastAPI request object for cancellation detection.
-            matched_sentence (List[str], optional): List of matched sentences for context.
-            system_prompt (str, optional): System prompt to guide the model's behavior.
-            chat_hist (List[Dict[str, str]], optional): Chat history for context.
-            sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
-            extra_metadata (Dict, optional): Additional metadata to include in the response.
-            do_json (bool, optional): Whether to return JSON responses. Default: False.
-            do_sse (bool, optional): Whether to format responses as Server-Sent Events. Default: True.
-            **kwds: Additional keyword arguments to pass to the model.
+            - user_message (str): The user's input message.
+            - request (Request, optional): FastAPI request object for cancellation detection.
+            - matched_sentence (List[str], optional): List of matched sentences for context.
+            - system_prompt (str, optional): System prompt to guide the model's behavior.
+            - chat_hist (List[Dict[str, str]], optional): Chat history for context.
+            - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
+            - extra_metadata (Dict, optional): Additional metadata to include in the response.
+            - do_json (bool, optional): Whether to return JSON responses. Default: False.
+            - do_sse (bool, optional): Whether to format responses as Server-Sent Events. Default: True.
+            - **kwds: Additional keyword arguments to pass to the model.
 
         Yields:
             AsyncGenerator: Stream of responses from the language model.

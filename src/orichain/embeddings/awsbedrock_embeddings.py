@@ -17,21 +17,19 @@ class Embed(object):
         Initialize AWS Bedrock client and set up API key.
 
         Args:
-            aws_access_key (str): access key
-            aws_secret_key (str): api key
-            aws_region (str): region name
-            config (Config, optional):
-                - connect_timeout (float or int, optional): The time in seconds till a timeout exception is
-                thrown when attempting to make a connection. Default: 60
-                - read_timeout: (float or int, optional): The time in seconds till a timeout exception is
-                thrown when attempting to read from a connection. Default: 60
+            - aws_access_key (str): access key
+            - aws_secret_key (str): api key
+            - aws_region (str): region name
+            - config (Config, optional):
+                - connect_timeout (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to make a connection. Default: 60
+                - read_timeout: (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to read from a connection. Default: 60
                 - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
                 - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
                 - retries (Dict, optional):
-                    total_max_attempts: Number of retries for the request. Default: 2
+                    - total_max_attempts: Number of retries for the request. Default: 2
 
         Raises:
-            KeyError: If required parameters are not provided.
+            - KeyError: If required parameters are not provided.
         """
 
         from botocore.config import Config
@@ -85,13 +83,13 @@ class Embed(object):
         Get embeddings for the given text(s).
 
         Args:
-            text (Union[str, List[str]]): Input text or list of texts
-            model_name (str): Name of the embedding model to use
-            input_type (str, optional): Type of input text. Default: "search_query"
-            truncate (str, optional): Truncate the input text. Default: "NONE"
-            dimensions (int, optional): Output dimensions. Default: 1024 (Output dimensions can be: 256, 512 and 1024)
-            normalize (bool, optional): Normalize the output. Default: True (As recommended in docs for RAG)
-            **kwargs: Additional keyword arguments for the embedding API
+            - text (Union[str, List[str]]): Input text or list of texts
+            - model_name (str): Name of the embedding model to use
+            - input_type (str, optional): Type of input text. Default: "search_query"
+            - truncate (str, optional): Truncate the input text. Default: "NONE"
+            - dimensions (int, optional): Output dimensions. Default: 1024 (Output dimensions can be: 256, 512 and 1024)
+            - normalize (bool, optional): Normalize the output. Default: True (As recommended in docs for RAG)
+            - **kwargs: Additional keyword arguments for the embedding API
 
         Returns:
            (Union[List[float], List[List[float]], Dict[str, Any]]): Embeddings or error information
@@ -164,8 +162,10 @@ class Embed(object):
     def worker(self, task):
         """
         Worker function to execute in threads.
+
         Args:
             task (Tuple): Task to execute
+
         Returns:
             (Union[List[Union[float, int]], Dict]): Embeddings or error information
         """
@@ -177,9 +177,11 @@ class Embed(object):
     ) -> Union[List[Union[float, int]], Dict]:
         """
         Generate embeddings for the given text.
+
         Args:
             body (Dict): Request body
             model_id (str): Model ID
+
         Returns:
             (Union[List[Union[float, int]], Dict]): Embeddings or error information
         """
@@ -217,21 +219,19 @@ class AsyncEmbed(object):
         Initialize AWS Bedrock client and set up API key.
 
         Args:
-            aws_access_key (str): access key
-            aws_secret_key (str): api key
-            aws_region (str): region name
-            config (Config, optional):
-                - connect_timeout (float or int, optional): The time in seconds till a timeout exception is
-                thrown when attempting to make a connection. Default: 60
-                - read_timeout: (float or int, optional): The time in seconds till a timeout exception is
-                thrown when attempting to read from a connection. Default: 60
+            - aws_access_key (str): access key
+            - aws_secret_key (str): api key
+            - aws_region (str): region name
+            - config (Config, optional):
+                - connect_timeout (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to make a connection. Default: 60
+                - read_timeout: (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to read from a connection. Default: 60
                 - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
                 - max_pool_connections: The maximum number of connections to keep in a connection pool. Defualt: 10
                 - retries (Dict, optional):
-                    total_max_attempts: Number of retries for the request. Default: 2
+                    - total_max_attempts: Number of retries for the request. Default: 2
 
         Raises:
-            KeyError: If required parameters are not provided.
+            - KeyError: If required parameters are not provided.
         """
 
         from botocore.config import Config
@@ -285,9 +285,13 @@ class AsyncEmbed(object):
         Get embeddings for the given text(s).
 
         Args:
-            text (Union[str, List[str]]): Input text or list of texts
-            model_name (str): Name of the embedding model to use
-            **kwargs: Additional keyword arguments for the embedding API
+            - text (Union[str, List[str]]): Input text or list of texts
+            - model_name (str): Name of the embedding model to use
+            - input_type (str, optional): Type of input text. Default: "search_query"
+            - truncate (str, optional): Truncate the input text. Default: "NONE"
+            - dimensions (int, optional): Output dimensions. Default: 1024 (Output dimensions can be: 256, 512 and 1024)
+            - normalize (bool, optional): Normalize the output. Default: True (As recommended in docs for RAG)
+            - **kwargs: Additional keyword arguments for the embedding API
 
         Returns:
            (Union[List[float], List[List[float]], Dict[str, Any]]): Embeddings or error information
@@ -361,9 +365,11 @@ class AsyncEmbed(object):
     ) -> Union[List[Union[float, int]], Dict]:
         """
         Generate embeddings for the given text.
+
         Args:
             body (Dict): Request body
             model_id (str): Model ID
+
         Returns:
             (Union[List[Union[float, int]], Dict]): Embeddings or error information
         """
