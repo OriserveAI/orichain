@@ -31,5 +31,5 @@ html_static_path = ["_static"]
 
 # -- Enabling sphinx.ext.autodoc (and others) to pull docstrings automatically -------------------------------------------------
 extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode"]
-sys.path.insert(0, os.path.abspath("../../src/orichain"))
+sys.path.insert(0, os.path.abspath("../../src"))
 autodoc_member_order = "bysource"
