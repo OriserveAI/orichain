@@ -28,6 +28,12 @@ exclude_patterns = []
 
 html_theme = "furo"
 html_static_path = ["_static"]
+html_css_files = ["custom.css"]
+html_theme_options = {
+    "light_logo": "logo-light.png",
+    "dark_logo": "logo-dark.png",
+}
+
 
 # -- Enabling sphinx.ext.autodoc (and others) to pull docstrings automatically -------------------------------------------------
 extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode"]
