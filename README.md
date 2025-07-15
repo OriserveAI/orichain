@@ -1,6 +1,8 @@
-# ORICHAIN
+# 🔗 ORICHAIN
 
-It is a custom wrapper made for RAG use cases made to be integrated with your endpoints. It caters:
+**Orichain** is a Python library designed as a custom wrapper for Retrieval-Augmented Generation (RAG) use cases, built to integrate seamlessly with your endpoints.
+
+It provides support for:
 
 - Embedding creation
     - AWS Bedrock
@@ -31,32 +33,35 @@ It is a custom wrapper made for RAG use cases made to be integrated with your en
 This library was built to make the applications of all the codes easy to write and review. 
 It can be said that it was inspired by LangChain but is optimized for better performance. The entire codebase is asynchronous and threaded, eliminating the need for you to worry about optimization.
 
+## 📚 Documentation
+Full documentation is available here:
+➡️ https://orichain.readthedocs.io/en/latest/
+
 ## Table of Contents
 - [Installation](#installation)
 - [Usage](#usage)
 - [Features](#features)
-- [Documentation](#documentation)
 - [Examples](#examples)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
 
-## Installation
+## 📦 Installation
 
-> 🚧
+> 🚧 Note:
 > - The Library was rewritten in v2.0.0 released in March of 2025. There were significant changes made.
 > - Starting from version 2.0.1 (May 2025), a `provider` argument is now required when initializing the LLM and EmbeddingModel classes.
 
-Just do this
+Install via pip:
 ```bash
 pip install orichain
 ```
 
 We have added Sentence Transformers and Lingua Language Detector as optional packages, so if you want to use them, please do one of the following:
 
-### Installation Options
+#### Installation Options
 
-#### 1. Install with orichain:
+##### 1️⃣ Install with orichain:
 - For `sentence-transformers`:
 ```bash
 pip install "orichain[sentence-transformers]"
@@ -66,7 +71,7 @@ pip install "orichain[sentence-transformers]"
 pip install "orichain[lingua-language-detector]"
 ```
 
-#### 2. Install directly:
+##### 2️⃣ Install directly:
 - For `sentence-transformers`:
 ```bash
 pip install sentence-transformers==3.4.1
@@ -76,7 +81,7 @@ pip install sentence-transformers==3.4.1
 pip install lingua-language-detector==2.1.0
 ```
 
-## Usage
+## 🚀 Usage Example
 
 A quick example of how to use Orichain:
 
@@ -107,18 +112,14 @@ llm_response = await llm(
             )
 ```
 
-## Features
+## ✨ Features
 
 Reasons to use Orichain:
 - Supports Both Sync and Async: Provides flexibility for different use cases.
 - Optimized Performance: Utilizes threading for efficiency, especially when used with FastAPI.
 - Hot-Swappable Components: Easily modify RAG components as project requirements evolve, ensuring high flexibility.
 
-## Documentation
-
-Coming soon...
-
-## Example
+## 💡 Example
 
 Here is a basic example of how to use this code: 
 
@@ -221,25 +222,26 @@ async def generate(request: Request) -> Response:
         return JSONResponse(llm_response)
 ```
 
-## Roadmap
+## 🛣️ Roadmap
 
 Here's our plan for upcoming features and improvements:
 
 ### Short-term goals
 - [X] Do testing of the latest version
 - [X] Release stable 1.0.0 version
-- [x] Create Documentation
-- [ ] Write class and function definitions
+- [X] Create Documentation
+- [X] Write class and function definitions
+- [ ] Add Together AI support
 
 ### Long-term goals
 - [X] Publish it to pypi
-- [ ] Refactor the code for better readability
+- [X] Refactor the code for better readability
 
-## Contributing
+## 🤝 Contributing
 
 We welcome contributions to help us achieve these goals!
 
-### Steps
+### 📝 Steps
 1. Stage all changes
 ```bash
 git add .
@@ -276,6 +278,6 @@ git tag -d vX.X.X
 git push origin --delete vX.X.X
 ```
 
-## License
+## 📄 License
 
 [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
