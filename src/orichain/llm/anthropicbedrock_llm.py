@@ -24,6 +24,7 @@ class Generate(object):
             - aws_region (str): region name
             - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default is 60.0, 5.0, 10.0, 2.0
             - max_retries (int, optional): Number of retries for the request. Default is 2
+            - prompt_caching (bool, optional): Whether to use prompt caching. Default: True
 
         Raises:
             - KeyError: If required parameters are not provided.
@@ -292,6 +293,7 @@ class AsyncGenerate(object):
             - aws_region (str): region name
             - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default is 60.0, 5.0, 10.0, 2.0
             - max_retries (int, optional): Number of retries for the request. Default is 2
+            - prompt_caching (bool, optional): Whether to use prompt caching. Default: True
 
         Raises:
             - KeyError: If required parameters are not provided.

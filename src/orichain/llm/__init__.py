@@ -176,7 +176,7 @@ class LLM(object):
                 - AnthropicBedrock
                 - Anthropic
 
-            **Authentication parameters by provider:**
+            **Authentication Arguments by provider:**
 
                 **OpenAI models:**
                     - api_key (str): OpenAI API key.
@@ -188,7 +188,7 @@ class LLM(object):
                     - aws_secret_key (str): AWS secret key.
                     - aws_region (str): AWS region name.
                     - prompt_caching (bool, optional): Whether to use prompt caching. Default: True
-                    - config (Config, optional):
+                    - config (botocore.config.Config, optional):
                         - connect_timeout (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to make a connection. Default: 60
                         - read_timeout: (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to read from a connection. Default: 60
                         - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
@@ -275,13 +275,25 @@ class LLM(object):
 
         Args:
             - user_message (str): The user's input message.
-            - matched_sentence (List[str], optional): List of matched sentences for context.
             - system_prompt (str, optional): System prompt to guide the model's behavior.
             - chat_hist (List[Dict[str, str]], optional): Chat history for context.
             - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
-            - extra_metadata (Dict, optional): Additional metadata to include in the response.
             - do_json (bool, optional): Whether to return a JSON response. Default: False.
-            - **kwds: Additional keyword arguments to pass to the model.
+            - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
+            - matched_sentence (List[str], optional): A list of matched text chunks for context. Not used internally, but included in the response under the matched_sentence key.
+            - extra_metadata (Dict, optional): Additional metadata to include in the response.
+
+            **Generation Arguments by provider:**
+
+                **AWS Bedrock models:**
+                    - additional_model_fields (Dict, optional): additionalModelRequestFields passed to the client in the request body.
+
+                **Google Gemini & Vertex AI models:**
+                    - config (google.genai.types.GenerateContentConfig, optional): Optional model configuration parameters provided to the client.chats.create API.
+                    - response_mime_type (str, optional): Output response mimetype of the generated candidate text. Supported mimetype: "text/plain" (Default), "application/json" (if do_json=True)
+
+                **Anthropic & AnthropicBedrock models:**
+                    - timeout (httpx.Timeout, optional): - timeout (httpx.Timeout, optional): Request timeout parameter like connect, read, write. Default is 60.0, 5.0, 10.0, 2.0
 
         Returns:
             Dict: The model's response with metadata.
@@ -339,14 +351,23 @@ class LLM(object):
 
         Args:
             - user_message (str): The user's input message.
-            - matched_sentence (List[str], optional): List of matched sentences for context.
             - system_prompt (str, optional): System prompt to guide the model's behavior.
             - chat_hist (List[Dict[str, str]], optional): Chat history for context.
             - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
-            - extra_metadata (Dict, optional): Additional metadata to include in the response.
             - do_json (bool, optional): Whether to return JSON responses. Default: False.
             - do_sse (bool, optional): Whether to format responses as Server-Sent Events. Default: True.
-            - **kwds: Additional keyword arguments to pass to the model.
+            - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
+            - matched_sentence (List[str], optional): A list of matched text chunks for context. Not used internally, but included in the response under the matched_sentence key.
+            - extra_metadata (Dict, optional): Additional metadata to include in the response.
+
+            **Generation Arguments by provider:**
+
+                **AWS Bedrock models:**
+                    - additional_model_fields (Dict, optional): additionalModelRequestFields passed to the client in the request body.
+
+                **Google Gemini & Vertex AI models:**
+                    - config (google.genai.types.GenerateContentConfig, optional): Optional model configuration parameters provided to the client.chats.create API.
+                    - response_mime_type (str, optional): Output response mimetype of the generated candidate text. Supported mimetype: "text/plain" (Default), "application/json" (if do_json=True)
 
         Yields:
             Generator: Stream of responses from the language model.
@@ -484,7 +505,7 @@ class AsyncLLM(object):
                 - AnthropicBedrock
                 - Anthropic
 
-            **Authentication parameters by provider:**
+            **Authentication Arguments by provider:**
 
                 **OpenAI models:**
                     - api_key (str): OpenAI API key.
@@ -496,7 +517,7 @@ class AsyncLLM(object):
                     - aws_secret_key (str): AWS secret key.
                     - aws_region (str): AWS region name.
                     - prompt_caching (bool, optional): Whether to use prompt caching. Default: True
-                    - config (Config, optional):
+                    - config (botocore.config.Config, optional):
                         - connect_timeout (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to make a connection. Default: 60
                         - read_timeout: (float or int, optional): The time in seconds till a timeout exception is thrown when attempting to read from a connection. Default: 60
                         - region_name (str, optional): region name Note: If specifing config you need to still pass region_name even if you have already passed in aws_region
@@ -584,14 +605,26 @@ class AsyncLLM(object):
 
         Args:
             - user_message (str): The user's input message.
-            - request (Request, optional): FastAPI request object for cancellation detection.
-            - matched_sentence (List[str], optional): List of matched sentences for context.
             - system_prompt (str, optional): System prompt to guide the model's behavior.
             - chat_hist (List[Dict[str, str]], optional): Chat history for context.
             - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
-            - extra_metadata (Dict, optional): Additional metadata to include in the response.
             - do_json (bool, optional): Whether to return a JSON response. Default: False.
-            - **kwds: Additional keyword arguments to pass to the model.
+            - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
+            - request (Request, optional): FastAPI Request object for cancellation detection.
+            - matched_sentence (List[str], optional): A list of matched text chunks for context. Not used internally, but included in the response under the matched_sentence key.
+            - extra_metadata (Dict, optional): Additional metadata to include in the response.
+
+            **Generation Arguments by provider:**
+
+                **AWS Bedrock models:**
+                    - additional_model_fields (Dict, optional): additionalModelRequestFields passed to the client in the request body.
+
+                **Google Gemini & Vertex AI models:**
+                    - config (google.genai.types.GenerateContentConfig, optional): Optional model configuration parameters provided to the client.chats.create API.
+                    - response_mime_type (str, optional): Output response mimetype of the generated candidate text. Supported mimetype: "text/plain" (Default), "application/json" (if do_json=True)
+
+                **Anthropic & AnthropicBedrock models:**
+                    - timeout (httpx.Timeout, optional): - timeout (httpx.Timeout, optional): Request timeout parameter like connect, read, write. Default is 60.0, 5.0, 10.0, 2.0
 
         Returns:
             Dict: The model's response with metadata.
@@ -655,15 +688,24 @@ class AsyncLLM(object):
 
         Args:
             - user_message (str): The user's input message.
-            - request (Request, optional): FastAPI request object for cancellation detection.
-            - matched_sentence (List[str], optional): List of matched sentences for context.
             - system_prompt (str, optional): System prompt to guide the model's behavior.
             - chat_hist (List[Dict[str, str]], optional): Chat history for context.
             - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
-            - extra_metadata (Dict, optional): Additional metadata to include in the response.
             - do_json (bool, optional): Whether to return JSON responses. Default: False.
             - do_sse (bool, optional): Whether to format responses as Server-Sent Events. Default: True.
-            - **kwds: Additional keyword arguments to pass to the model.
+            - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
+            - request (Request, optional): FastAPI Request object for cancellation detection.
+            - matched_sentence (List[str], optional): A list of matched text chunks for context. Not used internally, but included in the response under the matched_sentence key.
+            - extra_metadata (Dict, optional): Additional metadata to include in the response.
+
+            **Generation Arguments by provider:**
+
+                **AWS Bedrock models:**
+                    - additional_model_fields (Dict, optional): additionalModelRequestFields passed to the client in the request body.
+
+                **Google Gemini & Vertex AI models:**
+                    - config (google.genai.types.GenerateContentConfig, optional): Optional model configuration parameters provided to the client.chats.create API.
+                    - response_mime_type (str, optional): Output response mimetype of the generated candidate text. Supported mimetype: "text/plain" (Default), "application/json" (if do_json=True)
 
         Yields:
             AsyncGenerator: Stream of responses from the language model.

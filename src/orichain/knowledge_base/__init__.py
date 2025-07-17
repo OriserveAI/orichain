@@ -82,8 +82,38 @@ class KnowledgeBase(object):
         """Retrieves the chunks from the knowledge base
 
         Args:
+            - user_message_vector (Optional[List[Union[int, float]]]): Embedding of the text. Defaults to None.
             - num_of_chunks (int): Number of chunks to retrieve
-            - user_message_vector (Optional[List[Union[int, float]]]): Embedding of text. Defaults to None.
+
+            **Retrieval Arguments by VectorDB:**
+
+                **Pinecone:**
+                    - vector (List[float]): The query vector. This should be the same length as the dimension of the index
+                      being queried. Each `query()` request can contain only one of the parameters `id` or `vector`.. [optional]
+                    - id (str): The unique ID of the vector to be used as a query vector.
+                      Each `query()` request can contain only one of the parameters `vector` or  `id`.. [optional]
+                    - top_k (int): The number of results to return for each query. Must be an integer greater than 1.
+                    - namespace (str): The namespace to fetch vectors from.
+                      If not specified, the default namespace is used. [optional]
+                    - filter (Dict[str, Union[str, float, int, bool, List, dict]]):
+                      The filter to apply. You can use vector metadata to limit your search.
+                      See https://www.pinecone.io/docs/metadata-filtering/ [optional]
+                    - include_values (bool): Indicates whether vector values are included in the response.
+                      If omitted the server will use the default value of False [optional]
+                    - include_metadata (bool): Indicates whether metadata is included in the response as well as the ids.
+                      If omitted the server will use the default value of False  [optional]
+                    - sparse_vector: (Union[SparseValues, Dict[str, Union[List[float], List[int]]]]): sparse values of the query vector.
+                      Expected to be either a SparseValues object or a dict of the form:
+                      ``{'indices': List[int], 'values': List[float]}``, where the lists each have the same length.
+
+                **ChromaDB:**
+                    - collection_name (str, optional): The name of the collection to get documents from. Defaults to the collection_name set during class instantiation.
+                    - where (Dict, optional):  A Where type dict used to filter results by. E.g. ``{$and: [{"color" : "red"}, {"price": 4.20}]}``. Default: None.
+                    - where_document (Dict, optional): A WhereDocument type dict used to filter by the documents. E.g. ``{"$contains" : "hello"}``. Default: None.
+                    - include (List, optional): A list of what to include in the results.
+                      Can contain ``"embeddings"``, ``"metadatas"``, ``"documents"``, ``"distances"``.
+                      Ids are always included. Defaults to ``["metadatas", "documents", "distances"]``.
+                      Default: ``["metadatas", "documents"]``
 
         Returns:
             Dict: Result of retrieving the chunks
@@ -117,6 +147,22 @@ class KnowledgeBase(object):
 
         Args:
             - ids (List[str]): List of ids to fetch
+
+            **Retrieval Arguments by VectorDB:**
+
+                **Pinecone:**
+                    - namespace (str, optional): The namespace to fetch vectors from. If not specified, the default namespace is used.
+
+                **ChromaDB:**
+                    - collection_name (str, optional): The name of the collection to fetch documents from. Defaults to the collection_name set during class instantiation.
+                    - limit (int, optional): The number of documents to return. Default: None.
+                    - offset (int, optional): The offset to start returning results from. Useful for paging results with limit. Default: None.
+                    - where (Dict, optional):  A Where type dict used to filter results by. E.g. ``{$and: [{"color" : "red"}, {"price": 4.20}]}``. Default: None.
+                    - where_document (Dict, optional): A WhereDocument type dict used to filter by the documents. E.g. ``{"$contains" : "hello"}``. Default: None.
+                    - include (List, optional): A list of what to include in the results.
+                      Can contain ``"embeddings"``, ``"metadatas"``, ``"documents"``, ``"distances"``.
+                      Ids are always included. Defaults to ``["metadatas", "documents", "distances"]``.
+                      Default: ``["metadatas", "documents"]``
 
         Returns:
             Dict: Result of fetching the chunks
@@ -213,6 +259,36 @@ class AsyncKnowledgeBase(object):
             - num_of_chunks (int): Number of chunks to retrieve
             - user_message_vector (Optional[List[Union[int, float]]]): Embedding of text. Defaults to None.
 
+            **Retrieval Arguments by VectorDB:**
+
+                **Pinecone:**
+                    - vector (List[float]): The query vector. This should be the same length as the dimension of the index
+                      being queried. Each `query()` request can contain only one of the parameters `id` or `vector`.. [optional]
+                    - id (str): The unique ID of the vector to be used as a query vector.
+                      Each `query()` request can contain only one of the parameters `vector` or  `id`.. [optional]
+                    - top_k (int): The number of results to return for each query. Must be an integer greater than 1.
+                    - namespace (str): The namespace to fetch vectors from.
+                      If not specified, the default namespace is used. [optional]
+                    - filter (Dict[str, Union[str, float, int, bool, List, dict]]):
+                      The filter to apply. You can use vector metadata to limit your search.
+                      See https://www.pinecone.io/docs/metadata-filtering/ [optional]
+                    - include_values (bool): Indicates whether vector values are included in the response.
+                      If omitted the server will use the default value of False [optional]
+                    - include_metadata (bool): Indicates whether metadata is included in the response as well as the ids.
+                      If omitted the server will use the default value of False  [optional]
+                    - sparse_vector: (Union[SparseValues, Dict[str, Union[List[float], List[int]]]]): sparse values of the query vector.
+                      Expected to be either a SparseValues object or a dict of the form:
+                      ``{'indices': List[int], 'values': List[float]}``, where the lists each have the same length.
+
+                **ChromaDB:**
+                    - collection_name (str, optional): The name of the collection to get documents from. Defaults to the collection_name set during class instantiation.
+                    - where (Dict, optional):  A Where type dict used to filter results by. E.g. ``{$and: [{"color" : "red"}, {"price": 4.20}]}``. Default: None.
+                    - where_document (Dict, optional): A WhereDocument type dict used to filter by the documents. E.g. ``{"$contains" : "hello"}``. Default: None.
+                    - include (List, optional): A list of what to include in the results.
+                      Can contain ``"embeddings"``, ``"metadatas"``, ``"documents"``, ``"distances"``.
+                      Ids are always included. Defaults to ``["metadatas", "documents", "distances"]``.
+                      Default: ``["metadatas", "documents"]``
+
         Returns:
             Dict: Result of retrieving the chunks
 
@@ -245,6 +321,22 @@ class AsyncKnowledgeBase(object):
 
         Args:
             - ids (List[str]): List of ids to fetch
+
+            **Retrieval Arguments by VectorDB:**
+
+                **Pinecone:**
+                    - namespace (str, optional): The namespace to fetch vectors from. If not specified, the default namespace is used.
+
+                **ChromaDB:**
+                    - collection_name (str, optional): The name of the collection to fetch documents from. Defaults to the collection_name set during class instantiation.
+                    - limit (int, optional): The number of documents to return. Default: None.
+                    - offset (int, optional): The offset to start returning results from. Useful for paging results with limit. Default: None.
+                    - where (Dict, optional):  A Where type dict used to filter results by. E.g. ``{$and: [{"color" : "red"}, {"price": 4.20}]}``. Default: None.
+                    - where_document (Dict, optional): A WhereDocument type dict used to filter by the documents. E.g. ``{"$contains" : "hello"}``. Default: None.
+                    - include (List, optional): A list of what to include in the results.
+                      Can contain ``"embeddings"``, ``"metadatas"``, ``"documents"``, ``"distances"``.
+                      Ids are always included. Defaults to ``["metadatas", "documents", "distances"]``.
+                      Default: ``["metadatas", "documents"]``
 
         Returns:
             Dict: Result of fetching the chunks

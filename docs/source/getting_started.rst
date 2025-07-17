@@ -1,36 +1,38 @@
 Getting Started
 ===============
 
-Here is a basic example of how to use this code in a FastAPI application:
+Here's how you can get started easily with Orichain:
+
+Creating Embeddings using Orichain
+-----------------------------------
+
+Here is a basic example of how to use EmbeddingModel class from Orichain:
 
 .. code-block:: python
     
-    from fastapi import FastAPI, Request
-    from fastapi.responses import JSONResponse, Response, StreamingResponse
-
-    from orichain.embeddings import AsyncEmbeddingModel
-    from orichain.knowledge_base import AsyncKnowledgeBase
-    from orichain.llm import AsyncLLM
-
     import os
-    import art
+    from orichain.embeddings import EmbeddingModel # Use AsyncEmbeddingModel for asynchronous embeddings creation
     from dotenv import load_dotenv
-    from typing import Dict
 
     load_dotenv()
 
-    embedding_model = AsyncEmbeddingModel(
+    embedding_model = EmbeddingModel(
         model_name="text-embedding-ada-002",
         provider="OpenAI",
         api_key=os.getenv("OPENAI_KEY")
     )
 
-    knowledge_base_manager = AsyncKnowledgeBase(
-        vector_db_type="pinecone",
-        api_key=os.getenv("PINECONE_KEY"),
-        index_name="<depends on your creds>", 
-        namespace="<choose your desired namespace",
-    )
+    query_embedding = embedding_model(user_message="Hey there!")
+    
+
+Using Orichain to generate responses from an LLM
+-------------------------------------------------
+
+Let's use AsyncLLM class from Orichain to generate a response asynchronously:
+
+.. code-block:: python
+    
+    from orichain.llm import AsyncLLM # Use LLM for synchronous response generation
 
     llm = AsyncLLM(
         model_name="gpt-4.1-mini", 
@@ -38,69 +40,58 @@ Here is a basic example of how to use this code in a FastAPI application:
         api_key=os.getenv("OPENAI_KEY")
     )
 
-    app = FastAPI(redoc_url=None, docs_url=None)
+    response = await llm(
+        user_message="Why is the sky Blue?",
+    )
 
-    @app.post("/generative_response")
-    async def generate(request: Request) -> Response:
-        # Fetching data from the request recevied
-        request_json = await request.json()
 
-        # Fetching valid keys
-        user_message = request_json.get("user_message")
-        prev_pairs = request_json.get("prev_pairs")
-        metadata = request_json.get("metadata")
+Using Knowledge Base from Orichain
+------------------------------------------------
 
-        # Embedding creation for retrieval
-        user_message_vector = await embedding_model(user_message=user_message)
+Let's use KnowledgeBase class from Orichain to retrieve relevant documents from pinecone:
 
-        # Checking for error while embedding generation
-        if isinstance(user_message_vector, Dict):
-            return JSONResponse(user_message_vector)
+.. code-block:: python
+    
+    from orichain.embeddings import EmbeddingModel
+    from orichain.knowledge_base import KnowledgeBase
 
-        # Fetching relevant data chunks from knowledgebase
-        retrived_chunks = await knowledge_base_manager(
-            user_message_vector=user_message_vector,
-            num_of_chunks=5,
-        )
+    embedding_model = EmbeddingModel(
+        model_name="text-embedding-ada-002",
+        provider="OpenAI",
+        api_key=os.getenv("OPENAI_KEY")
+    )
 
-        # Checking for error while fetching relevant data chunks
-        if isinstance(retrived_chunks, Dict) and "error" in retrived_chunks:
-            return JSONResponse(user_message_vector)
+    knowledge_base_manager = KnowledgeBase(
+        vector_db_type="pinecone",
+        api_key=os.getenv("PINECONE_KEY"),
+        index_name="<your index name here>", 
+        namespace="<your desired namespace",
+    )
 
-        matched_sentence = convert_to_text_list(retrived_chunks) # Create a funtion that converts your data into a list of relevant information
+    # Embedding creation for retrieval
+    query_embedding = embedding_model(user_message="How to contact your customer support?")
 
-        system_prompt = f"""As a helpful, engaging and friendly chatbot, you will answer the user's query based on the following information provided: 
-        <data>
-        {"\n\n".join(matched_sentence)}
-        </data>"""
+    # Querying relevant data chunks from knowledgebase
+    retrieved_chunks = knowledge_base_manager(
+        user_message_vector=query_embedding,
+        num_of_chunks=5,
+    )
 
-        # Streaming
-        if metadata.get("stream"):
-            return StreamingResponse(
-                llm.stream(
-                    request=request,
-                    user_message=user_message,
-                    matched_sentence=matched_sentence,
-                    system_prompt=system_prompt,
-                    chat_hist=prev_pairs
-                ),
-                headers={
-                    "Content-Type": "text/event-stream",
-                    "Cache-Control": "no-cache",
-                    "X-Accel-Buffering": "no",
-                },
-                media_type="text/event-stream",
-            )
-        # Non streaming
-        else:
-            llm_response = await llm(
-                request=request,
-                user_message=user_message,
-                matched_sentence=matched_sentence,
-                system_prompt=system_prompt,
-                chat_hist=prev_pairs
-            )
+    # We can also fetch based on document ids
+    retrieved_chunks = knowledge_base_manager.fetch(
+        ids=["ID_1", "ID_2", "ID_3"]
+    )
 
-            return JSONResponse(llm_response)
+Using Language Detector from Orichain
+------------------------------------------------
 
-    print(art.text2art("Server has started!", font="small"))
+Let's use LanguageDetection class from Orichain to detect language of a user query:
+
+.. code-block:: python
+    
+    from orichain.lang_detect import LanguageDetection
+
+    lang_detect = LanguageDetection(languages=["ENGLISH", "ARABIC"], min_words=2)
+
+    user_language = lang_detect(user_message="هل يمكنك مساعدتي في استفساري؟")
+

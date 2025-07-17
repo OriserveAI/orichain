@@ -75,7 +75,7 @@ class EmbeddingModel(object):
                 - AzureOpenAI
                 - SentenceTransformers
 
-            **Authentication parameters by provider:**
+            **Authentication Arguments by provider:**
 
                 **OpenAI models:**
                     - api_key (str): OpenAI API key.
@@ -179,7 +179,56 @@ class EmbeddingModel(object):
 
         Args:
             - user_message (Union[str, List[str]]): Input text or list of texts
-            - **kwargs: Additional keyword arguments for the embedding API
+
+            **Generation Arguments by provider:**
+
+                **OpenAI & Azure OpenAI models:**
+                    - model_name (str, optional): Name of the embedding model to use.
+
+                **Google Gemini & Vertex AI models:**
+                    - model_name (str, optional): Name of the embedding model to use
+                    - config (google.genai.types.EmbedContentConfig, optional): Optional model configuration parameters provided to the client.models.embed_content API.
+
+                **AWS Bedrock models:**
+                    - model_name (str, optional): Name of the embedding model to use.
+
+                    **Cohere Embedding Models:**
+                        - input_type (Literal["search_query", "search_document", "classification", "clustering", "image"], optional): Type of input text. Default: "search_query"
+                        - embedding_types (str, optional): Specifies the types of embeddings you want to have returned. Can be one or more of the following types: 'float', 'int8', 'uint8', 'binary', 'ubinary'
+                        - truncate (Literal["NONE", "START", "END"], optional): Specifies how the API handles inputs longer than the maximum token length. Use one of the following:
+                            - NONE – (Default) Returns an error when the input exceeds the maximum input token length.
+                            - START – Discards the start of the input.
+                            - END – Discards the end of the input.
+
+                    **Amazon Titan Embeddings G1 Models:**
+                        - dimensions (int, optional): Output dimensions. Default: 1024 (Output dimensions can be: 256, 512 and 1024)
+                        - normalize (bool, optional): Normalize the output. Default: True (As recommended in docs for RAG)
+
+                **Sentence Transformers models:**
+                    - prompt_name (str, optional): The name of the prompt to use for encoding. Must be a key in the `prompts` dictionary,
+                      which is either set in the constructor or loaded from the model configuration. For example if
+                      ``prompt_name`` is "query" and the ``prompts`` is {"query": "query: ", ...}, then the sentence "What
+                      is the capital of France?" will be encoded as "query: What is the capital of France?" because the sentence
+                      is appended to the prompt. If ``prompt`` is also set, this argument is ignored. Defaults to None.
+                    - prompt (str, optional): The prompt to use for encoding. For example, if the prompt is "query: ", then the
+                      sentence "What is the capital of France?" will be encoded as "query: What is the capital of France?"
+                      because the sentence is appended to the prompt. If ``prompt`` is set, ``prompt_name`` is ignored. Defaults to None.
+                    - output_value (Literal["sentence_embedding", "token_embeddings"], optional): The type of embeddings to return:
+                      "sentence_embedding" to get sentence embeddings, "token_embeddings" to get wordpiece token embeddings, and `None`,
+                      to get all output values. Defaults to "sentence_embedding".
+                    - show_progress_bar (bool, optional): Whether to output a progress bar when encode sentences. Defaults to False.
+                    - precision (Literal["float32", "int8", "uint8", "binary", "ubinary"], optional): The precision to use for the embeddings.
+                      Can be "float32", "int8", "uint8", "binary", or "ubinary". All non-float32 precisions are quantized embeddings.
+                      Quantized embeddings are smaller in size and faster to compute, but may have a lower accuracy. They are useful for
+                      reducing the size of the embeddings of a corpus for semantic search, among other tasks. Defaults to "float32".
+                    - batch_size (int, optional): The batch size used for the computation. Defaults to 32.
+                    - convert_to_numpy (bool, optional): Whether the output should be a list of numpy vectors. If False, it is a list of PyTorch tensors.
+                      Defaults to False.
+                    - convert_to_tensor (bool, optional): Whether the output should be one large tensor. Overwrites `convert_to_numpy`.
+                      Defaults to False.
+                    - device (str, optional): Which :class:`torch.device` to use for the computation. Defaults to None.
+                    - normalize_embeddings (bool, optional): Whether to normalize returned vectors to have length 1. In that case,
+                      the faster dot-product (util.dot_score) instead of cosine similarity can be used. Defaults to False.
 
         Returns:
             (Union[List[float], List[List[float]], Dict[str, Any]]): Embeddings or error information
@@ -258,7 +307,7 @@ class AsyncEmbeddingModel(object):
                 - AzureOpenAI
                 - SentenceTransformers
 
-            **Authentication parameters by provider:**
+            **Authentication Arguments by provider:**
 
                 **OpenAI models:**
                     - api_key (str): OpenAI API key.
@@ -362,7 +411,56 @@ class AsyncEmbeddingModel(object):
 
         Args:
             - user_message (Union[str, List[str]]): Input text or list of texts
-            - **kwargs: Additional keyword arguments for the embedding API
+
+            **Generation Arguments by provider:**
+
+                **OpenAI & Azure OpenAI models:**
+                    - model_name (str, optional): Name of the embedding model to use.
+
+                **Google Gemini & Vertex AI models:**
+                    - model_name (str, optional): Name of the embedding model to use
+                    - config (google.genai.types.EmbedContentConfig, optional): Optional model configuration parameters provided to the client.models.embed_content API.
+
+                **AWS Bedrock models:**
+                    - model_name (str, optional): Name of the embedding model to use.
+
+                    **Cohere Embedding Models:**
+                        - input_type (Literal["search_query", "search_document", "classification", "clustering", "image"], optional): Type of input text. Default: "search_query"
+                        - embedding_types (str, optional): Specifies the types of embeddings you want to have returned. Can be one or more of the following types: 'float', 'int8', 'uint8', 'binary', 'ubinary'
+                        - truncate (Literal["NONE", "START", "END"], optional): Specifies how the API handles inputs longer than the maximum token length. Use one of the following:
+                            - NONE – (Default) Returns an error when the input exceeds the maximum input token length.
+                            - START – Discards the start of the input.
+                            - END – Discards the end of the input.
+
+                    **Amazon Titan Embeddings G1 Models:**
+                        - dimensions (int, optional): Output dimensions. Default: 1024 (Output dimensions can be: 256, 512 and 1024)
+                        - normalize (bool, optional): Normalize the output. Default: True (As recommended in docs for RAG)
+
+                **Sentence Transformers models:**
+                    - prompt_name (str, optional): The name of the prompt to use for encoding. Must be a key in the `prompts` dictionary,
+                      which is either set in the constructor or loaded from the model configuration. For example if
+                      ``prompt_name`` is "query" and the ``prompts`` is {"query": "query: ", ...}, then the sentence "What
+                      is the capital of France?" will be encoded as "query: What is the capital of France?" because the sentence
+                      is appended to the prompt. If ``prompt`` is also set, this argument is ignored. Defaults to None.
+                    - prompt (str, optional): The prompt to use for encoding. For example, if the prompt is "query: ", then the
+                      sentence "What is the capital of France?" will be encoded as "query: What is the capital of France?"
+                      because the sentence is appended to the prompt. If ``prompt`` is set, ``prompt_name`` is ignored. Defaults to None.
+                    - output_value (Literal["sentence_embedding", "token_embeddings"], optional): The type of embeddings to return:
+                      "sentence_embedding" to get sentence embeddings, "token_embeddings" to get wordpiece token embeddings, and `None`,
+                      to get all output values. Defaults to "sentence_embedding".
+                    - show_progress_bar (bool, optional): Whether to output a progress bar when encode sentences. Defaults to False.
+                    - precision (Literal["float32", "int8", "uint8", "binary", "ubinary"], optional): The precision to use for the embeddings.
+                      Can be "float32", "int8", "uint8", "binary", or "ubinary". All non-float32 precisions are quantized embeddings.
+                      Quantized embeddings are smaller in size and faster to compute, but may have a lower accuracy. They are useful for
+                      reducing the size of the embeddings of a corpus for semantic search, among other tasks. Defaults to "float32".
+                    - batch_size (int, optional): The batch size used for the computation. Defaults to 32.
+                    - convert_to_numpy (bool, optional): Whether the output should be a list of numpy vectors. If False, it is a list of PyTorch tensors.
+                      Defaults to False.
+                    - convert_to_tensor (bool, optional): Whether the output should be one large tensor. Overwrites `convert_to_numpy`.
+                      Defaults to False.
+                    - device (str, optional): Which :class:`torch.device` to use for the computation. Defaults to None.
+                    - normalize_embeddings (bool, optional): Whether to normalize returned vectors to have length 1. In that case,
+                      the faster dot-product (util.dot_score) instead of cosine similarity can be used. Defaults to False.
 
         Returns:
             (Union[List[float], List[List[float]], Dict[str, Any]]): Embeddings or error information

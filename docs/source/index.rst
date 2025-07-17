@@ -15,14 +15,15 @@ While inspired by `LangChain <https://www.langchain.com>`_, Orichain focuses on 
    - The Library was rewritten in v2.0.0 released in March of 2025. Starting with this version, each module now provides separate synchronous and asynchronous classes, giving you greater flexibility to choose the approach that best fits your application.
    - Starting from version 2.0.1 (May 2025), a `provider` argument is now required when initializing the LLM and EmbeddingModel classes.
 
+----
+
+**Get started here:**
+
 .. toctree::
-   :hidden:
    :maxdepth: 2
    :caption: Contents:
 
    installation
    getting_started
-   orichain.embeddings
-   orichain.llm
-   orichain.knowledge_base
-   orichain.lang_detect
+   modules
+   code_examples

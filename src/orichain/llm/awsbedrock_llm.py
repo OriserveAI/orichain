@@ -190,6 +190,7 @@ class Generate(object):
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
             - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
+            - **kwds: Additional keyword arguments to pass to the client
 
         Yields:
             Generator: Chunks of the model's response or error information
@@ -575,6 +576,7 @@ class AsyncGenerate(object):
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
             - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
+            - **kwds: Additional keyword arguments to pass to the client
 
         Yields:
             AsyncGenerator: Chunks of the model's response or error information

@@ -101,6 +101,7 @@ class Embed(object):
                 convert_to_tensor=kwds.get("convert_to_tensor", False),
                 convert_to_numpy=kwds.get("convert_to_numpy", False),
                 device=kwds.get("device", None),
+                normalize_embeddings=kwds.get("normalize_embeddings", False),
             )
 
             if len(embeddings) == 1:
@@ -210,6 +211,7 @@ class AsyncEmbed(object):
                 convert_to_tensor=kwds.get("convert_to_tensor", False),
                 convert_to_numpy=kwds.get("convert_to_numpy", False),
                 device=kwds.get("device", None),
+                normalize_embeddings=kwds.get("normalize_embeddings", False),
             )
 
             if len(embeddings) == 1:

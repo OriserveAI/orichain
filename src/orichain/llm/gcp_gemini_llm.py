@@ -230,7 +230,6 @@ class Generate(object):
 
         Args:
             chat_hist (Optional[List[Union[Dict[str, Union[str, Dict, Any]], types.Content]]], optional): Previous conversation history
-            request_id (Optional[str], optional): Request ID
 
         Returns:
             List[Dict]: Formatted messages in the structure expected by Google's API
@@ -445,9 +444,7 @@ class AsyncGenerate(object):
         """
         try:
             # Format the chat history and user message
-            messages = await self._chat_formatter(
-                chat_hist=chat_hist, request_id=kwds.get("request_id")
-            )
+            messages = await self._chat_formatter(chat_hist=chat_hist)
 
             # Yield error and return early if message formatting failed
             if isinstance(messages, Dict):
@@ -504,7 +501,6 @@ class AsyncGenerate(object):
 
         Args:
             chat_hist (Optional[List[Union[Dict[str, Union[str, Dict, Any]], types.Content]]], optional): Previous conversation history
-            request_id (Optional[str], optional): Request ID
 
         Returns:
             List[Dict]: Formatted messages in the structure expected by Google's API

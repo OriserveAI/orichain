@@ -167,7 +167,7 @@ class Generate(object):
             return result
 
         except Exception as e:
-            error_explainer(e=e, uuid=kwds.get("request_id"))
+            error_explainer(e=e)
             return {"error": 500, "reason": str(e)}
 
     def streaming(
@@ -248,7 +248,6 @@ class Generate(object):
 
         Args:
             chat_hist (Optional[List[Union[Dict[str, Union[str, Dict, Any]], types.Content]]], optional): Previous conversation history
-            request_id (Optional[str], optional): Request ID
 
         Returns:
             List[Dict]: Formatted messages in the structure expected by Google's API
@@ -451,7 +450,7 @@ class AsyncGenerate(object):
             return result
 
         except Exception as e:
-            error_explainer(e=e, uuid=kwds.get("request_id"))
+            error_explainer(e=e)
             return {"error": 500, "reason": str(e)}
 
     async def streaming(
@@ -538,14 +537,12 @@ class AsyncGenerate(object):
     async def _chat_formatter(
         self,
         chat_hist: Optional[List[Union[Dict[str, Union[str, Dict, Any]], Any]]] = None,
-        request_id: Optional[str] = str,
     ) -> Union[List[Union[Dict, Any]], Dict, None]:
         """
         Format user messages and chat history for the Google API.
 
         Args:
             chat_hist (Optional[List[Union[Dict[str, Union[str, Dict, Any]], types.Content]]], optional): Previous conversation history
-            request_id (Optional[str], optional): Request ID
 
         Returns:
             List[Dict]: Formatted messages in the structure expected by Google's API
