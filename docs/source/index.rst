@@ -27,3 +27,9 @@ While inspired by `LangChain <https://www.langchain.com>`_, Orichain focuses on 
    getting_started
    modules
    code_examples
+
+----
+
+💡 **Additional Resources**
+
+- 📂 **Source Code:** Visit the `Orichain GitHub Repository <https://github.com/OriserveAI/orichain>`_ for reporting issues, exploring the codebase, or contributing to the project.

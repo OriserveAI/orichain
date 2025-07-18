@@ -1,30 +1,55 @@
 Installation
 ============
 
-We recommend installing orichain with `uv <https://github.com/astral-sh/uv>`_
+Orichain can be installed easily using either `uv <https://github.com/astral-sh/uv>`_ or `pip`. We recommend using **uv** for faster and more reliable dependency resolution.
 
-You can install uv with:
+----
+
+**Install with uv (Recommended)**
+
+First, install **uv**:
 
 .. code-block:: bash
-    
+
     pip install uv
 
-Then run:
+Then, install Orichain:
 
 .. code-block:: bash
-    
+
     uv pip install orichain
 
-We have added Sentence Transformers and Lingua Language Detector as optional packages, so if you want to use them, please do one of the following:
+----
 
-For sentence-transformers:
+**Install with pip**
+
+Alternatively, you can install Orichain using pip:
+
+.. code-block:: bash
+
+    pip install orichain
+
+----
+
+**Optional Dependencies**
+
+Orichain supports optional integrations with **Sentence Transformers** and **Lingua Language Detector**. If your use case requires these, you can install them as follows:
+
+**For Sentence Transformers support:**
 
 .. code-block:: bash
 
     uv pip install "orichain[sentence-transformers]"
 
-For lingua-language-detector:
+**For Lingua Language Detector support:**
 
 .. code-block:: bash
 
     uv pip install "orichain[lingua-language-detector]"
+
+You can also use `pip install` instead of `uv pip install` for these optional dependencies if preferred.
+
+----
+
+**Next Steps:**
+After installation, refer to the :doc:`getting_started` guide to learn how to integrate Orichain into your projects.
