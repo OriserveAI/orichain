@@ -231,6 +231,7 @@ Here's our plan for upcoming features and improvements:
 - [X] Release stable 1.0.0 version
 - [X] Create Documentation
 - [X] Write class and function definitions
+- [ ] Add function calling support
 - [ ] Add Together AI support
 
 ### Long-term goals
