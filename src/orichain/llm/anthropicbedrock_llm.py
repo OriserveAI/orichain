@@ -59,7 +59,7 @@ class Generate(object):
         else:
             self.prompt_caching = False
 
-        from anthropic import AnthropicBedrock
+        from anthropic import AnthropicBedrock, NOT_GIVEN
 
         # Initialize the AWSBedrock Anthropic client with provided parameters
         self.client = AnthropicBedrock(
@@ -71,6 +71,7 @@ class Generate(object):
             ),
             max_retries=kwds.get("max_retries", 2),
         )
+        self.not_given = NOT_GIVEN
 
     def __call__(
         self,
@@ -78,6 +79,8 @@ class Generate(object):
         user_message: Union[str, List[Dict[str, str]]],
         chat_hist: Optional[List[str]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         system_prompt: Optional[str] = None,
         do_json: bool = False,
         **kwds: Any,
@@ -88,9 +91,11 @@ class Generate(object):
         Args:
             - model_name (str): Name of the AWSBedrock Anthropic model to use
             - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - chat_hist (Optional[List[str]], optional): Previous conversation history
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - tools (List[Dict], optional): List of tools to be used by the model.
+            - tool_choice (Optional[str], optional): Specifies if and which tool the model must call — "auto" for automatic, "required" for mandatory, or a specific tool's name.
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
             - **kwds: Additional keyword arguments to pass to the client
 
@@ -121,21 +126,66 @@ class Generate(object):
             if "max_tokens" not in sampling_paras:
                 sampling_paras["max_tokens"] = 512
 
+            # Check if tools and tool_choice are provided and format them
+            tools = (
+                [
+                    {
+                        "name": tool["name"],
+                        "description": tool["description"],
+                        "input_schema": tool["parameters"],
+                    }
+                    for tool in tools
+                ]
+                if tools
+                else []
+            )
+            if self.prompt_caching and tools:
+                tools[-1].update({"cache_control": {"type": "ephemeral"}})
+            if tool_choice:
+                if tool_choice == "auto":
+                    tool_choice = {"type": tool_choice}
+                elif tool_choice == "required":
+                    tool_choice = {"type": "any"}
+                elif tool_choice in [tool.get("name") for tool in tools]:
+                    tool_choice = {"type": "tool", "name": tool_choice}
+                else:
+                    return {
+                        "error": 400,
+                        "reason": f"Invalid tool_choice '{tool_choice}' provided. It must be one of ['auto', 'required'] or match a tool name in the provided tools.",
+                    }
+            else:
+                tool_choice = self.not_given
+
             # Call the AWSBedrock Anthropic API with the formatted messages
             message = self.client.with_options(
                 timeout=kwds.get("timeout")
             ).messages.create(
                 messages=messages,
                 model=model_name,
+                tools=tools,
+                tool_choice=tool_choice,
                 **sampling_paras,
             )
 
-            result = {
-                "response": "{" + message.content[0].text
-                if do_json
-                else message.content[0].text,
-                "metadata": {"usage": message.usage.to_dict()},
-            }
+            # Format the response with metadata
+            result = {"response": "", "metadata": {"usage": message.usage.to_dict()}}
+            tool_calls = []
+
+            for content in message.content:
+                if content.type == "text":
+                    result["response"] += (
+                        "{" + content.text if do_json else content.text
+                    )
+                elif content.type == "tool_use":
+                    tool = content.to_dict()
+                    tool["function"] = {
+                        "name": tool.pop("name"),
+                        "arguments": tool.pop("input"),
+                    }
+                    tool_calls.append(tool)
+
+            if tools:
+                result["tools"] = tool_calls
 
             return result
 
@@ -149,6 +199,8 @@ class Generate(object):
         user_message: Union[str, List[Dict[str, str]]],
         chat_hist: Optional[List[str]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         system_prompt: Optional[str] = None,
         do_json: Optional[bool] = False,
     ) -> Generator:
@@ -158,9 +210,11 @@ class Generate(object):
         Args:
             - model_name (str): Name of the AWSBedrock Anthropic model to use
             - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - chat_hist (Optional[List[str]], optional): Previous conversation history
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - tools (List[Dict], optional): List of tools to be used by the model.
+            - tool_choice (Optional[str], optional): Specifies if and which tool the model must call — "auto" for automatic, "required" for mandatory, or a specific tool's name.
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
 
         Yields:
@@ -190,10 +244,41 @@ class Generate(object):
                 if "max_tokens" not in sampling_paras:
                     sampling_paras["max_tokens"] = 512
 
+                # Check if tools and tool_choice are provided and format them
+                tools = (
+                    [
+                        {
+                            "name": tool["name"],
+                            "description": tool["description"],
+                            "input_schema": tool["parameters"],
+                        }
+                        for tool in tools
+                    ]
+                    if tools
+                    else []
+                )
+                if self.prompt_caching and tools:
+                    tools[-1].update({"cache_control": {"type": "ephemeral"}})
+                if tool_choice:
+                    if tool_choice == "auto":
+                        tool_choice = {"type": tool_choice}
+                    elif tool_choice == "required":
+                        tool_choice = {"type": "any"}
+                    elif tool_choice in [tool.get("name") for tool in tools]:
+                        tool_choice = {"type": "tool", "name": tool_choice}
+                    else:
+                        raise ValueError(
+                            f"Invalid tool_choice '{tool_choice}' provided. It must be one of ['auto', 'required'] or match a tool name in the provided tools."
+                        )
+                else:
+                    tool_choice = self.not_given
+
                 # Start the streaming session
                 with self.client.messages.stream(
                     messages=messages,
                     model=model_name,
+                    tools=tools,
+                    tool_choice=tool_choice,
                     **sampling_paras,
                 ) as stream:
                     # Start JSON response if requested
@@ -211,11 +296,25 @@ class Generate(object):
 
                 # Format the final response with metadata
                 result = {
-                    "response": "{" + final_response.content[0].text
-                    if do_json
-                    else final_response.content[0].text,
+                    "response": "",
                     "metadata": {"usage": final_response.usage.to_dict()},
                 }
+                tool_calls = []
+                for content in final_response.content:
+                    if content.type == "text":
+                        result["response"] += (
+                            "{" + content.text if do_json else content.text
+                        )
+                    elif content.type == "tool_use":
+                        tool = content.to_dict()
+                        tool["function"] = {
+                            "name": tool.pop("name"),
+                            "arguments": tool.pop("input"),
+                        }
+                        tool_calls.append(tool)
+
+                if tools:
+                    result["tools"] = tool_calls
 
                 yield result
         except Exception as e:
@@ -328,7 +427,7 @@ class AsyncGenerate(object):
         else:
             self.prompt_caching = False
 
-        from anthropic import AsyncAnthropicBedrock
+        from anthropic import AsyncAnthropicBedrock, NOT_GIVEN
 
         # Initialize the AWSBedrock Anthropic client with provided parameters
         self.client = AsyncAnthropicBedrock(
@@ -340,6 +439,7 @@ class AsyncGenerate(object):
             ),
             max_retries=kwds.get("max_retries", 2),
         )
+        self.not_given = NOT_GIVEN
 
     async def __call__(
         self,
@@ -348,6 +448,8 @@ class AsyncGenerate(object):
         request: Optional[Request] = None,
         chat_hist: Optional[List[str]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         system_prompt: Optional[str] = None,
         do_json: bool = False,
         **kwds: Any,
@@ -358,10 +460,12 @@ class AsyncGenerate(object):
         Args:
             - model_name (str): Name of the AWSBedrock Anthropic model to use
             - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - request (Optional[Request], optional): FastAPI request object for connection tracking
             - chat_hist (Optional[List[str]], optional): Previous conversation history
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - tools (List[Dict], optional): List of tools to be used by the model.
+            - tool_choice (Optional[str], optional): Specifies if and which tool the model must call — "auto" for automatic, "required" for mandatory, or a specific tool's name.
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
             - **kwds: Additional keyword arguments to pass to the client
 
@@ -392,6 +496,36 @@ class AsyncGenerate(object):
             if "max_tokens" not in sampling_paras:
                 sampling_paras["max_tokens"] = 512
 
+            # Check if tools and tool_choice are provided and format them
+            tools = (
+                [
+                    {
+                        "name": tool["name"],
+                        "description": tool["description"],
+                        "input_schema": tool["parameters"],
+                    }
+                    for tool in tools
+                ]
+                if tools
+                else []
+            )
+            if self.prompt_caching and tools:
+                tools[-1].update({"cache_control": {"type": "ephemeral"}})
+            if tool_choice:
+                if tool_choice == "auto":
+                    tool_choice = {"type": tool_choice}
+                elif tool_choice == "required":
+                    tool_choice = {"type": "any"}
+                elif tool_choice in [tool.get("name") for tool in tools]:
+                    tool_choice = {"type": "tool", "name": tool_choice}
+                else:
+                    return {
+                        "error": 400,
+                        "reason": f"Invalid tool_choice '{tool_choice}' provided. It must be one of ['auto', 'required'] or match a tool name in the provided tools.",
+                    }
+            else:
+                tool_choice = self.not_given
+
             # Check if the request was disconnected
             if request and await request.is_disconnected():
                 return {"error": 400, "reason": "request aborted by user"}
@@ -402,15 +536,30 @@ class AsyncGenerate(object):
             ).messages.create(
                 messages=messages,
                 model=model_name,
+                tools=tools,
+                tool_choice=tool_choice,
                 **sampling_paras,
             )
 
-            result = {
-                "response": "{" + message.content[0].text
-                if do_json
-                else message.content[0].text,
-                "metadata": {"usage": message.usage.to_dict()},
-            }
+            # Format the response with metadata
+            result = {"response": "", "metadata": {"usage": message.usage.to_dict()}}
+            tool_calls = []
+
+            for content in message.content:
+                if content.type == "text":
+                    result["response"] += (
+                        "{" + content.text if do_json else content.text
+                    )
+                elif content.type == "tool_use":
+                    tool = content.to_dict()
+                    tool["function"] = {
+                        "name": tool.pop("name"),
+                        "arguments": tool.pop("input"),
+                    }
+                    tool_calls.append(tool)
+
+            if tools:
+                result["tools"] = tool_calls
 
             return result
 
@@ -425,6 +574,8 @@ class AsyncGenerate(object):
         request: Optional[Request] = None,
         chat_hist: Optional[List[str]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         system_prompt: Optional[str] = None,
         do_json: Optional[bool] = False,
     ) -> AsyncGenerator:
@@ -434,10 +585,12 @@ class AsyncGenerate(object):
         Args:
             - model_name (str): Name of the AWSBedrock Anthropic model to use
             - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - request (Optional[Request], optional): FastAPI request object for connection tracking
             - chat_hist (Optional[List[str]], optional): Previous conversation history
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - tools (List[Dict], optional): List of tools to be used by the model.
+            - tool_choice (Optional[str], optional): Specifies if and which tool the model must call — "auto" for automatic, "required" for mandatory, or a specific tool's name.
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
 
         Yields:
@@ -467,10 +620,41 @@ class AsyncGenerate(object):
                 if "max_tokens" not in sampling_paras:
                     sampling_paras["max_tokens"] = 512
 
+                # Check if tools and tool_choice are provided and format them
+                tools = (
+                    [
+                        {
+                            "name": tool["name"],
+                            "description": tool["description"],
+                            "input_schema": tool["parameters"],
+                        }
+                        for tool in tools
+                    ]
+                    if tools
+                    else []
+                )
+                if self.prompt_caching and tools:
+                    tools[-1].update({"cache_control": {"type": "ephemeral"}})
+                if tool_choice:
+                    if tool_choice == "auto":
+                        tool_choice = {"type": tool_choice}
+                    elif tool_choice == "required":
+                        tool_choice = {"type": "any"}
+                    elif tool_choice in [tool.get("name") for tool in tools]:
+                        tool_choice = {"type": "tool", "name": tool_choice}
+                    else:
+                        raise ValueError(
+                            f"Invalid tool_choice '{tool_choice}' provided. It must be one of ['auto', 'required'] or match a tool name in the provided tools."
+                        )
+                else:
+                    tool_choice = self.not_given
+
                 # Start the streaming session
                 async with self.client.messages.stream(
                     messages=messages,
                     model=model_name,
+                    tools=tools,
+                    tool_choice=tool_choice,
                     **sampling_paras,
                 ) as stream:
                     # Start JSON response if requested
@@ -494,11 +678,25 @@ class AsyncGenerate(object):
 
                 # Format the final response with metadata
                 result = {
-                    "response": "{" + final_response.content[0].text
-                    if do_json
-                    else final_response.content[0].text,
+                    "response": "",
                     "metadata": {"usage": final_response.usage.to_dict()},
                 }
+                tool_calls = []
+                for content in final_response.content:
+                    if content.type == "text":
+                        result["response"] += (
+                            "{" + content.text if do_json else content.text
+                        )
+                    elif content.type == "tool_use":
+                        tool = content.to_dict()
+                        tool["function"] = {
+                            "name": tool.pop("name"),
+                            "arguments": tool.pop("input"),
+                        }
+                        tool_calls.append(tool)
+
+                if tools:
+                    result["tools"] = tool_calls
 
                 yield result
         except Exception as e:

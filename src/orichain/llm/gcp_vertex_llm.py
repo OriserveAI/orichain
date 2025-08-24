@@ -106,6 +106,8 @@ class Generate(object):
         user_message: Union[str, List[Union[Dict[str, str], Any]]],
         chat_hist: Optional[List[str]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         system_prompt: Optional[str] = None,
         do_json: Optional[bool] = False,
         **kwds: Any,
@@ -116,9 +118,11 @@ class Generate(object):
         Args:
             - model_name (str): Name of the Vertex AI model to use
             - user_message (Union[str, List[Union[Dict[str, str], Any]]]): The user's message or formatted messages
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - chat_hist (Optional[List[str]], optional): Previous conversation history
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation by GenerateContentConfig
-            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - tools (List[Dict], optional): List of tools to be used by the model.
+            - tool_choice (Optional[str], optional): Specifies if and which tool the model must call — "none" for no tools, "auto" for automatic, "required" for mandatory, or a specific tool's name.
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
             - **kwds: Additional keyword arguments to pass to the client
 
@@ -138,6 +142,29 @@ class Generate(object):
             # Default empty dictionaries
             sampling_paras = sampling_paras or {}
 
+            # Checking tool_choice and formatting tool_config
+            tool_config = None
+            if tool_choice:
+                if tool_choice == "required":
+                    tool_choice = "any"
+                if tool_choice in ["none", "auto", "any"]:
+                    tool_config = self.types.ToolConfig(
+                        function_calling_config=self.types.FunctionCallingConfig(
+                            mode=tool_choice.upper()
+                        )
+                    )
+                elif tool_choice in [tool.get("name") for tool in tools]:
+                    tool_config = self.types.ToolConfig(
+                        function_calling_config=self.types.FunctionCallingConfig(
+                            mode="ANY", allowed_function_names=[tool_choice]
+                        )
+                    )
+                else:
+                    return {
+                        "error": 400,
+                        "reason": f"Invalid tool_choice '{tool_choice}' provided. It must be one of ['none', 'auto', 'required'] or match a tool name in the provided tools.",
+                    }
+
             # Create new chat session with Google API with the formatted messages
             chat_session = self.client.chats.create(
                 model=model_name,
@@ -150,6 +177,10 @@ class Generate(object):
                             if do_json
                             else kwds.get("response_mime_type") or "text/plain"
                         ),
+                        tools=[self.types.Tool(function_declarations=tools)]
+                        if tools
+                        else [],
+                        tool_config=tool_config,
                         **sampling_paras,
                     ),
                 ),
@@ -160,9 +191,21 @@ class Generate(object):
 
             # Fetching responses from the LLM for tools and text
             result = {
-                "response": response.text,
+                "response": response.text or "",
                 "metadata": {"usage": response.usage_metadata.to_json_dict()},
             }
+
+            if tools:
+                tool_calls = []
+                if response.function_calls:
+                    for tool in response.function_calls:
+                        tool_calls.append(
+                            {
+                                "id": tool.id,
+                                "function": {"name": tool.name, "arguments": tool.args},
+                            }
+                        )
+                result["tools"] = tool_calls
 
             return result
 
@@ -176,6 +219,8 @@ class Generate(object):
         user_message: Union[str, List[Union[Dict[str, str], Any]]],
         chat_hist: Optional[List[str]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         system_prompt: Optional[str] = None,
         do_json: Optional[bool] = False,
         **kwds: Any,
@@ -186,9 +231,11 @@ class Generate(object):
         Args:
             - model_name (str): Name of the Google model to use
             - user_message (Union[str, List[Union[Dict[str, str], Any]]]): The user's message or formatted messages
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - chat_hist (Optional[List[str]], optional): Previous conversation history
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation by GenerateContentConfig
-            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - tools (List[Dict], optional): List of tools to be used by the model.
+            - tool_choice (Optional[str], optional): Specifies if and which tool the model must call — "none" for no tools, "auto" for automatic, "required" for mandatory, or a specific tool's name.
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
             - **kwds: Additional keyword arguments to pass to the client
 
@@ -197,7 +244,9 @@ class Generate(object):
         """
         try:
             # Format the chat history and user message
-            messages = self._chat_formatter(chat_hist=chat_hist)
+            messages = self._chat_formatter(
+                chat_hist=chat_hist,
+            )
 
             # Yield error and return early if message formatting failed
             if isinstance(messages, Dict):
@@ -206,6 +255,28 @@ class Generate(object):
             else:
                 # Default empty dictionaries
                 sampling_paras = sampling_paras or {}
+
+                # Checking tool_choice and formatting tool_config
+                tool_config = None
+                if tool_choice:
+                    if tool_choice == "required":
+                        tool_choice = "any"
+                    if tool_choice in ["none", "auto", "any"]:
+                        tool_config = self.types.ToolConfig(
+                            function_calling_config=self.types.FunctionCallingConfig(
+                                mode=tool_choice.upper()
+                            )
+                        )
+                    elif tool_choice in [tool.get("name") for tool in tools]:
+                        tool_config = self.types.ToolConfig(
+                            function_calling_config=self.types.FunctionCallingConfig(
+                                mode="ANY", allowed_function_names=[tool_choice]
+                            )
+                        )
+                    else:
+                        raise ValueError(
+                            f"Invalid tool_choice '{tool_choice}' provided. It must be one of ['none', 'auto', 'required'] or match a tool name in the provided tools."
+                        )
 
                 # Create new chat session with Google API with the formatted messages
                 chat_session = self.client.chats.create(
@@ -219,6 +290,10 @@ class Generate(object):
                                 if do_json
                                 else kwds.get("response_mime_type") or "text/plain"
                             ),
+                            tools=[self.types.Tool(function_declarations=tools)]
+                            if tools
+                            else [],
+                            tool_config=tool_config,
                             **sampling_paras,
                         ),
                     ),
@@ -226,13 +301,28 @@ class Generate(object):
                 )
 
                 result: Dict = {"response": ""}
+                tool_calls = []
 
                 for chunk in chat_session.send_message_stream(message=user_message):
                     if chunk.text:
                         result["response"] = result["response"] + chunk.text
                         yield chunk.text
+                    elif chunk.function_calls:
+                        for tool in chunk.function_calls:
+                            tool_calls.append(
+                                {
+                                    "id": tool.id,
+                                    "function": {
+                                        "name": tool.name,
+                                        "arguments": tool.args,
+                                    },
+                                }
+                            )
                     if chunk.usage_metadata:
                         result.update({"usage": chunk.usage_metadata.to_json_dict()})
+
+                if tools:
+                    result["tools"] = tool_calls
 
                 yield result
         except Exception as e:
@@ -384,6 +474,8 @@ class AsyncGenerate(object):
         request: Optional[Request] = None,
         chat_hist: Optional[List[str]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         system_prompt: Optional[str] = None,
         do_json: Optional[bool] = False,
         **kwds: Any,
@@ -394,10 +486,12 @@ class AsyncGenerate(object):
         Args:
             - model_name (str): Name of the Vertex AI model to use
             - user_message (Union[str, List[Union[Dict[str, str], Any]]]): The user's message or formatted messages
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - request (Optional[Request], optional): FastAPI request object for connection tracking
             - chat_hist (Optional[List[str]], optional): Previous conversation history
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation by GenerateContentConfig
-            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - tools (List[Dict], optional): List of tools to be used by the model.
+            - tool_choice (Optional[str], optional): Specifies if and which tool the model must call — "none" for no tools, "auto" for automatic, "required" for mandatory, or a specific tool's name.
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
             - **kwds: Additional keyword arguments to pass to the client
 
@@ -417,6 +511,29 @@ class AsyncGenerate(object):
             # Default empty dictionaries
             sampling_paras = sampling_paras or {}
 
+            # Checking tool_choice and formatting tool_config
+            tool_config = None
+            if tool_choice:
+                if tool_choice == "required":
+                    tool_choice = "any"
+                if tool_choice in ["none", "auto", "any"]:
+                    tool_config = self.types.ToolConfig(
+                        function_calling_config=self.types.FunctionCallingConfig(
+                            mode=tool_choice.upper()
+                        )
+                    )
+                elif tool_choice in [tool.get("name") for tool in tools]:
+                    tool_config = self.types.ToolConfig(
+                        function_calling_config=self.types.FunctionCallingConfig(
+                            mode="ANY", allowed_function_names=[tool_choice]
+                        )
+                    )
+                else:
+                    return {
+                        "error": 400,
+                        "reason": f"Invalid tool_choice '{tool_choice}' provided. It must be one of ['none', 'auto', 'required'] or match a tool name in the provided tools.",
+                    }
+
             # Check if the request was disconnected
             if request and await request.is_disconnected():
                 return {"error": 400, "reason": "request aborted by user"}
@@ -433,6 +550,10 @@ class AsyncGenerate(object):
                             if do_json
                             else kwds.get("response_mime_type") or "text/plain"
                         ),
+                        tools=[self.types.Tool(function_declarations=tools)]
+                        if tools
+                        else [],
+                        tool_config=tool_config,
                         **sampling_paras,
                     ),
                 ),
@@ -443,9 +564,21 @@ class AsyncGenerate(object):
 
             # Fetching responses from the LLM for tools and text
             result = {
-                "response": response.text,
+                "response": response.text or "",
                 "metadata": {"usage": response.usage_metadata.to_json_dict()},
             }
+
+            if tools:
+                tool_calls = []
+                if response.function_calls:
+                    for tool in response.function_calls:
+                        tool_calls.append(
+                            {
+                                "id": tool.id,
+                                "function": {"name": tool.name, "arguments": tool.args},
+                            }
+                        )
+                result["tools"] = tool_calls
 
             return result
 
@@ -460,6 +593,8 @@ class AsyncGenerate(object):
         request: Optional[Request] = None,
         chat_hist: Optional[List[str]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         system_prompt: Optional[str] = None,
         do_json: Optional[bool] = False,
         **kwds: Any,
@@ -470,10 +605,12 @@ class AsyncGenerate(object):
         Args:
             - model_name (str): Name of the Google model to use
             - user_message (Union[str, List[Union[Dict[str, str], Any]]]): The user's message or formatted messages
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - request (Optional[Request], optional): FastAPI request object for connection tracking
             - chat_hist (Optional[List[str]], optional): Previous conversation history
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation by GenerateContentConfig
-            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - tools (List[Dict], optional): List of tools to be used by the model.
+            - tool_choice (Optional[str], optional): Specifies if and which tool the model must call — "none" for no tools, "auto" for automatic, "required" for mandatory, or a specific tool's name.
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
             - **kwds: Additional keyword arguments to pass to the client
 
@@ -494,6 +631,28 @@ class AsyncGenerate(object):
                 # Default empty dictionaries
                 sampling_paras = sampling_paras or {}
 
+                # Checking tool_choice and formatting tool_config
+                tool_config = None
+                if tool_choice:
+                    if tool_choice == "required":
+                        tool_choice = "any"
+                    if tool_choice in ["none", "auto", "any"]:
+                        tool_config = self.types.ToolConfig(
+                            function_calling_config=self.types.FunctionCallingConfig(
+                                mode=tool_choice.upper()
+                            )
+                        )
+                    elif tool_choice in [tool.get("name") for tool in tools]:
+                        tool_config = self.types.ToolConfig(
+                            function_calling_config=self.types.FunctionCallingConfig(
+                                mode="ANY", allowed_function_names=[tool_choice]
+                            )
+                        )
+                    else:
+                        raise ValueError(
+                            f"Invalid tool_choice '{tool_choice}' provided. It must be one of ['none', 'auto', 'required'] or match a tool name in the provided tools."
+                        )
+
                 # Create new chat session with Google API with the formatted messages
                 chat_session = self.client.aio.chats.create(
                     model=model_name,
@@ -506,15 +665,18 @@ class AsyncGenerate(object):
                                 if do_json
                                 else kwds.get("response_mime_type") or "text/plain"
                             ),
+                            tools=[self.types.Tool(function_declarations=tools)]
+                            if tools
+                            else [],
+                            tool_config=tool_config,
                             **sampling_paras,
-                            tools=kwds.get("tools"),
-                            tool_config=kwds.get("tool_config"),
                         ),
                     ),
                     history=messages,
                 )
 
                 result: Dict = {"response": ""}
+                tool_calls = []
 
                 async for chunk in await chat_session.send_message_stream(
                     message=user_message
@@ -526,8 +688,22 @@ class AsyncGenerate(object):
                     if chunk.text:
                         result["response"] = result["response"] + chunk.text
                         yield chunk.text
+                    elif chunk.function_calls:
+                        for tool in chunk.function_calls:
+                            tool_calls.append(
+                                {
+                                    "id": tool.id,
+                                    "function": {
+                                        "name": tool.name,
+                                        "arguments": tool.args,
+                                    },
+                                }
+                            )
                     if chunk.usage_metadata:
                         result.update({"usage": chunk.usage_metadata.to_json_dict()})
+
+                if tools:
+                    result["tools"] = tool_calls
 
                 yield result
         except Exception as e:

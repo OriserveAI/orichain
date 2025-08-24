@@ -1,5 +1,5 @@
+import json
 from typing import Dict, List, Optional, Generator, AsyncGenerator
-
 from fastapi import Request
 
 from orichain import error_explainer
@@ -66,6 +66,8 @@ class Generate(object):
         user_message: str,
         chat_hist: Optional[List[str]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         system_prompt: Optional[str] = None,
         do_json: Optional[bool] = False,
     ) -> Dict:
@@ -75,9 +77,11 @@ class Generate(object):
         Args:
             - model_name (str): Name of the OpenAI model to use
             - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - chat_hist (Optional[List[str]], optional): Previous conversation history
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - tools (List[Dict], optional): List of tools to be used by the model.
+            - tool_choice (Optional[str], optional): Specifies if and which tool the model must call — "none" for no tools, "auto" for automatic, "required" for mandatory, or a specific tool's name.
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
 
         Returns:
@@ -98,20 +102,59 @@ class Generate(object):
             # Default empty dictionaries
             sampling_paras = sampling_paras or {}
 
+            # Check if tools and tool_choice are provided and format them
+            tools = (
+                [{"type": "function", "function": tool} for tool in tools]
+                if tools
+                else []
+            )
+            if tool_choice and tool_choice not in ["none", "auto", "required"]:
+                if tool_choice in [
+                    tool.get("function", {}).get("name") for tool in tools
+                ]:
+                    tool_choice = {
+                        "type": "function",
+                        "function": {"name": tool_choice},
+                    }
+                else:
+                    return {
+                        "error": 400,
+                        "reason": f"Invalid tool_choice '{tool_choice}' provided. It must be one of ['none', 'auto', 'required'] or match a tool name in the provided tools.",
+                    }
+
             # Call the OpenAI API with the formatted messages
             completion = self.client.chat.completions.create(
                 model=model_name,
                 messages=messages,
-                **sampling_paras,
+                tools=tools,
+                tool_choice=tool_choice,
                 response_format={"type": "json_object"}
                 if do_json
                 else {"type": "text"},
+                **sampling_paras,
             )
 
             result = {
-                "response": completion.choices[0].message.content,
+                "response": completion.choices[0].message.content or "",
                 "metadata": {"usage": completion.usage.to_dict()},
             }
+
+            if tools:
+                tool_calls = (
+                    [
+                        tool_call.to_dict()
+                        for tool_call in completion.choices[0].message.tool_calls
+                    ]
+                    if completion.choices[0].message.tool_calls
+                    else []
+                )
+                for tool_call in tool_calls:
+                    tool_call["function"]["arguments"] = (
+                        json.loads(tool_call["function"]["arguments"])
+                        if tool_call["function"]["arguments"]
+                        else {}
+                    )
+                result["tools"] = tool_calls
 
             return result
 
@@ -125,6 +168,8 @@ class Generate(object):
         user_message: str,
         chat_hist: Optional[List[str]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         system_prompt: Optional[str] = None,
         do_json: Optional[bool] = False,
     ) -> Generator:
@@ -134,9 +179,11 @@ class Generate(object):
         Args:
             - model_name (str): Name of the OpenAI model to use
             - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - chat_hist (Optional[List[str]], optional): Previous conversation history
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - tools (List[Dict], optional): List of tools to be used by the model.
+            - tool_choice (Optional[str], optional): Specifies if and which tool the model must call — "none" for no tools, "auto" for automatic, "required" for mandatory, or a specific tool's name.
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
 
         Yields:
@@ -158,25 +205,63 @@ class Generate(object):
                 # Default empty dictionaries
                 sampling_paras = sampling_paras or {}
 
+                # Check if tools and tool_choice are provided and format them
+                tools = (
+                    [{"type": "function", "function": tool} for tool in tools]
+                    if tools
+                    else []
+                )
+                if tool_choice and tool_choice not in ["none", "auto", "required"]:
+                    if tool_choice in [
+                        tool.get("function", {}).get("name") for tool in tools
+                    ]:
+                        tool_choice = {
+                            "type": "function",
+                            "function": {"name": tool_choice},
+                        }
+                    else:
+                        raise ValueError(
+                            f"Invalid tool_choice '{tool_choice}' provided. It must be one of ['none', 'auto', 'required'] or match a tool name in the provided tools."
+                        )
+
                 # Start the streaming session
                 completion = self.client.chat.completions.create(
                     model=model_name,
                     messages=messages,
                     stream=True,
-                    **sampling_paras,
+                    tools=tools,
+                    tool_choice=tool_choice,
                     response_format={"type": "json_object"}
                     if do_json
                     else {"type": "text"},
                     stream_options={"include_usage": True},
+                    **sampling_paras,
                 )
 
                 response = ""
+                usage = {}
+                tool_calls = []
+                tool_arg_buffer = ""
 
                 # Stream text chunks as they become available
                 for chunk in completion:
-                    if chunk.choices and chunk.choices[0].delta.content:
-                        response += chunk.choices[0].delta.content
-                        yield chunk.choices[0].delta.content
+                    delta = chunk.choices[0].delta if chunk.choices else None
+                    if delta and delta.content:
+                        response += delta.content
+                        yield delta.content
+                    elif delta and delta.tool_calls:
+                        tc = delta.tool_calls[0]
+                        if tc.id:
+                            tool_calls.append(tc.to_dict())
+                        if tc.function and tc.function.arguments:
+                            tool_arg_buffer += tc.function.arguments
+                            try:
+                                tool_calls[-1]["function"]["arguments"] = json.loads(
+                                    tool_arg_buffer
+                                )
+                                tool_arg_buffer = ""
+                            except json.JSONDecodeError:
+                                continue
                     elif chunk.usage:
                         usage = chunk.usage.to_dict()
 
@@ -185,6 +270,9 @@ class Generate(object):
                     "response": response,
                     "metadata": {"usage": usage},
                 }
+
+                if tools:
+                    result["tools"] = tool_calls
 
                 yield result
         except Exception as e:
@@ -312,6 +400,8 @@ class AsyncGenerate(object):
         request: Optional[Request] = None,
         chat_hist: Optional[List[str]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         system_prompt: Optional[str] = None,
         do_json: Optional[bool] = False,
     ) -> Dict:
@@ -321,10 +411,12 @@ class AsyncGenerate(object):
         Args:
             - model_name (str): Name of the OpenAI model to use
             - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - request (Optional[Request], optional): FastAPI request object for connection tracking
             - chat_hist (Optional[List[str]], optional): Previous conversation history
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - tools (List[Dict], optional): List of tools to be used by the model.
+            - tool_choice (Optional[str], optional): Specifies if and which tool the model must call — "none" for no tools, "auto" for automatic, "required" for mandatory, or a specific tool's name.
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
 
         Returns:
@@ -349,20 +441,59 @@ class AsyncGenerate(object):
             if request and await request.is_disconnected():
                 return {"error": 400, "reason": "request aborted by user"}
 
+            # Check if tools and tool_choice are provided and format them
+            tools = (
+                [{"type": "function", "function": tool} for tool in tools]
+                if tools
+                else []
+            )
+            if tool_choice and tool_choice not in ["none", "auto", "required"]:
+                if tool_choice in [
+                    tool.get("function", {}).get("name") for tool in tools
+                ]:
+                    tool_choice = {
+                        "type": "function",
+                        "function": {"name": tool_choice},
+                    }
+                else:
+                    return {
+                        "error": 400,
+                        "reason": f"Invalid tool_choice '{tool_choice}' provided. It must be one of ['none', 'auto', 'required'] or match a tool name in the provided tools.",
+                    }
+
             # Call the OpenAI API with the formatted messages
             completion = await self.client.chat.completions.create(
                 model=model_name,
                 messages=messages,
-                **sampling_paras,
+                tools=tools,
+                tool_choice=tool_choice,
                 response_format={"type": "json_object"}
                 if do_json
                 else {"type": "text"},
+                **sampling_paras,
             )
 
             result = {
-                "response": completion.choices[0].message.content,
+                "response": completion.choices[0].message.content or "",
                 "metadata": {"usage": completion.usage.to_dict()},
             }
+
+            if tools:
+                tool_calls = (
+                    [
+                        tool_call.to_dict()
+                        for tool_call in completion.choices[0].message.tool_calls
+                    ]
+                    if completion.choices[0].message.tool_calls
+                    else []
+                )
+                for tool_call in tool_calls:
+                    tool_call["function"]["arguments"] = (
+                        json.loads(tool_call["function"]["arguments"])
+                        if tool_call["function"]["arguments"]
+                        else {}
+                    )
+                result["tools"] = tool_calls
 
             return result
 
@@ -377,6 +508,8 @@ class AsyncGenerate(object):
         request: Optional[Request] = None,
         chat_hist: Optional[List[str]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         system_prompt: Optional[str] = None,
         do_json: Optional[bool] = False,
     ) -> AsyncGenerator:
@@ -386,10 +519,12 @@ class AsyncGenerate(object):
         Args:
             - model_name (str): Name of the OpenAI model to use
             - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - request (Optional[Request], optional): FastAPI request object for connection tracking
             - chat_hist (Optional[List[str]], optional): Previous conversation history
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - tools (List[Dict], optional): List of tools to be used by the model.
+            - tool_choice (Optional[str], optional): Specifies if and which tool the model must call — "none" for no tools, "auto" for automatic, "required" for mandatory, or a specific tool's name.
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
 
         Yields:
@@ -411,19 +546,43 @@ class AsyncGenerate(object):
                 # Default empty dictionaries
                 sampling_paras = sampling_paras or {}
 
+                # Check if tools and tool_choice are provided and format them
+                tools = (
+                    [{"type": "function", "function": tool} for tool in tools]
+                    if tools
+                    else []
+                )
+                if tool_choice and tool_choice not in ["none", "auto", "required"]:
+                    if tool_choice in [
+                        tool.get("function", {}).get("name") for tool in tools
+                    ]:
+                        tool_choice = {
+                            "type": "function",
+                            "function": {"name": tool_choice},
+                        }
+                    else:
+                        raise ValueError(
+                            f"Invalid tool_choice '{tool_choice}' provided. It must be one of ['none', 'auto', 'required'] or match a tool name in the provided tools."
+                        )
+
                 # Start the streaming session
                 completion = await self.client.chat.completions.create(
                     model=model_name,
                     messages=messages,
                     stream=True,
-                    **sampling_paras,
+                    tools=tools,
+                    tool_choice=tool_choice,
                     response_format={"type": "json_object"}
                     if do_json
                     else {"type": "text"},
                     stream_options={"include_usage": True},
+                    **sampling_paras,
                 )
 
                 response = ""
+                usage = {}
+                tool_calls = []
+                tool_arg_buffer = ""
 
                 # Stream text chunks as they become available
                 async for chunk in completion:
@@ -432,9 +591,23 @@ class AsyncGenerate(object):
                         await completion.close()
                         break
                     else:
-                        if chunk.choices and chunk.choices[0].delta.content:
-                            response += chunk.choices[0].delta.content
-                            yield chunk.choices[0].delta.content
+                        delta = chunk.choices[0].delta if chunk.choices else None
+                        if delta and delta.content:
+                            response += delta.content
+                            yield delta.content
+                        elif delta and delta.tool_calls:
+                            tc = delta.tool_calls[0]
+                            if tc.id:
+                                tool_calls.append(tc.to_dict())
+                            if tc.function and tc.function.arguments:
+                                tool_arg_buffer += tc.function.arguments
+                                try:
+                                    tool_calls[-1]["function"]["arguments"] = (
+                                        json.loads(tool_arg_buffer)
+                                    )
+                                    tool_arg_buffer = ""
+                                except json.JSONDecodeError:
+                                    continue
                         elif chunk.usage:
                             usage = chunk.usage.to_dict()
 
@@ -443,6 +616,9 @@ class AsyncGenerate(object):
                     "response": response,
                     "metadata": {"usage": usage},
                 }
+
+                if tools:
+                    result["tools"] = tool_calls
 
                 yield result
         except Exception as e:

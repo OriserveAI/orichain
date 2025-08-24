@@ -27,6 +27,9 @@ SUPPORTED_MODELS = {
         "gpt-4.1",
         "gpt-4.1-mini",
         "gpt-4.1-nano",
+        "gpt-5",
+        "gpt-5-mini",
+        "gpt-5-nano",
     ],
     "AzureOpenAI": [
         "gpt-4o",
@@ -37,6 +40,9 @@ SUPPORTED_MODELS = {
         "gpt-4.1",
         "gpt-4.1-mini",
         "gpt-4.1-nano",
+        "gpt-5",
+        "gpt-5-mini",
+        "gpt-5-nano",
     ],
     "AnthropicBedrock": [
         "anthropic.claude-3-haiku-20240307-v1:0",
@@ -65,16 +71,24 @@ SUPPORTED_MODELS = {
         "us.anthropic.claude-3-opus-20240229-v1:0",
         "anthropic.claude-opus-4-20250514-v1:0",
         "us.anthropic.claude-opus-4-20250514-v1:0",
+        "anthropic.claude-opus-4-1-20250805-v1:0",
+        "us.anthropic.claude-opus-4-1-20250805-v1:0",
     ],
     "Anthropic": [
         "claude-3-haiku-20240307",
+        "claude-3-5-haiku-20241022",
         "claude-3-5-haiku-latest",
         "claude-3-sonnet-20240229",
         "claude-3-5-sonnet-latest",
+        "claude-3-7-sonnet-20250219",
         "claude-3-7-sonnet-latest",
+        "claude-sonnet-4-0",
         "claude-sonnet-4-20250514",
         "claude-3-opus-latest",
+        "claude-opus-4-0",
         "claude-opus-4-20250514",
+        "claude-opus-4-1",
+        "claude-opus-4-1-20250805",
     ],
     "AWSBedrock": [
         "cohere.command-text-v14",
@@ -267,6 +281,8 @@ class LLM(object):
         system_prompt: Optional[str] = None,
         chat_hist: Optional[List[Dict[str, str]]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         extra_metadata: Optional[Dict] = None,
         do_json: bool = False,
         **kwds: Any,
@@ -278,6 +294,8 @@ class LLM(object):
             - system_prompt (str, optional): System prompt to guide the model's behavior.
             - chat_hist (List[Dict[str, str]], optional): Chat history for context.
             - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
+            - tools (List[Dict], optional): List of tools to be used by the model. Example format `{"name": "tool name", "description": "tool description", "parameters": {"type": "object", "properties": {"arg_1": {"type": "string", "description": "An example argument for the tool."}}, "required": ["arg_1"]}}`
+            - tool_choice (str, optional): Defines tool usage — "auto" (default) lets the model decide, "none" disables tools (not supported on AWSBedrock/AnthropicBedrock), "required" forces tool use (unsupported on AzureOpenAI < 2024-06-01), or provide a tool name to call it directly.
             - do_json (bool, optional): Whether to return a JSON response. Default: False.
             - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
             - matched_sentence (List[str], optional): A list of matched text chunks for context. Not used internally, but included in the response under the matched_sentence key.
@@ -316,6 +334,8 @@ class LLM(object):
                 system_prompt=system_prompt,
                 chat_hist=chat_hist,
                 sampling_paras=sampling_paras,
+                tools=tools,
+                tool_choice=tool_choice,
                 do_json=do_json,
                 **kwds,
             )
@@ -342,6 +362,8 @@ class LLM(object):
         system_prompt: Optional[str] = None,
         chat_hist: List = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         extra_metadata: Optional[Dict] = None,
         do_json: bool = False,
         do_sse: bool = True,
@@ -354,6 +376,8 @@ class LLM(object):
             - system_prompt (str, optional): System prompt to guide the model's behavior.
             - chat_hist (List[Dict[str, str]], optional): Chat history for context.
             - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
+            - tools (List[Dict], optional): List of tools to be used by the model. Example format `{"name": "tool name", "description": "tool description", "parameters": {"type": "object", "properties": {"arg_1": {"type": "string", "description": "An example argument for the tool."}}, "required": ["arg_1"]}}`
+            - tool_choice (str, optional): Defines tool usage — "auto" (default) lets the model decide, "none" disables tools (not supported on AWSBedrock/AnthropicBedrock), "required" forces tool use (unsupported on AzureOpenAI < 2024-06-01), or provide a tool name to call it directly.
             - do_json (bool, optional): Whether to return JSON responses. Default: False.
             - do_sse (bool, optional): Whether to format responses as Server-Sent Events. Default: True.
             - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
@@ -390,6 +414,8 @@ class LLM(object):
                 system_prompt=system_prompt,
                 chat_hist=chat_hist,
                 sampling_paras=sampling_paras,
+                tools=tools,
+                tool_choice=tool_choice,
                 do_json=do_json,
                 **kwds,
             )
@@ -597,6 +623,8 @@ class AsyncLLM(object):
         system_prompt: Optional[str] = None,
         chat_hist: Optional[List[Dict[str, str]]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         extra_metadata: Optional[Dict] = None,
         do_json: bool = False,
         **kwds: Any,
@@ -608,6 +636,8 @@ class AsyncLLM(object):
             - system_prompt (str, optional): System prompt to guide the model's behavior.
             - chat_hist (List[Dict[str, str]], optional): Chat history for context.
             - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
+            - tools (List[Dict], optional): List of tools to be used by the model. Example format `{"name": "tool name", "description": "tool description", "parameters": {"type": "object", "properties": {"arg_1": {"type": "string", "description": "An example argument for the tool."}}, "required": ["arg_1"]}}`
+            - tool_choice (str, optional): Defines tool usage — "auto" (default) lets the model decide, "none" disables tools (not supported on AWSBedrock/AnthropicBedrock), "required" forces tool use (unsupported on AzureOpenAI < 2024-06-01), or provide a tool name to call it directly.
             - do_json (bool, optional): Whether to return a JSON response. Default: False.
             - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
             - request (Request, optional): FastAPI Request object for cancellation detection.
@@ -652,6 +682,8 @@ class AsyncLLM(object):
                 system_prompt=system_prompt,
                 chat_hist=chat_hist,
                 sampling_paras=sampling_paras,
+                tools=tools,
+                tool_choice=tool_choice,
                 do_json=do_json,
                 **kwds,
             )
@@ -679,6 +711,8 @@ class AsyncLLM(object):
         system_prompt: Optional[str] = None,
         chat_hist: List = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         extra_metadata: Optional[Dict] = None,
         do_json: bool = False,
         do_sse: bool = True,
@@ -691,6 +725,8 @@ class AsyncLLM(object):
             - system_prompt (str, optional): System prompt to guide the model's behavior.
             - chat_hist (List[Dict[str, str]], optional): Chat history for context.
             - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
+            - tools (List[Dict], optional): List of tools to be used by the model. Example format `{"name": "tool name", "description": "tool description", "parameters": {"type": "object", "properties": {"arg_1": {"type": "string", "description": "An example argument for the tool."}}, "required": ["arg_1"]}}`
+            - tool_choice (str, optional): Defines tool usage — "auto" (default) lets the model decide, "none" disables tools (not supported on AWSBedrock/AnthropicBedrock), "required" forces tool use (unsupported on AzureOpenAI < 2024-06-01), or provide a tool name to call it directly.
             - do_json (bool, optional): Whether to return JSON responses. Default: False.
             - do_sse (bool, optional): Whether to format responses as Server-Sent Events. Default: True.
             - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
@@ -735,6 +771,8 @@ class AsyncLLM(object):
                     system_prompt=system_prompt,
                     chat_hist=chat_hist,
                     sampling_paras=sampling_paras,
+                    tools=tools,
+                    tool_choice=tool_choice,
                     do_json=do_json,
                     **kwds,
                 )

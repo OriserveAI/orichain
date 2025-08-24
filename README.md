@@ -106,10 +106,10 @@ system_prompt = """You need to return a JSON object with a key emotion and detec
 }"""
 
 llm_response = await llm(
-                user_message=user_message,
-                system_prompt=system_prompt,
-                do_json=True # This insures that the response will be a json
-            )
+    user_message=user_message,
+    system_prompt=system_prompt,
+    do_json=True # This insures that the response will be a json
+)
 ```
 
 ## ✨ Features
@@ -118,6 +118,7 @@ Reasons to use Orichain:
 - Supports Both Sync and Async: Provides flexibility for different use cases.
 - Optimized Performance: Utilizes threading for efficiency, especially when used with FastAPI.
 - Hot-Swappable Components: Easily modify RAG components as project requirements evolve, ensuring high flexibility.
+- Unified tool-calling interface across all providers, ensuring seamless modularity.
 
 ## 💡 Example
 
@@ -231,7 +232,7 @@ Here's our plan for upcoming features and improvements:
 - [X] Release stable 1.0.0 version
 - [X] Create Documentation
 - [X] Write class and function definitions
-- [ ] Add function calling support
+- [X] Add function calling support
 - [ ] Add Together AI support
 
 ### Long-term goals

@@ -1,6 +1,7 @@
 from typing import Any, List, Dict, Optional, Union, Generator, AsyncGenerator
 from botocore.eventstream import EventStream
 import asyncio
+import json
 from fastapi import Request
 from orichain import error_explainer
 
@@ -112,6 +113,8 @@ class Generate(object):
         user_message: Union[str, List[Dict[str, str]]],
         chat_hist: Optional[List[Dict[str, str]]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         system_prompt: Optional[str] = None,
         do_json: Optional[bool] = False,
         **kwds: Any,
@@ -122,9 +125,11 @@ class Generate(object):
         Args:
             - model_name (str): Name of the AWS Bedrock model to use
             - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - chat_hist (Optional[List[str]], optional): Previous conversation history
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - tools (List[Dict], optional): List of tools to be used by the model.
+            - tool_choice (Optional[str], optional): Specifies if and which tool the model must call — "auto" for automatic, "required" for mandatory, or a specific tool's name.
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
             - **kwds: Additional keyword arguments to pass to the client
 
@@ -154,6 +159,34 @@ class Generate(object):
                 "additionalModelRequestFields": kwds.get("additional_model_fields", {}),
             }
 
+            # Check if tools and tool_choice are provided and format them
+            if tools:
+                body["toolConfig"] = {"tools": []}
+                for tool in tools:
+                    body["toolConfig"]["tools"].append(
+                        {
+                            "toolSpec": {
+                                "name": tool.get("name"),
+                                "description": tool.get("description"),
+                                "inputSchema": {"json": tool.get("parameters", {})},
+                            },
+                        }
+                    )
+                if tool_choice:
+                    if tool_choice == "auto":
+                        body["toolConfig"]["toolChoice"] = {"auto": {}}
+                    elif tool_choice == "required":
+                        body["toolConfig"]["toolChoice"] = {"any": {}}
+                    elif tool_choice in [tool.get("name") for tool in tools]:
+                        body["toolConfig"]["toolChoice"] = {
+                            "tool": {"name": tool_choice}
+                        }
+                    else:
+                        return {
+                            "error": 400,
+                            "reason": f"Invalid tool_choice '{tool_choice}' provided. It must be one of ['auto', 'required'] or match a tool name in the provided tools.",
+                        }
+
             # Check for system_prompt
             if system_prompt:
                 system = [{"text": system_prompt}]
@@ -176,6 +209,8 @@ class Generate(object):
         user_message: Union[str, List[Dict[str, str]]],
         chat_hist: Optional[List[Dict[str, str]]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         system_prompt: Optional[str] = None,
         do_json: Optional[bool] = False,
         **kwds: Any,
@@ -186,9 +221,11 @@ class Generate(object):
         Args:
             - model_name (str): Name of the AWS Bedrock model to use
             - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - chat_hist (Optional[List[str]], optional): Previous conversation history
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - tools (List[Dict], optional): List of tools to be used by the model.
+            - tool_choice (Optional[str], optional): Specifies if and which tool the model must call — "auto" for automatic, "required" for mandatory, or a specific tool's name.
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
             - **kwds: Additional keyword arguments to pass to the client
 
@@ -220,6 +257,33 @@ class Generate(object):
                     ),
                 }
 
+                # Check if tools are provided and format them
+                if tools:
+                    body["toolConfig"] = {"tools": []}
+                    for tool in tools:
+                        body["toolConfig"]["tools"].append(
+                            {
+                                "toolSpec": {
+                                    "name": tool.get("name"),
+                                    "description": tool.get("description"),
+                                    "inputSchema": {"json": tool.get("parameters", {})},
+                                },
+                            }
+                        )
+                    if tool_choice:
+                        if tool_choice == "auto":
+                            body["toolConfig"]["toolChoice"] = {"auto": {}}
+                        elif tool_choice == "required":
+                            body["toolConfig"]["toolChoice"] = {"any": {}}
+                        elif tool_choice in [tool.get("name") for tool in tools]:
+                            body["toolConfig"]["toolChoice"] = {
+                                "tool": {"name": tool_choice}
+                            }
+                        else:
+                            raise ValueError(
+                                f"Invalid tool_choice '{tool_choice}' provided. It must be one of ['auto', 'required'] or match a tool name in the provided tools."
+                            )
+
                 # Check for system_prompt
                 if system_prompt:
                     system = [{"text": system_prompt}]
@@ -231,6 +295,7 @@ class Generate(object):
                 streaming_response = self._stream_response(body=body)
 
                 response = ""
+                tool_calls = []
                 usage = None
                 no_error = True
 
@@ -239,17 +304,32 @@ class Generate(object):
                     if text and isinstance(text, str):
                         response += text
                         yield text
-                    elif isinstance(text, Dict) and "error" not in text:
-                        # Final chunk from AWS Bedrock while streaming
-                        usage = text
-                    elif isinstance(text, Dict) and "error" in text:
-                        no_error = False
-                        streaming_response.close()
+                    elif isinstance(text, Dict):
+                        if text.get("toolUseId"):
+                            tool = text
+                            tool["id"] = tool.pop("toolUseId")
+                            tool["function"] = {
+                                "name": tool.pop("name"),
+                                "arguments": tool.pop("input", {}),
+                            }
+                            tool_calls.append(tool)
+                        elif tool_args := text.get("input"):
+                            tool_calls[-1]["function"]["arguments"] = json.loads(
+                                tool_args
+                            )
+                        elif "error" not in text:
+                            # Final chunk from AWS Bedrock while streaming
+                            usage = text
+                        elif "error" in text:
+                            no_error = False
+                            streaming_response.close()
 
-                        # Yield non-empty chunks
-                        yield text
+                            # Yield non-empty chunks
+                            yield text
 
-                        break
+                            break
+                        else:
+                            pass
                     else:
                         pass
 
@@ -259,6 +339,9 @@ class Generate(object):
                         "response": response.strip(),
                         "metadata": {"usage": usage},
                     }
+
+                    if tools:
+                        result["tools"] = tool_calls
 
                     yield result
 
@@ -279,14 +362,24 @@ class Generate(object):
             response = self.client.converse(**body)
 
             # Structuring response
-            result = {
-                "response": response.get("output", {})
-                .get("message", {})
-                .get("content", [{}])[0]
-                .get("text", "")
-                .strip(),
-                "metadata": {"usage": response.get("usage", {})},
-            }
+            result = {"response": ""}
+            content = response.get("output", {}).get("message", {}).get("content", [{}])
+            if body.get("toolConfig"):
+                result["tools"] = []
+                for cont in content:
+                    if cont.get("text"):
+                        result["response"] = cont.get("text", "").strip()
+                    elif tool := cont.get("toolUse"):
+                        tool["id"] = tool.pop("toolUseId")
+                        tool["function"] = {
+                            "name": tool.pop("name"),
+                            "arguments": tool.pop("input", {}),
+                        }
+                        result["tools"].append(tool)
+            else:
+                result["response"] = content[0].get("text", "").strip()
+
+            result["metadata"] = {"usage": response.get("usage", {})}
 
             if response.get("metrics"):
                 result["metadata"]["usage"].update(response.get("metrics"))
@@ -315,8 +408,24 @@ class Generate(object):
             # Start the streaming session
             for event in streaming_response:
                 # Waiting for text chunks to be generated
-                if event.get("contentBlockDelta", {}).get("delta", {}).get("text"):
-                    yield event.get("contentBlockDelta").get("delta").get("text")
+                if (
+                    text := event.get("contentBlockDelta", {})
+                    .get("delta", {})
+                    .get("text")
+                ):
+                    yield text
+                elif (
+                    tool := event.get("contentBlockStart", {})
+                    .get("start", {})
+                    .get("toolUse")
+                ):
+                    yield tool
+                elif (
+                    tool_args := event.get("contentBlockDelta", {})
+                    .get("delta", {})
+                    .get("toolUse")
+                ):
+                    yield tool_args
                 elif event.get("metadata", {}).get("usage"):
                     usage = event.get("metadata").get("usage")
 
@@ -391,12 +500,12 @@ class Generate(object):
                         }
                     )
 
-                if messages[-1].get("role") == "user":
+                if messages[-1].get("role") == "user" and do_json:
                     messages[-1]["content"][0]["text"] = (
                         messages[-1]["content"][0]["text"]
                         + "\n(Respond in JSON and do not give any explanation or notes)"
                     )
-                elif messages[-1].get("role") == "assistant":
+                elif messages[-1].get("role") == "assistant" and do_json:
                     messages[-2]["content"][0]["text"] = (
                         messages[-2]["content"][0]["text"]
                         + "\n(Respond in JSON and do not give any explanation or notes)"
@@ -491,6 +600,8 @@ class AsyncGenerate(object):
         request: Optional[Request] = None,
         chat_hist: Optional[List[Dict[str, str]]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         system_prompt: Optional[str] = None,
         do_json: Optional[bool] = False,
         **kwds: Any,
@@ -501,10 +612,12 @@ class AsyncGenerate(object):
         Args:
             - model_name (str): Name of the AWS Bedrock model to use
             - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - request (Optional[Request], optional): FastAPI request object for connection tracking
             - chat_hist (Optional[List[str]], optional): Previous conversation history
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - tools (List[Dict], optional): List of tools to be used by the model.
+            - tool_choice (Optional[str], optional): Specifies if and which tool the model must call — "auto" for automatic, "required" for mandatory, or a specific tool's name.
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
             - **kwds: Additional keyword arguments to pass to the client
 
@@ -538,6 +651,34 @@ class AsyncGenerate(object):
                 "additionalModelRequestFields": kwds.get("additional_model_fields", {}),
             }
 
+            # Check if tools are provided and format them
+            if tools:
+                body["toolConfig"] = {"tools": []}
+                for tool in tools:
+                    body["toolConfig"]["tools"].append(
+                        {
+                            "toolSpec": {
+                                "name": tool.get("name"),
+                                "description": tool.get("description"),
+                                "inputSchema": {"json": tool.get("parameters", {})},
+                            },
+                        }
+                    )
+                if tool_choice:
+                    if tool_choice == "auto":
+                        body["toolConfig"]["toolChoice"] = {"auto": {}}
+                    elif tool_choice == "required":
+                        body["toolConfig"]["toolChoice"] = {"any": {}}
+                    elif tool_choice in [tool.get("name") for tool in tools]:
+                        body["toolConfig"]["toolChoice"] = {
+                            "tool": {"name": tool_choice}
+                        }
+                    else:
+                        return {
+                            "error": 400,
+                            "reason": f"Invalid tool_choice '{tool_choice}' provided. It must be one of ['auto', 'required'] or match a tool name in the provided tools.",
+                        }
+
             # Check for system_prompt
             if system_prompt:
                 system = [{"text": system_prompt}]
@@ -561,6 +702,8 @@ class AsyncGenerate(object):
         request: Optional[Request] = None,
         chat_hist: Optional[List[Dict[str, str]]] = None,
         sampling_paras: Optional[Dict] = None,
+        tools: Optional[List[Dict]] = None,
+        tool_choice: Optional[str] = None,
         system_prompt: Optional[str] = None,
         do_json: Optional[bool] = False,
         **kwds: Any,
@@ -571,10 +714,12 @@ class AsyncGenerate(object):
         Args:
             - model_name (str): Name of the AWS Bedrock model to use
             - user_message (Union[str, List[Dict[str, str]]]): The user's message or formatted messages
+            - system_prompt (Optional[str], optional): System prompt to provide context to the model
             - request (Optional[Request], optional): FastAPI request object for connection tracking
             - chat_hist (Optional[List[str]], optional): Previous conversation history
             - sampling_paras (Optional[Dict], optional): Parameters for controlling the model's generation
-            - system_prompt (Optional[str], optional): System prompt to provide context to the model
+            - tools (List[Dict], optional): List of tools to be used by the model.
+            - tool_choice (Optional[str], optional): Specifies if and which tool the model must call — "auto" for automatic, "required" for mandatory, or a specific tool's name.
             - do_json (bool, optional): Whether to format the response as JSON. Defaults to False
             - **kwds: Additional keyword arguments to pass to the client
 
@@ -606,6 +751,33 @@ class AsyncGenerate(object):
                     ),
                 }
 
+                # Check if tools are provided and format them
+                if tools:
+                    body["toolConfig"] = {"tools": []}
+                    for tool in tools:
+                        body["toolConfig"]["tools"].append(
+                            {
+                                "toolSpec": {
+                                    "name": tool.get("name"),
+                                    "description": tool.get("description"),
+                                    "inputSchema": {"json": tool.get("parameters", {})},
+                                },
+                            }
+                        )
+                    if tool_choice:
+                        if tool_choice == "auto":
+                            body["toolConfig"]["toolChoice"] = {"auto": {}}
+                        elif tool_choice == "required":
+                            body["toolConfig"]["toolChoice"] = {"any": {}}
+                        elif tool_choice in [tool.get("name") for tool in tools]:
+                            body["toolConfig"]["toolChoice"] = {
+                                "tool": {"name": tool_choice}
+                            }
+                        else:
+                            raise ValueError(
+                                f"Invalid tool_choice '{tool_choice}' provided. It must be one of ['auto', 'required'] or match a tool name in the provided tools."
+                            )
+
                 # Check for system_prompt
                 if system_prompt:
                     system = [{"text": system_prompt}]
@@ -617,6 +789,7 @@ class AsyncGenerate(object):
                 streaming_response = self._stream_response(body=body)
 
                 response = ""
+                tool_calls = []
                 usage = None
                 no_error = True
 
@@ -630,17 +803,32 @@ class AsyncGenerate(object):
                     elif text and isinstance(text, str):
                         response += text
                         yield text
-                    elif isinstance(text, Dict) and "error" not in text:
-                        # Final chunk from AWS Bedrock while streaming
-                        usage = text
-                    elif isinstance(text, Dict) and "error" in text:
-                        no_error = False
-                        await streaming_response.aclose()
+                    elif isinstance(text, Dict):
+                        if text.get("toolUseId"):
+                            tool = text
+                            tool["id"] = tool.pop("toolUseId")
+                            tool["function"] = {
+                                "name": tool.pop("name"),
+                                "arguments": tool.pop("input", {}),
+                            }
+                            tool_calls.append(tool)
+                        elif tool_args := text.get("input"):
+                            tool_calls[-1]["function"]["arguments"] = json.loads(
+                                tool_args
+                            )
+                        elif "error" not in text:
+                            # Final chunk from AWS Bedrock while streaming
+                            usage = text
+                        elif "error" in text:
+                            no_error = False
+                            await streaming_response.aclose()
 
-                        # Yield non-empty chunks
-                        yield text
+                            # Yield non-empty chunks
+                            yield text
 
-                        break
+                            break
+                        else:
+                            pass
                     else:
                         pass
 
@@ -650,6 +838,9 @@ class AsyncGenerate(object):
                         "response": response.strip(),
                         "metadata": {"usage": usage},
                     }
+
+                    if tools:
+                        result["tools"] = tool_calls
 
                     yield result
 
@@ -670,14 +861,24 @@ class AsyncGenerate(object):
             response = await asyncio.to_thread(self.client.converse, **body)
 
             # Structuring response
-            result = {
-                "response": response.get("output", {})
-                .get("message", {})
-                .get("content", [{}])[0]
-                .get("text", "")
-                .strip(),
-                "metadata": {"usage": response.get("usage", {})},
-            }
+            result = {"response": ""}
+            content = response.get("output", {}).get("message", {}).get("content", [{}])
+            if body.get("toolConfig"):
+                result["tools"] = []
+                for cont in content:
+                    if cont.get("text"):
+                        result["response"] = cont.get("text", "").strip()
+                    elif tool := cont.get("toolUse"):
+                        tool["id"] = tool.pop("toolUseId")
+                        tool["function"] = {
+                            "name": tool.pop("name"),
+                            "arguments": tool.pop("input", {}),
+                        }
+                        result["tools"].append(tool)
+            else:
+                result["response"] = content[0].get("text", "").strip()
+
+            result["metadata"] = {"usage": response.get("usage", {})}
 
             if response.get("metrics"):
                 result["metadata"]["usage"].update(response.get("metrics"))
@@ -708,13 +909,27 @@ class AsyncGenerate(object):
                 # Waiting for text chunks to be generated.
                 if event is streaming_response.SENTINEL:
                     break
-                elif event.get("contentBlockDelta", {}).get("delta", {}).get("text"):
-                    text = event["contentBlockDelta"]["delta"].get("text", "")
+                elif (
+                    text := event.get("contentBlockDelta", {})
+                    .get("delta", {})
+                    .get("text")
+                ):
                     yield text
-                elif event.get("metadata", {}).get("usage"):
-                    usage = event["metadata"]["usage"]
-                    if event["metadata"].get("metrics"):
-                        usage.update(event["metadata"].get("metrics"))
+                elif (
+                    tool := event.get("contentBlockStart", {})
+                    .get("start", {})
+                    .get("toolUse")
+                ):
+                    yield tool
+                elif (
+                    tool_args := event.get("contentBlockDelta", {})
+                    .get("delta", {})
+                    .get("toolUse")
+                ):
+                    yield tool_args
+                elif usage := event.get("metadata", {}).get("usage"):
+                    if metrics := event["metadata"].get("metrics"):
+                        usage.update(metrics)
                     yield usage
                 elif event.get("error"):
                     yield event
@@ -787,12 +1002,12 @@ class AsyncGenerate(object):
                         }
                     )
 
-                if messages[-1].get("role") == "user":
+                if messages[-1].get("role") == "user" and do_json:
                     messages[-1]["content"][0]["text"] = (
                         messages[-1]["content"][0]["text"]
                         + "\n(Respond in JSON and do not give any explanation or notes)"
                     )
-                elif messages[-1].get("role") == "assistant":
+                elif messages[-1].get("role") == "assistant" and do_json:
                     messages[-2]["content"][0]["text"] = (
                         messages[-2]["content"][0]["text"]
                         + "\n(Respond in JSON and do not give any explanation or notes)"
