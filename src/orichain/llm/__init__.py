@@ -15,7 +15,7 @@ from orichain.llm import (
     gcp_vertex_llm,
 )
 
-DEFAULT_MODEL = "gpt-4.1-mini"
+DEFAULT_MODEL = "gpt-5-mini"
 DEFAULT_MODEL_PROVIDER = "OpenAI"
 SUPPORTED_MODELS = {
     "OpenAI": [
@@ -294,12 +294,19 @@ class LLM(object):
             - system_prompt (str, optional): System prompt to guide the model's behavior.
             - chat_hist (List[Dict[str, str]], optional): Chat history for context.
             - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
-            - tools (List[Dict], optional): List of tools to be used by the model. Example format `{"name": "tool name", "description": "tool description", "parameters": {"type": "object", "properties": {"arg_1": {"type": "string", "description": "An example argument for the tool."}}, "required": ["arg_1"]}}`
-            - tool_choice (str, optional): Defines tool usage — "auto" (default) lets the model decide, "none" disables tools (not supported on AWSBedrock/AnthropicBedrock), "required" forces tool use (unsupported on AzureOpenAI < 2024-06-01), or provide a tool name to call it directly.
-            - do_json (bool, optional): Whether to return a JSON response. Default: False.
             - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
+            - do_json (bool, optional): Whether to return a JSON response. Default: False.
+            - tools (List[Dict], optional): List of tools to be used by the model. Example format 
+            
+                [{"name": "tool name", "description": "tool description", "parameters": {"type": "object", "properties": {"arg_1": {"type": "string", "description": "An example argument for the tool."}}, "required": ["arg_1"]}}, .....]
+            
+            - tool_choice (str, optional): Defines tool usage: 
+                - "auto" (default) lets the model decide
+                - "none" disables tools (not supported on AWSBedrock/AnthropicBedrock)
+                - "required" forces tool use (unsupported on AzureOpenAI < 2024-06-01)
+                - provide a tool name to call it directly.
             - matched_sentence (List[str], optional): A list of matched text chunks for context. Not used internally, but included in the response under the matched_sentence key.
-            - extra_metadata (Dict, optional): Additional metadata to include in the response.
+            - extra_metadata (Dict, optional): Additional metadata to be included in the response.
 
             **Generation Arguments by provider:**
 
@@ -314,7 +321,7 @@ class LLM(object):
                     - timeout (httpx.Timeout, optional): - timeout (httpx.Timeout, optional): Request timeout parameter like connect, read, write. Default is 60.0, 5.0, 10.0, 2.0
 
         Returns:
-            Dict: The model's response with metadata.
+            Dict: The model's response with tool calls and metadata.
         """
         try:
             # Handle model switching if a different model is specified in kwds
@@ -376,13 +383,20 @@ class LLM(object):
             - system_prompt (str, optional): System prompt to guide the model's behavior.
             - chat_hist (List[Dict[str, str]], optional): Chat history for context.
             - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
-            - tools (List[Dict], optional): List of tools to be used by the model. Example format `{"name": "tool name", "description": "tool description", "parameters": {"type": "object", "properties": {"arg_1": {"type": "string", "description": "An example argument for the tool."}}, "required": ["arg_1"]}}`
-            - tool_choice (str, optional): Defines tool usage — "auto" (default) lets the model decide, "none" disables tools (not supported on AWSBedrock/AnthropicBedrock), "required" forces tool use (unsupported on AzureOpenAI < 2024-06-01), or provide a tool name to call it directly.
+            - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
             - do_json (bool, optional): Whether to return JSON responses. Default: False.
             - do_sse (bool, optional): Whether to format responses as Server-Sent Events. Default: True.
-            - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
+            - tools (List[Dict], optional): List of tools to be used by the model. Example format 
+            
+                [{"name": "tool name", "description": "tool description", "parameters": {"type": "object", "properties": {"arg_1": {"type": "string", "description": "An example argument for the tool."}}, "required": ["arg_1"]}}, .....]
+            
+            - tool_choice (str, optional): Defines tool usage: 
+                - "auto" (default) lets the model decide
+                - "none" disables tools (not supported on AWSBedrock/AnthropicBedrock)
+                - "required" forces tool use (unsupported on AzureOpenAI < 2024-06-01)
+                - provide a tool name to call it directly.
             - matched_sentence (List[str], optional): A list of matched text chunks for context. Not used internally, but included in the response under the matched_sentence key.
-            - extra_metadata (Dict, optional): Additional metadata to include in the response.
+            - extra_metadata (Dict, optional): Additional metadata to be included in the response.
 
             **Generation Arguments by provider:**
 
@@ -394,7 +408,7 @@ class LLM(object):
                     - response_mime_type (str, optional): Output response mimetype of the generated candidate text. Supported mimetype: "text/plain" (Default), "application/json" (if do_json=True)
 
         Yields:
-            Generator: Stream of responses from the language model.
+            Generator: Stream of responses from the language model, followed by a final dictionary containing the complete response, including tool calls and metadata.
         """
         try:
             # Handle model switching if a different model is specified in kwds
@@ -636,13 +650,20 @@ class AsyncLLM(object):
             - system_prompt (str, optional): System prompt to guide the model's behavior.
             - chat_hist (List[Dict[str, str]], optional): Chat history for context.
             - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
-            - tools (List[Dict], optional): List of tools to be used by the model. Example format `{"name": "tool name", "description": "tool description", "parameters": {"type": "object", "properties": {"arg_1": {"type": "string", "description": "An example argument for the tool."}}, "required": ["arg_1"]}}`
-            - tool_choice (str, optional): Defines tool usage — "auto" (default) lets the model decide, "none" disables tools (not supported on AWSBedrock/AnthropicBedrock), "required" forces tool use (unsupported on AzureOpenAI < 2024-06-01), or provide a tool name to call it directly.
-            - do_json (bool, optional): Whether to return a JSON response. Default: False.
             - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
+            - do_json (bool, optional): Whether to return a JSON response. Default: False.
+            - tools (List[Dict], optional): List of tools to be used by the model. Example format 
+            
+                [{"name": "tool name", "description": "tool description", "parameters": {"type": "object", "properties": {"arg_1": {"type": "string", "description": "An example argument for the tool."}}, "required": ["arg_1"]}}, .....]
+            
+            - tool_choice (str, optional): Defines tool usage: 
+                - "auto" (default) lets the model decide
+                - "none" disables tools (not supported on AWSBedrock/AnthropicBedrock)
+                - "required" forces tool use (unsupported on AzureOpenAI < 2024-06-01)
+                - provide a tool name to call it directly.
             - request (Request, optional): FastAPI Request object for cancellation detection.
             - matched_sentence (List[str], optional): A list of matched text chunks for context. Not used internally, but included in the response under the matched_sentence key.
-            - extra_metadata (Dict, optional): Additional metadata to include in the response.
+            - extra_metadata (Dict, optional): Additional metadata to be included in the response.
 
             **Generation Arguments by provider:**
 
@@ -657,7 +678,7 @@ class AsyncLLM(object):
                     - timeout (httpx.Timeout, optional): - timeout (httpx.Timeout, optional): Request timeout parameter like connect, read, write. Default is 60.0, 5.0, 10.0, 2.0
 
         Returns:
-            Dict: The model's response with metadata.
+            Dict: The model's response with tool calls and metadata.
         """
         try:
             # Handle model switching if a different model is specified in kwds
@@ -725,14 +746,21 @@ class AsyncLLM(object):
             - system_prompt (str, optional): System prompt to guide the model's behavior.
             - chat_hist (List[Dict[str, str]], optional): Chat history for context.
             - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
-            - tools (List[Dict], optional): List of tools to be used by the model. Example format `{"name": "tool name", "description": "tool description", "parameters": {"type": "object", "properties": {"arg_1": {"type": "string", "description": "An example argument for the tool."}}, "required": ["arg_1"]}}`
-            - tool_choice (str, optional): Defines tool usage — "auto" (default) lets the model decide, "none" disables tools (not supported on AWSBedrock/AnthropicBedrock), "required" forces tool use (unsupported on AzureOpenAI < 2024-06-01), or provide a tool name to call it directly.
+            - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
             - do_json (bool, optional): Whether to return JSON responses. Default: False.
             - do_sse (bool, optional): Whether to format responses as Server-Sent Events. Default: True.
-            - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
+            - tools (List[Dict], optional): List of tools to be used by the model. Example format 
+            
+                [{"name": "tool name", "description": "tool description", "parameters": {"type": "object", "properties": {"arg_1": {"type": "string", "description": "An example argument for the tool."}}, "required": ["arg_1"]}}, .....]
+            
+            - tool_choice (str, optional): Defines tool usage: 
+                - "auto" (default) lets the model decide
+                - "none" disables tools (not supported on AWSBedrock/AnthropicBedrock)
+                - "required" forces tool use (unsupported on AzureOpenAI < 2024-06-01)
+                - provide a tool name to call it directly.
             - request (Request, optional): FastAPI Request object for cancellation detection.
             - matched_sentence (List[str], optional): A list of matched text chunks for context. Not used internally, but included in the response under the matched_sentence key.
-            - extra_metadata (Dict, optional): Additional metadata to include in the response.
+            - extra_metadata (Dict, optional): Additional metadata to be included in the response.
 
             **Generation Arguments by provider:**
 
@@ -744,7 +772,7 @@ class AsyncLLM(object):
                     - response_mime_type (str, optional): Output response mimetype of the generated candidate text. Supported mimetype: "text/plain" (Default), "application/json" (if do_json=True)
 
         Yields:
-            AsyncGenerator: Stream of responses from the language model.
+            AsyncGenerator: Stream of responses from the language model, followed by a final dictionary containing the complete response, including tool calls and metadata.
         """
         try:
             # Handle model switching if a different model is specified in kwds

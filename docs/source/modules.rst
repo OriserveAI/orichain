@@ -9,7 +9,7 @@ Orichain is built around four core modules, each designed to provide flexibility
   Generate vector embeddings from your text data to enable similarity search and retrieval tasks.
 
 - **LLM (Large Language Model)**  
-  Interface with large language models for text generation, question answering, and more.
+  Interface with large language models for text generation, question answering, tool calling, and more.
 
 - **Knowledge Base**  
   A structured interface for retrieving relevant documents efficiently.

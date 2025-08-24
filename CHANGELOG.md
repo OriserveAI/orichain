@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added OpenAI gpt-5 series and Claude opus-4.1 support.
 - Added prompt caching support for Anthropic models.
 
+### Changed
+- Changed the default llm model to "gpt-5-mini"
+- Updated docs
+
 ## [2.2.3] - 2025-07-17
 
 ### Changed
