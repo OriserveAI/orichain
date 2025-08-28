@@ -12,7 +12,7 @@ import sys
 project = "Orichain"
 copyright = "2025, Oriserve"
 author = "Apoorv Singh, Shubham Maindola"
-release = "2.3.0"
+release = "2.4.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

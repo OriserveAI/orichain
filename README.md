@@ -9,6 +9,7 @@ It provides support for:
         - Cohere embeddings
         - Titian embeddings
     - OpenAI Embeddings
+    - TogetherAI Embedding Models
     - Google Gemini & Vertex AI Embeddings
     - Azure OpenAI Embeddings
     - Sentence Transformers
@@ -22,6 +23,7 @@ It provides support for:
     - Azure OpenAI
     - Anthropic
     - Google Gemini & Vertex AI Models
+    - TogetherAI
     - AWS Bedrock
         - Anthropic models (Series 3, 3.5, 3.7, 4)
         - LLAMA models (Series 3, 3.1, 3.2, 3.3, 4)

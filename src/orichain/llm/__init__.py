@@ -13,6 +13,7 @@ from orichain.llm import (
     azureopenai_llm,
     gcp_gemini_llm,
     gcp_vertex_llm,
+    togetherai_llm,
 )
 
 DEFAULT_MODEL = "gpt-5-mini"
@@ -153,6 +154,98 @@ SUPPORTED_MODELS = {
         "gemini-2.5-flash",
         "gemini-2.5-pro",
     ],
+    "TogetherAI": [
+        "Alibaba-NLP/gte-modernbert-base",
+        "arcee-ai/AFM-4.5B",
+        "arcee-ai/coder-large",
+        "arcee-ai/maestro-reasoning",
+        "arcee-ai/virtuoso-large",
+        "arcee_ai/arcee-spotlight",
+        "arize-ai/qwen-2-1.5b-instruct",
+        "black-forest-labs/FLUX.1-canny",
+        "black-forest-labs/FLUX.1-depth",
+        "black-forest-labs/FLUX.1-dev",
+        "black-forest-labs/FLUX.1-dev-lora",
+        "black-forest-labs/FLUX.1-kontext-dev",
+        "black-forest-labs/FLUX.1-kontext-max",
+        "black-forest-labs/FLUX.1-kontext-pro",
+        "black-forest-labs/FLUX.1-krea-dev",
+        "black-forest-labs/FLUX.1-pro",
+        "black-forest-labs/FLUX.1-redux",
+        "black-forest-labs/FLUX.1-schnell",
+        "black-forest-labs/FLUX.1-schnell-Free",
+        "black-forest-labs/FLUX.1.1-pro",
+        "cartesia/sonic",
+        "cartesia/sonic-2",
+        "deepcogito/cogito-v2-preview-deepseek-671b",
+        "deepcogito/cogito-v2-preview-llama-109B-MoE",
+        "deepcogito/cogito-v2-preview-llama-405B",
+        "deepcogito/cogito-v2-preview-llama-70B",
+        "deepseek-ai/DeepSeek-R1-0528-tput",
+        "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+        "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+        "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+        "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+        "deepseek-ai/DeepSeek-V3",
+        "google/gemma-2-27b-it",
+        "google/gemma-3-27b-it",
+        "google/gemma-3n-E4B-it",
+        "intfloat/multilingual-e5-large-instruct",
+        "lgai/exaone-3-5-32b-instruct",
+        "lgai/exaone-deep-32b",
+        "marin-community/marin-8b-instruct",
+        "meta-llama/Llama-2-70b-hf",
+        "meta-llama/Llama-3-70b-chat-hf",
+        "meta-llama/Llama-3-8b-chat-hf",
+        "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo",
+        "meta-llama/Llama-3.2-3B-Instruct-Turbo",
+        "meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo",
+        "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+        "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+        "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+        "meta-llama/Llama-4-Scout-17B-16E-Instruct",
+        "meta-llama/Llama-Guard-3-11B-Vision-Turbo",
+        "meta-llama/Llama-Guard-4-12B",
+        "meta-llama/Llama-Vision-Free",
+        "meta-llama/LlamaGuard-2-8b",
+        "meta-llama/Meta-Llama-3-70B-Instruct-Turbo",
+        "meta-llama/Meta-Llama-3-8B-Instruct-Lite",
+        "meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
+        "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+        "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+        "meta-llama/Meta-Llama-Guard-3-8B",
+        "mistralai/Mistral-7B-Instruct-v0.1",
+        "mistralai/Mistral-7B-Instruct-v0.3",
+        "mistralai/Mistral-Small-24B-Instruct-2501",
+        "mistralai/Mixtral-8x7B-Instruct-v0.1",
+        "mixedbread-ai/Mxbai-Rerank-Large-V2",
+        "moonshotai/Kimi-K2-Instruct",
+        "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
+        "nvidia/Llama-3.1-Nemotron-70B-Instruct-HF",
+        "openai/gpt-oss-20b",
+        "openai/whisper-large-v3",
+        "perplexity-ai/r1-1776",
+        "Qwen/Qwen2-72B-Instruct",
+        "Qwen/Qwen2.5-72B-Instruct-Turbo",
+        "Qwen/Qwen2.5-7B-Instruct-Turbo",
+        "Qwen/Qwen2.5-Coder-32B-Instruct",
+        "Qwen/Qwen2.5-VL-72B-Instruct",
+        "Qwen/Qwen3-235B-A22B-fp8-tput",
+        "Qwen/Qwen3-235B-A22B-Instruct-2507-tput",
+        "Qwen/Qwen3-235B-A22B-Thinking-2507",
+        "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8",
+        "Qwen/QwQ-32B",
+        "Salesforce/Llama-Rank-V1",
+        "scb10x/scb10x-llama3-1-typhoon2-70b-instruct",
+        "scb10x/scb10x-typhoon-2-1-gemma3-12b",
+        "togethercomputer/m2-bert-80M-32k-retrieval",
+        "togethercomputer/MoA-1",
+        "togethercomputer/MoA-1-Turbo",
+        "togethercomputer/Refuel-Llm-V2",
+        "togethercomputer/Refuel-Llm-V2-Small",
+        "Virtue-AI/VirtueGuard-Text-Lite",
+        "zai-org/GLM-4.5-Air-FP8",
+    ],
 }
 
 
@@ -174,6 +267,7 @@ class LLM(object):
         "AzureOpenAI": azureopenai_llm.Generate,
         "GoogleGemini": gcp_gemini_llm.Generate,
         "GoogleVertexAI": gcp_vertex_llm.Generate,
+        "TogetherAI": togetherai_llm.Generate,
     }
 
     def __init__(self, **kwds: Any) -> None:
@@ -189,6 +283,7 @@ class LLM(object):
                 - GoogleVertexAI
                 - AnthropicBedrock
                 - Anthropic
+                - TogetherAI
 
             **Authentication Arguments by provider:**
 
@@ -234,6 +329,11 @@ class LLM(object):
                     - azure_endpoint (str): Azure OpenAI endpoint.
                     - api_version (str): Azure OpenAI API version.
                     - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
+                    - max_retries (int, optional): Number of retries for the request. Default: 2
+
+                **TogetherAI models:**
+                    - api_key (str): TogetherAI API key.
+                    - timeout (Timeout, optional): Request timeout in seconds. Default: 60
                     - max_retries (int, optional): Number of retries for the request. Default: 2
 
         Raises:
@@ -296,13 +396,13 @@ class LLM(object):
             - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
             - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
             - do_json (bool, optional): Whether to return a JSON response. Default: False.
-            - tools (List[Dict], optional): List of tools to be used by the model. Example format 
-            
+            - tools (List[Dict], optional): List of tools to be used by the model. Example format
+
                 [{"name": "tool name", "description": "tool description", "parameters": {"type": "object", "properties": {"arg_1": {"type": "string", "description": "An example argument for the tool."}}, "required": ["arg_1"]}}, .....]
-            
-            - tool_choice (str, optional): Defines tool usage: 
+
+            - tool_choice (str, optional): Defines tool usage:
                 - "auto" (default) lets the model decide
-                - "none" disables tools (not supported on AWSBedrock/AnthropicBedrock)
+                - "none" disables tools (not supported on AWSBedrock/AnthropicBedrock and TogetherAI)
                 - "required" forces tool use (unsupported on AzureOpenAI < 2024-06-01)
                 - provide a tool name to call it directly.
             - matched_sentence (List[str], optional): A list of matched text chunks for context. Not used internally, but included in the response under the matched_sentence key.
@@ -386,11 +486,11 @@ class LLM(object):
             - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
             - do_json (bool, optional): Whether to return JSON responses. Default: False.
             - do_sse (bool, optional): Whether to format responses as Server-Sent Events. Default: True.
-            - tools (List[Dict], optional): List of tools to be used by the model. Example format 
-            
+            - tools (List[Dict], optional): List of tools to be used by the model. Example format
+
                 [{"name": "tool name", "description": "tool description", "parameters": {"type": "object", "properties": {"arg_1": {"type": "string", "description": "An example argument for the tool."}}, "required": ["arg_1"]}}, .....]
-            
-            - tool_choice (str, optional): Defines tool usage: 
+
+            - tool_choice (str, optional): Defines tool usage:
                 - "auto" (default) lets the model decide
                 - "none" disables tools (not supported on AWSBedrock/AnthropicBedrock)
                 - "required" forces tool use (unsupported on AzureOpenAI < 2024-06-01)
@@ -529,6 +629,7 @@ class AsyncLLM(object):
         "AzureOpenAI": azureopenai_llm.AsyncGenerate,
         "GoogleGemini": gcp_gemini_llm.AsyncGenerate,
         "GoogleVertexAI": gcp_vertex_llm.AsyncGenerate,
+        "TogetherAI": togetherai_llm.AsyncGenerate,
     }
 
     def __init__(self, **kwds: Any) -> None:
@@ -544,6 +645,7 @@ class AsyncLLM(object):
                 - GoogleVertexAI
                 - AnthropicBedrock
                 - Anthropic
+                - TogetherAI
 
             **Authentication Arguments by provider:**
 
@@ -589,6 +691,11 @@ class AsyncLLM(object):
                     - azure_endpoint (str): Azure OpenAI endpoint.
                     - api_version (str): Azure OpenAI API version.
                     - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
+                    - max_retries (int, optional): Number of retries for the request. Default: 2
+
+                **TogetherAI models:**
+                    - api_key (str): TogetherAI API key.
+                    - timeout (Timeout, optional): Request timeout in seconds. Default: 60
                     - max_retries (int, optional): Number of retries for the request. Default: 2
 
         Raises:
@@ -652,13 +759,13 @@ class AsyncLLM(object):
             - sampling_paras (Dict, optional): Parameters for sampling (temperature, top_p, etc.).
             - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
             - do_json (bool, optional): Whether to return a JSON response. Default: False.
-            - tools (List[Dict], optional): List of tools to be used by the model. Example format 
-            
+            - tools (List[Dict], optional): List of tools to be used by the model. Example format
+
                 [{"name": "tool name", "description": "tool description", "parameters": {"type": "object", "properties": {"arg_1": {"type": "string", "description": "An example argument for the tool."}}, "required": ["arg_1"]}}, .....]
-            
-            - tool_choice (str, optional): Defines tool usage: 
+
+            - tool_choice (str, optional): Defines tool usage:
                 - "auto" (default) lets the model decide
-                - "none" disables tools (not supported on AWSBedrock/AnthropicBedrock)
+                - "none" disables tools (not supported on AWSBedrock/AnthropicBedrock and TogetherAI)
                 - "required" forces tool use (unsupported on AzureOpenAI < 2024-06-01)
                 - provide a tool name to call it directly.
             - request (Request, optional): FastAPI Request object for cancellation detection.
@@ -749,11 +856,11 @@ class AsyncLLM(object):
             - model_name (str, optional): Specifies the model to use. If not provided, the default is the model set during class instantiation.
             - do_json (bool, optional): Whether to return JSON responses. Default: False.
             - do_sse (bool, optional): Whether to format responses as Server-Sent Events. Default: True.
-            - tools (List[Dict], optional): List of tools to be used by the model. Example format 
-            
+            - tools (List[Dict], optional): List of tools to be used by the model. Example format
+
                 [{"name": "tool name", "description": "tool description", "parameters": {"type": "object", "properties": {"arg_1": {"type": "string", "description": "An example argument for the tool."}}, "required": ["arg_1"]}}, .....]
-            
-            - tool_choice (str, optional): Defines tool usage: 
+
+            - tool_choice (str, optional): Defines tool usage:
                 - "auto" (default) lets the model decide
                 - "none" disables tools (not supported on AWSBedrock/AnthropicBedrock)
                 - "required" forces tool use (unsupported on AzureOpenAI < 2024-06-01)

@@ -6,6 +6,7 @@ from orichain.embeddings import (
     azureopenai_embeddings,
     gcp_gemini_embeddings,
     gcp_vertex_embeddings,
+    togetherai_embeddings,
 )
 import warnings
 from orichain import hf_repo_exists
@@ -42,6 +43,13 @@ SUPPORTED_MODELS = {
         "gemini-embedding-exp-03-07",
         "embedding-001",
     ],
+    "TogetherAI": [
+        "togethercomputer/m2-bert-80M-32k-retrieval",
+        "BAAI/bge-large-en-v1.5",
+        "BAAI/bge-base-en-v1.5",
+        "Alibaba-NLP/gte-modernbert-base",
+        "intfloat/multilingual-e5-large-instruct",
+    ],
 }
 
 
@@ -60,6 +68,7 @@ class EmbeddingModel(object):
         "AzureOpenAI": azureopenai_embeddings.Embed,
         "GoogleGemini": gcp_gemini_embeddings.Embed,
         "GoogleVertexAI": gcp_vertex_embeddings.Embed,
+        "TogetherAI": togetherai_embeddings.Embed,
     }
 
     def __init__(self, **kwds: Any) -> None:
@@ -73,6 +82,7 @@ class EmbeddingModel(object):
                 - GoogleGemini
                 - GoogleVertexAI
                 - AzureOpenAI
+                - TogetherAI
                 - SentenceTransformers
 
             **Authentication Arguments by provider:**
@@ -118,6 +128,11 @@ class EmbeddingModel(object):
                     - azure_endpoint (str): Azure OpenAI endpoint.
                     - api_version (str): Azure OpenAI API version.
                     - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
+                    - max_retries (int, optional): Number of retries for the request. Default: 2
+
+                **TogetherAI models:**
+                    - api_key (str): TogetherAI API key.
+                    - timeout (Timeout, optional): Request timeout in seconds. Default: 60
                     - max_retries (int, optional): Number of retries for the request. Default: 2
 
         Raises:
@@ -292,6 +307,7 @@ class AsyncEmbeddingModel(object):
         "AzureOpenAI": azureopenai_embeddings.AsyncEmbed,
         "GoogleGemini": gcp_gemini_embeddings.AsyncEmbed,
         "GoogleVertexAI": gcp_vertex_embeddings.AsyncEmbed,
+        "TogetherAI": togetherai_embeddings.AsyncEmbed,
     }
 
     def __init__(self, **kwds: Any) -> None:
@@ -305,6 +321,7 @@ class AsyncEmbeddingModel(object):
                 - GoogleGemini
                 - GoogleVertexAI
                 - AzureOpenAI
+                - TogetherAI
                 - SentenceTransformers
 
             **Authentication Arguments by provider:**
@@ -350,6 +367,11 @@ class AsyncEmbeddingModel(object):
                     - azure_endpoint (str): Azure OpenAI endpoint.
                     - api_version (str): Azure OpenAI API version.
                     - timeout (Timeout, optional): Request timeout parameter like connect, read, write. Default: 60.0, 5.0, 10.0, 2.0
+                    - max_retries (int, optional): Number of retries for the request. Default: 2
+
+                **TogetherAI models:**
+                    - api_key (str): TogetherAI API key.
+                    - timeout (Timeout, optional): Request timeout in seconds. Default: 60
                     - max_retries (int, optional): Number of retries for the request. Default: 2
 
         Raises:

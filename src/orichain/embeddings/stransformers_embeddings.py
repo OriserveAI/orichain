@@ -84,7 +84,7 @@ class Embed(object):
             - **kwargs: Additional keyword arguments for the embedding API
 
         Returns:
-            (Union[List[float], List[List[float]], Dict[str, Any]]): Embeddings or error information
+            Union[List[float], List[List[float]], np.ndarray, torch.Tensor, Dict[str, Any]]: Embeddings in the requested format, or error information.
         """
         try:
             if isinstance(text, str):
@@ -104,10 +104,11 @@ class Embed(object):
                 normalize_embeddings=kwds.get("normalize_embeddings", False),
             )
 
-            if len(embeddings) == 1:
-                embeddings = embeddings[0].tolist()
-            else:
+            if not kwds.get("convert_to_tensor") and not kwds.get("convert_to_numpy"):
                 embeddings = [embedding.tolist() for embedding in embeddings]
+
+            if len(embeddings) == 1:
+                embeddings = embeddings[0]
 
             return embeddings
         except Exception as e:
@@ -193,7 +194,7 @@ class AsyncEmbed(object):
             - **kwargs: Additional keyword arguments for the embedding API
 
         Returns:
-            (Union[List[float], List[List[float]], Dict[str, Any]]): Embeddings or error information
+            Union[List[float], List[List[float]], np.ndarray, torch.Tensor, Dict[str, Any]]: Embeddings in the requested format, or error information.
         """
         try:
             if isinstance(text, str):
@@ -214,10 +215,11 @@ class AsyncEmbed(object):
                 normalize_embeddings=kwds.get("normalize_embeddings", False),
             )
 
-            if len(embeddings) == 1:
-                embeddings = embeddings[0].tolist()
-            else:
+            if not kwds.get("convert_to_tensor") and not kwds.get("convert_to_numpy"):
                 embeddings = [embedding.tolist() for embedding in embeddings]
+
+            if len(embeddings) == 1:
+                embeddings = embeddings[0]
 
             return embeddings
         except Exception as e:
