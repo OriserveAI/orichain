@@ -13,7 +13,7 @@ class Embed(object):
 
         Args:
             - api_key (str): TogetherAI API key
-            - timeout (Timeout, optional): Request timeout. Default is 60.0
+            - timeout (float or int, optional): Request timeout. Default is 60.0
             - max_retries (int, optional): Number of retries for the request. Default is 2
 
         Raises:
@@ -89,7 +89,7 @@ class AsyncEmbed(object):
 
         Args:
             - api_key (str): TogetherAI API key
-            - timeout (Timeout, optional): Request timeout. Default is 60.0
+            - timeout (float or int, optional): Request timeout. Default is 60.0
             - max_retries (int, optional): Number of retries for the request. Default is 2
 
         Raises:

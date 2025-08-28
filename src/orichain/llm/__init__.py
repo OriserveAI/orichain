@@ -333,7 +333,7 @@ class LLM(object):
 
                 **TogetherAI models:**
                     - api_key (str): TogetherAI API key.
-                    - timeout (Timeout, optional): Request timeout in seconds. Default: 60
+                    - timeout (float or int, optional): Request timeout in seconds. Default: 60
                     - max_retries (int, optional): Number of retries for the request. Default: 2
 
         Raises:
@@ -695,7 +695,7 @@ class AsyncLLM(object):
 
                 **TogetherAI models:**
                     - api_key (str): TogetherAI API key.
-                    - timeout (Timeout, optional): Request timeout in seconds. Default: 60
+                    - timeout (float or int, optional): Request timeout in seconds. Default: 60
                     - max_retries (int, optional): Number of retries for the request. Default: 2
 
         Raises:
