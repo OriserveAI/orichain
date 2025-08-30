@@ -237,7 +237,7 @@ Here's our plan for upcoming features and improvements:
 - [X] Create Documentation
 - [X] Write class and function definitions
 - [X] Add function calling support
-- [ ] Add Together AI support
+- [X] Add Together AI support
 
 ### Long-term goals
 - [X] Publish it to pypi
