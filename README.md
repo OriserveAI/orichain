@@ -7,7 +7,7 @@ It provides support for:
 - Embedding creation
     - AWS Bedrock
         - Cohere embeddings
-        - Titian embeddings
+        - Titan embeddings
     - OpenAI Embeddings
     - TogetherAI Embedding Models
     - Google Gemini & Vertex AI Embeddings
