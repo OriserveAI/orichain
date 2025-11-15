@@ -347,6 +347,7 @@ class Generate(object):
                                 parts=parts,
                             )
                             messages.append(content)
+                            parts = []
                     else:
                         messages.append(chat)
                 return messages
@@ -708,6 +709,7 @@ class AsyncGenerate(object):
                                 parts=parts,
                             )
                             messages.append(content)
+                            parts = []
                     else:
                         messages.append(chat)
                 return messages
