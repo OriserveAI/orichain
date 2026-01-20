@@ -111,11 +111,15 @@ class Generate(object):
             sampling_paras = sampling_paras or {}
 
             # Check if tools and tool_choice are provided and format them
-            tools = (
-                [{"type": "function", "function": tool} for tool in tools]
-                if tools
-                else []
-            )
+            if tools:
+                if (isinstance(tools[0], dict) and 
+                tools[0].get("type") == "function" and 
+                "function" in tools[0] and
+                isinstance(tools[0]["function"], dict) and
+                "name" in tools[0]["function"]):
+                    pass 
+                else:
+                    tools = [{"type": "function", "function": tool} for tool in tools]
             if tool_choice and tool_choice not in ["none", "auto", "required"]:
                 if tool_choice in [
                     tool.get("function", {}).get("name") for tool in tools
@@ -163,6 +167,9 @@ class Generate(object):
                         else {}
                     )
                 result["tools"] = tool_calls
+
+            if tools and result.get("tools") and tool_choice == "required":
+                result["tool_response"] = result["tools"][0]["function"]["arguments"]
 
             return result
 
@@ -214,11 +221,15 @@ class Generate(object):
                 sampling_paras = sampling_paras or {}
 
                 # Check if tools and tool_choice are provided and format them
-                tools = (
-                    [{"type": "function", "function": tool} for tool in tools]
-                    if tools
-                    else []
-                )
+                if tools:
+                    if (isinstance(tools[0], dict) and 
+                    tools[0].get("type") == "function" and 
+                    "function" in tools[0] and
+                    isinstance(tools[0]["function"], dict) and
+                    "name" in tools[0]["function"]):
+                        pass 
+                    else:
+                        tools = [{"type": "function", "function": tool} for tool in tools]
                 if tool_choice and tool_choice not in ["none", "auto", "required"]:
                     if tool_choice in [
                         tool.get("function", {}).get("name") for tool in tools
@@ -281,8 +292,10 @@ class Generate(object):
 
                 if tools:
                     result["tools"] = tool_calls
-
+                if tools and result.get("tools") and tool_choice == "required":
+                    result["tool_response"] = result["tools"][0]["function"]["arguments"]
                 yield result
+                
         except Exception as e:
             error_explainer(e)
             yield {"error": 500, "reason": str(e)}
@@ -458,11 +471,18 @@ class AsyncGenerate(object):
                 return {"error": 400, "reason": "request aborted by user"}
 
             # Check if tools and tool_choice are provided and format them
-            tools = (
-                [{"type": "function", "function": tool} for tool in tools]
-                if tools
-                else []
-            )
+            if tools:
+                if (isinstance(tools[0], dict) and 
+                tools[0].get("type") == "function" and 
+                "function" in tools[0] and
+                isinstance(tools[0]["function"], dict) and
+                "name" in tools[0]["function"]):
+                    pass 
+                else:
+                    tools = [{"type": "function", "function": tool} for tool in tools]
+            else:
+                tools = []
+
             if tool_choice and tool_choice not in ["none", "auto", "required"]:
                 if tool_choice in [
                     tool.get("function", {}).get("name") for tool in tools
@@ -511,8 +531,10 @@ class AsyncGenerate(object):
                     )
                 result["tools"] = tool_calls
 
-            return result
-
+            if tools and result.get("tools") and tool_choice == "required":
+                result["tool_response"] = result["tools"][0]["function"]["arguments"]
+            return result 
+        
         except Exception as e:
             error_explainer(e)
             return {"error": 500, "reason": str(e)}
@@ -563,11 +585,15 @@ class AsyncGenerate(object):
                 sampling_paras = sampling_paras or {}
 
                 # Check if tools and tool_choice are provided and format them
-                tools = (
-                    [{"type": "function", "function": tool} for tool in tools]
-                    if tools
-                    else []
-                )
+                if tools:
+                    if (isinstance(tools[0], dict) and 
+                    tools[0].get("type") == "function" and 
+                    "function" in tools[0] and
+                    isinstance(tools[0]["function"], dict) and
+                    "name" in tools[0]["function"]):
+                        pass 
+                    else:
+                        tools = [{"type": "function", "function": tool} for tool in tools]
                 if tool_choice and tool_choice not in ["none", "auto", "required"]:
                     if tool_choice in [
                         tool.get("function", {}).get("name") for tool in tools
@@ -635,6 +661,9 @@ class AsyncGenerate(object):
 
                 if tools:
                     result["tools"] = tool_calls
+                
+                if tools and result.get("tools") and tool_choice == "required":
+                    result["tool_response"] = result["tools"][0]["function"]["arguments"]
 
                 yield result
         except Exception as e:
